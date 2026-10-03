@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+backend/config/config.local.php
+backend/storage/reports/*
+!backend/storage/reports/.gitkeep
+backend/storage/logs/*
+!backend/storage/logs/.gitkeep
+.DS_Store
