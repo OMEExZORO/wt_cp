@@ -2,3 +2,7 @@ Options -Indexes
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^ index.php [QSA,L]
+<IfModule mod_php.c>
+    php_value upload_max_filesize 12M
+    php_value post_max_size 13M
+</IfModule>
