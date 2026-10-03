@@ -37,6 +37,7 @@ final class AppointmentController
             'date' => $data['date'],
             'slots' => $slots,
             'branch_full' => $free === [],
+            'branch_closed' => $slots === [],
             'suggestion' => $suggestion,
         ]);
     }
@@ -49,6 +50,7 @@ final class AppointmentController
             'branch_id' => 'nullable|id',
             'status' => 'nullable|in:' . implode(',', self::STAFF_STATUSES),
             'scope' => 'nullable|in:upcoming,past,all',
+            'patient_id' => 'nullable|id',
         ]);
 
         $sql = 'SELECT a.id, a.appointment_date, a.start_time, s.end_time, a.status, a.notes, a.created_at,
@@ -76,6 +78,10 @@ final class AppointmentController
                 break;
         }
 
+        if (!empty($filters['patient_id']) && in_array($user['role'], Auth::STAFF_ROLES, true)) {
+            $sql .= ' AND a.patient_id = :pid';
+            $params['pid'] = $filters['patient_id'];
+        }
         if (!empty($filters['date'])) {
             $sql .= ' AND a.appointment_date = :date';
             $params['date'] = $filters['date'];
