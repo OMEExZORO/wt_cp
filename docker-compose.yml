@@ -1,0 +1,64 @@
+name: diagnocare
+
+services:
+  api:
+    build:
+      context: ./backend
+    env_file: .env
+    environment:
+      APP_URL: http://localhost:8000
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www/backend
+      - ./database:/var/www/database
+      - api-vendor:/var/www/backend/vendor
+    depends_on:
+      api-deps:
+        condition: service_completed_successfully
+
+  api-deps:
+    image: composer:2
+    working_dir: /app
+    command: composer install --no-interaction --no-progress --ignore-platform-reqs
+    volumes:
+      - ./backend:/app
+      - api-vendor:/app/vendor
+
+  alerts:
+    build:
+      context: ./services/alerts
+    env_file: .env
+    environment:
+      ALERTS_SERVICE_PORT: "4000"
+    ports:
+      - "4000:4000"
+
+  frontend:
+    image: node:24-alpine
+    working_dir: /app
+    command: sh -c "npm ci && npm run dev -- --host 0.0.0.0 --port 5173"
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000/api/v1
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - frontend-node-modules:/app/node_modules
+
+  db:
+    image: postgres:16-alpine
+    profiles: ["localdb"]
+    environment:
+      POSTGRES_DB: diagnocare
+      POSTGRES_USER: diagnocare
+      POSTGRES_PASSWORD: diagnocare_local_only
+    ports:
+      - "54322:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  api-vendor:
+  frontend-node-modules:
+  pgdata:
