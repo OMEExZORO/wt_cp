@@ -2,14 +2,17 @@
 
 declare(strict_types=1);
 
-use App\Core\Response;
+use App\Core\Config;
+use App\Core\ErrorHandler;
+use App\Core\Kernel;
+use App\Core\Request;
 
 require dirname(__DIR__) . '/config/bootstrap.php';
 
-$path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
+$config = Config::fromFile(dirname(__DIR__) . '/config/app.php');
+$container = (require dirname(__DIR__) . '/config/container.php')($config);
 
-if ($path === '/api/v1/health' && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'GET') {
-    Response::json(['status' => 'ok', 'service' => 'diagnocare-api']);
-}
+$container->get(ErrorHandler::class)->register();
 
-Response::error('NOT_FOUND', 'Resource not found', 404);
+$request = Request::fromGlobals((bool) $config->get('trust_proxy'));
+$container->get(Kernel::class)->handle($request)->send();
