@@ -2,7 +2,7 @@
 
 Clinic website and secure patient and staff portal for **Meghnad Diagnostic Centre (MDC)**, Bhosari, Pune (Dr. Meghnad Padsalgikar, MBBS, DMRE, DNB (Radiology)). Built as the CS3111 Web Technologies course project.
 
-Status: Phase 1 (scaffold, database, seeds) complete. See `PROGRESS.md`.
+Status: Phase 2 (PHP core, auth, RBAC, React foundation) complete. See `PROGRESS.md`.
 
 ## Structure
 
@@ -64,8 +64,27 @@ npm run dev
 ```
 
 - API: http://localhost:8000/api/v1/health
-- Frontend: http://localhost:5173
+- Frontend: http://localhost:5173 (sign in at `/login` with a dev login; each role lands on its own `/portal/...` dashboard)
 - Alerts service: http://localhost:4000/health
+
+Or run the two main processes separately:
+
+```bash
+php -S localhost:8000 -t backend/public   # API
+npm run dev --prefix frontend             # React app; Vite proxies /api to port 8000
+```
+
+Open the app through http://localhost:5173 so the session cookie is same-origin. With `MAIL_DRIVER=log`, verification and password reset emails (including their links) are written to `backend/storage/logs/mail.log`; set `MAIL_DRIVER=smtp` and the `SMTP_*` values to send real email. Runtime files (sessions, logs) live in `backend/storage/`, which is git-ignored.
+
+Quick API check with curl:
+
+```bash
+curl -c jar -b jar http://localhost:8000/api/v1/auth/csrf          # copy data.csrf_token
+curl -c jar -b jar -X POST http://localhost:8000/api/v1/auth/login \
+  -H 'Content-Type: application/json' -H 'X-CSRF-Token: <token>' \
+  -d '{"email":"patient@diagnocare.test","password":"Patient@Dev2026!","remember":true}'
+curl -b jar http://localhost:8000/api/v1/auth/me
+```
 
 With Docker:
 
@@ -81,6 +100,8 @@ An optional local Postgres is available with `docker compose --profile localdb u
 npm test             # PHPUnit + Vitest
 npm run build        # type-check and build the frontend
 ```
+
+Individually: `php backend/vendor/bin/phpunit -c backend/phpunit.xml` and `npx vitest run` inside `frontend/`.
 
 ## Deploy
 

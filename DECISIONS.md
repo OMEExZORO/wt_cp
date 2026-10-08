@@ -45,3 +45,29 @@ Defaults chosen during the build. Each can be revisited.
 - Dev users use the reserved `.test` domain and documented passwords (see `docs/CONVENTIONS.md`). They exist only through `seed.php dev`, which refuses to run with `APP_ENV=production`.
 - Dev slots run 09:00 to 17:00, Monday to Saturday, for 14 days. Real opening hours are unknown.
 - Demo reviews are labelled "Demo data" in both name and text, flagged `is_demo = TRUE`, and removable with `npm run seed:purge-demo`.
+
+## Phase 2: PHP core and auth
+
+| Topic | Decision | Reason |
+|---|---|---|
+| Framework | Own small MVC core (Router, Kernel, middleware Pipeline, autowiring Container) instead of a framework | Spec: plain PHP; keeps every concept visible for the syllabus |
+| Response flow | Controllers return `Response` objects; middleware can add headers; only `public/index.php` sends output | Testable and lets CORS and security headers apply to error responses too |
+| Route matching | Done before the session starts (`MatchRouteMiddleware`) | 404 / 405 come back before CSRF and do not create session files |
+| Sessions | Native PHP file sessions in `backend/storage/sessions`, cookie `dc_session`, idle 30 min, absolute 12 h | Syllabus requires PHP sessions. Containers lose sessions on restart; remember-me restores them. A DB session handler can be added in Phase 8 if several API instances run |
+| Cookie flags | HttpOnly always; SameSite=Lax and not Secure in development; SameSite=None and Secure in production (`SESSION_SAMESITE`, `SESSION_SECURE`) | Spec; production frontend and API are on different sites |
+| Dev same-origin | Vite proxies `/api` to the PHP server; `VITE_API_BASE_URL=/api/v1` | Cookies work in development without third-party cookie rules |
+| CSRF | Synchronizer token: random seed in the session, token = HMAC-SHA256(seed, `CSRF_SECRET`), sent in `X-CSRF-Token` on every POST, PUT, PATCH, DELETE including login and register; not rotated at login | Covers login CSRF; the client refetches once on 419 |
+| Origin check | Unsafe requests carrying an `Origin` header not in the allowlist get 403 | Defence in depth next to CSRF |
+| Email verification | Login is allowed before verification. The portal shows a banner with a resend button. Features that need a verified email use the `verified` middleware (Phase 4 applies it to booking) | Patients can still reach the portal if mail is delayed |
+| Duplicate registration | 409 with a field error on `email` | Usability; enumeration is limited by the register throttle (10 per hour per IP) |
+| Lockout | 5 failed passwords lock the account for 15 min (429 with `Retry-After`); unknown emails get the same treatment through `login_attempts`; the login route is also throttled per IP (20 per 10 min); generic message "Incorrect email or password." | Spec; uniform behaviour avoids revealing which emails exist |
+| Rate limiting | Table `rate_limits` (migration 012) with an atomic upsert fixed window, keyed by limiter name and user id or IP | Works with several PHP processes; no Redis needed |
+| Remember me | Cookie `selector.validator`; validator rotated on each use; previous validator accepted for 60 s; any other mismatch deletes all of the user's tokens | Rotation plus theft detection, tolerant of parallel first requests |
+| Session invalidation | Each request reloads the user; the session is dropped if the user is inactive, the role changed or `password_changed_at` is newer than the login | Password reset and change sign out other devices; admin role changes take effect immediately |
+| "Sign out everywhere" | `DELETE /auth/sessions` revokes all remember-me tokens and ends the current session; other live sessions end at their idle timeout | No session registry needed |
+| Consent | Stored on `users.consent_given_at` / `consent_version` (both roles) and on `patients` for patients; current version `2026-10-v1` | DPDP-style record of when consent was given |
+| Validator scope | Only declared fields are returned; undeclared input is dropped. Passwords and tokens are not cleaned or scanned; everything else is cleaned, length capped (255 by default) and scanned for HTML and SQL patterns | Spec: apply to every field before writes; passwords are only hashed |
+| Threat handling | Suspicious input is rejected (422), never silently stripped, and logged to `audit_log` as `security.sqli_attempt` / `security.xss_attempt` with a 200-character sample | Spec |
+| Mail | `MAIL_DRIVER=log` (default) writes to `backend/storage/logs/mail.log`; `smtp` uses PHPMailer 6 | Works without SMTP credentials in development |
+| Timestamps | JSON timestamps are ISO 8601 with offset | Safe `Date` parsing in every browser |
+| Theme cookie | `theme` cookie (light or dark) set by the frontend `ThemeContext`; not read by the server | The "theme or language cookie" requirement; Context only for theme |

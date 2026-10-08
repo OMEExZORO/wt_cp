@@ -3,7 +3,7 @@
 ## Phases
 
 - [x] 1. Repo scaffold, tooling, DB migrations and seed, env setup, scripts
-- [ ] 2. PHP core: router, MVC base, Validator and Sanitizer, error handling, auth with sessions, cookies and remember-me, RBAC
+- [x] 2. PHP core: router, MVC base, Validator and Sanitizer, error handling, auth with sessions, cookies and remember-me, RBAC
 - [ ] 3. Public portfolio site (all pages)
 - [ ] 4. Booking system, checklists, calendar links, emails
 - [ ] 5. Reports upload and download with encryption, referrer portal
@@ -21,6 +21,43 @@
 - Verified: `npm run build` (frontend), Vitest 2/2, `composer install`, PHPUnit 3/3, PHP and Node health endpoints, `docker compose config`.
 - Not verified: Docker image builds (Docker daemon was not running).
 
-## Next (Phase 2)
+## Phase 2 summary
 
-Router, Request, global exception handler, security headers, CORS, session handling, CSRF, Validator and Sanitizer, auth endpoints, remember-me, lockout, RBAC middleware. Follow `docs/CONVENTIONS.md`.
+- PHP core (`backend/src/Core`): `Request`, `Response` (object), `Router` with route params, typed params, groups and middleware, 404 / 405 JSON, `Kernel`, `Pipeline`, autowiring `Container`, `Config`, native `Session` with idle and absolute timeouts, `Cookie`, `Csrf`, `ErrorHandler` (no details in production), `Logger`.
+- Exceptions: `AppException` plus `ValidationException`, `AuthenticationException`, `AuthorizationException`, `NotFoundException`, `MethodNotAllowedException`, `ConflictException`, `CsrfException`, `RateLimitException`, `BadRequestException`, `PayloadTooLargeException`.
+- `Validator` and `Sanitizer` with `RequestValidator` (audit logging of SQLi/XSS attempts), base `Controller::validate()`, base `Model` (PDO prepared statements).
+- Middleware: CORS, security headers, error handling, route matching, session, authenticate (session or remember-me), CSRF, `auth`, `role`, `verified`, `throttle`.
+- Services: `AuthService`, `RegistrationService`, `PasswordService`, `EmailVerificationService`, `RememberMeService`, `RateLimiter`, `AuditLogger` (`DatabaseAuditLogger`), `Mail\MailService` with `LogMailer` and `SmtpMailer` (PHPMailer 6), templates in `backend/templates/emails`.
+- Migration `012_auth_core.sql`: `users.consent_given_at`, `users.consent_version`, `remember_tokens.previous_validator_hash`, `remember_tokens.rotated_at`, table `rate_limits`.
+- Frontend: typed API client with CSRF, Redux slices `auth`, `booking`, `alerts`, React Router v6 nested routes with lazy pages, `ProtectedRoute`, `GuestRoute`, `ErrorBoundary`, `ThemeContext` (cookie), form components, `useForm`, `useApi`, `lib/validation.ts`, auth pages, portal layout, five role dashboard stubs, account page (change password, sign out everywhere). Vite proxies `/api` to the PHP server.
+
+### Endpoints (all under `/api/v1`)
+
+| Method | Path | Middleware |
+|---|---|---|
+| GET | `/health` | none |
+| GET | `/auth/csrf` | none |
+| POST | `/auth/register` | throttle 10/60 min |
+| POST | `/auth/login` | throttle 20/10 min, plus account lockout |
+| POST | `/auth/logout` | none |
+| GET | `/auth/me` | auth |
+| PATCH | `/auth/me` | auth |
+| DELETE | `/auth/sessions` | auth |
+| POST | `/auth/password/forgot` | throttle 5/15 min, plus 3 per email per hour |
+| POST | `/auth/password/reset` | throttle 10/15 min |
+| PUT | `/auth/password` | auth, throttle |
+| POST | `/auth/email/verify` | throttle |
+| POST | `/auth/email/resend` | auth, throttle 3/15 min |
+| GET | `/dashboards/{patient,doctor,receptionist,admin,referrer}` | auth, role |
+
+All POST, PUT, PATCH and DELETE need `X-CSRF-Token`.
+
+### Verified (real runs)
+
+- curl against `php -S` and Supabase: login, me, dashboard and logout for all five dev users; wrong role 403; CSRF missing 419; unknown route 404; wrong verb 405 with `Allow`; generic login error for bad password and unknown email; patient and referrer registration with consent; duplicate email 409; missing consent 422; email verification from `mail.log` (token single use); SQLi and XSS payloads rejected with 422 and logged as `security.sqli_attempt` / `security.xss_attempt`; PATCH profile; PUT change password (wrong current password 422); DELETE sessions; forgot and reset password from `mail.log` (reused token 422, old password rejected, new accepted); remember-me rotation, 60 s grace, theft detection revoking all tokens; lockout on the 5th failure with 429 and `Retry-After`; CORS preflight allowed for the frontend origin and refused for others; login through the Vite proxy.
+- PHPUnit: 127 tests, 178 assertions, all passing (Env, Validator, Sanitizer, RBAC middleware, Router/Kernel/ErrorHandler).
+- Vitest: 37 tests in 5 files, all passing. `npm run build` passes.
+
+## Next (Phase 3)
+
+Public portfolio site. Replace the placeholder `SiteHeader`, `SiteFooter`, `HomePage` and styles; keep the PCPNDT notice and disclaimer in the footer. Public read endpoints (branches, scan types, FAQs, public site settings, approved reviews) go in `backend/routes/api.php` without `auth`. Follow `docs/CONVENTIONS.md`.
