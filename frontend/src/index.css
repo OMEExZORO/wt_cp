@@ -1,0 +1,15 @@
+:root {
+  --color-navy: #1b2a5c;
+  --color-orange: #f28c28;
+  --color-teal-tint: #e3f4f2;
+  --color-lavender-tint: #ece8f6;
+  --color-text: #1f2430;
+  --color-bg: #ffffff;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+body {
+  margin: 0;
+}
