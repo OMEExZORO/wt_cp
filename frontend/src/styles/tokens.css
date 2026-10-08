@@ -1,0 +1,83 @@
+:root {
+  --color-navy: #1b2a5c;
+  --color-navy-deep: #121c42;
+  --color-navy-soft: #24387a;
+  --color-orange: #f28c28;
+  --color-orange-strong: #b85c00;
+  --color-orange-tint: #fdeede;
+  --color-teal: #0f6b66;
+  --color-teal-tint: #e3f4f2;
+  --color-lavender: #4b3f86;
+  --color-lavender-tint: #ece8f6;
+  --color-text: #1f2430;
+  --color-muted: #4a5163;
+  --color-bg: #ffffff;
+  --color-surface: #f6f7fb;
+  --color-surface-raised: #ffffff;
+  --color-border: #cfd4e2;
+  --color-error: #b3261e;
+  --color-success: #1e6b3a;
+  --color-focus: #f28c28;
+  --color-on-navy: #ffffff;
+  --color-on-navy-muted: #c9d0ea;
+  --color-star: #d97706;
+  --color-heading: #1b2a5c;
+
+  --font-display: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --font-body: 'Figtree', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  --text-xs: 0.8125rem;
+  --text-sm: 0.9375rem;
+  --text-base: 1.0625rem;
+  --text-lg: 1.25rem;
+  --text-xl: clamp(1.5rem, 1.2rem + 1vw, 1.875rem);
+  --text-2xl: clamp(1.875rem, 1.4rem + 2vw, 2.75rem);
+  --text-hero: clamp(2.5rem, 1.7rem + 4vw, 4.5rem);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 72px;
+  --space-9: 112px;
+
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 24px;
+  --shadow-sm: 0 1px 2px rgba(18, 28, 66, 0.08), 0 1px 1px rgba(18, 28, 66, 0.04);
+  --shadow-md: 0 8px 24px -8px rgba(18, 28, 66, 0.2), 0 2px 4px rgba(18, 28, 66, 0.06);
+  --shadow-lg: 0 24px 56px -20px rgba(18, 28, 66, 0.35);
+
+  --container: 1160px;
+  --container-narrow: 760px;
+  --header-height: 72px;
+
+  font-family: var(--font-body);
+  font-size: 100%;
+  color: var(--color-text);
+  background: var(--color-bg);
+  line-height: 1.6;
+}
+
+:root[data-theme='dark'] {
+  --color-text: #e8eaf2;
+  --color-muted: #b7bccb;
+  --color-bg: #0e1328;
+  --color-surface: #161c38;
+  --color-surface-raised: #1b2243;
+  --color-border: #3a4266;
+  --color-error: #ffb4ab;
+  --color-success: #8fd8a5;
+  --color-teal-tint: #153a3b;
+  --color-lavender-tint: #272244;
+  --color-orange-tint: #3a2a1a;
+  --color-navy: #1b2a5c;
+  --color-teal: #7fd9d1;
+  --color-lavender: #c4baf0;
+  --color-orange-strong: #ffb36b;
+  --color-star: #fbbf24;
+  --color-heading: #f1f3fb;
+}
