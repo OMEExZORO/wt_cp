@@ -7,11 +7,23 @@ use App\Controllers\DashboardController;
 use App\Controllers\EmailVerificationController;
 use App\Controllers\HealthController;
 use App\Controllers\PasswordController;
+use App\Controllers\PublicController;
 use App\Core\Router;
 
 return static function (Router $router): void {
     $router->group('/api/v1', [], static function (Router $router): void {
         $router->get('/health', [HealthController::class, 'show']);
+
+        $router->group('/public', [], static function (Router $router): void {
+            $router->get('/site', [PublicController::class, 'site']);
+            $router->get('/doctor', [PublicController::class, 'doctor']);
+            $router->get('/branches', [PublicController::class, 'branches']);
+            $router->get('/scan-categories', [PublicController::class, 'scanCategories']);
+            $router->get('/scan-types', [PublicController::class, 'scanTypes']);
+            $router->get('/scan-types/{ref}', [PublicController::class, 'scanType']);
+            $router->get('/faqs', [PublicController::class, 'faqs']);
+            $router->get('/reviews', [PublicController::class, 'reviews']);
+        });
 
         $router->group('/auth', [], static function (Router $router): void {
             $router->get('/csrf', [AuthController::class, 'csrf']);
