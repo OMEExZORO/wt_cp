@@ -4,11 +4,27 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>DiagnoCare Alerts Service</title>
+    <link rel="stylesheet" href="/status.css" />
   </head>
   <body>
     <main>
       <h1>DiagnoCare Alerts Service</h1>
-      <p>Status endpoint: <a href="/health">/health</a></p>
+      <p id="state" role="status">Loading status</p>
+      <section class="grid" aria-label="Open alerts">
+        <div class="card"><span id="open" class="num">-</span><span>Open alerts</span></div>
+        <div class="card"><span id="escalated" class="num">-</span><span>Escalated (resent)</span></div>
+        <div class="card flag"><span id="flagged" class="num">-</span><span>Needs phone call</span></div>
+      </section>
+      <section aria-label="Jobs">
+        <h2>Scheduled jobs</h2>
+        <table>
+          <thead>
+            <tr><th>Job</th><th>Last run</th><th>Duration</th><th>Result</th></tr>
+          </thead>
+          <tbody id="jobs"></tbody>
+        </table>
+      </section>
     </main>
+    <script src="/status.js"></script>
   </body>
 </html>

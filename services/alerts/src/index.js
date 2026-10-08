@@ -1,23 +1,21 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-import express from 'express'
 import { config } from './config.js'
+import { createApp } from './app.js'
+import { audit } from './lib/audit.js'
+import { startScheduler } from './jobs/scheduler.js'
 
-const here = path.dirname(fileURLToPath(import.meta.url))
-const app = express()
+const app = createApp()
 
-app.disable('x-powered-by')
-app.use(express.json({ limit: '100kb' }))
-app.use(express.static(path.resolve(here, '../public')))
-
-app.get('/health', (_req, res) => {
-  res.json({ data: { status: 'ok', service: 'diagnocare-alerts' }, error: null })
-})
-
-app.use((_req, res) => {
-  res.status(404).json({ data: null, error: { code: 'NOT_FOUND', message: 'Resource not found' } })
-})
-
-app.listen(config.port, () => {
+const server = app.listen(config.port, () => {
   process.stdout.write(`diagnocare-alerts listening on port ${config.port}\n`)
+  audit.info('service.started', { port: config.port, mail_driver: config.mail.driver, escalation_minutes: config.escalationMinutes })
 })
+
+const stopScheduler = config.jobsEnabled ? startScheduler(config.jobIntervalSeconds) : () => {}
+
+const shutdown = () => {
+  stopScheduler()
+  audit.info('service.stopped')
+  server.close(() => process.exit(0))
+}
+process.on('SIGINT', shutdown)
+process.on('SIGTERM', shutdown)
