@@ -9,6 +9,17 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import { fetchMe, selectAuthStatus } from './features/auth/authSlice'
 
 const HomePage = lazy(() => import('./pages/HomePage'))
+const AboutPage = lazy(() => import('./pages/public/AboutPage'))
+const ServicesPage = lazy(() => import('./pages/public/ServicesPage'))
+const ScanDetailPage = lazy(() => import('./pages/public/ScanDetailPage'))
+const BranchesPage = lazy(() => import('./pages/public/BranchesPage'))
+const ReviewsPage = lazy(() => import('./pages/public/ReviewsPage'))
+const FaqPage = lazy(() => import('./pages/public/FaqPage'))
+const ContactPage = lazy(() => import('./pages/public/ContactPage'))
+const BookPage = lazy(() => import('./pages/public/BookPage'))
+const PrivacyPage = lazy(() => import('./pages/public/PrivacyPage'))
+const TermsPage = lazy(() => import('./pages/public/TermsPage'))
+const BookingPlaceholder = lazy(() => import('./pages/portal/BookingPlaceholder'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 const ForbiddenPage = lazy(() => import('./pages/ForbiddenPage'))
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'))
@@ -41,6 +52,16 @@ export default function App() {
         <Routes>
           <Route element={<PublicLayout />}>
             <Route index element={<HomePage />} />
+            <Route path="about" element={<AboutPage />} />
+            <Route path="services" element={<ServicesPage />} />
+            <Route path="services/:slug" element={<ScanDetailPage />} />
+            <Route path="branches" element={<BranchesPage />} />
+            <Route path="reviews" element={<ReviewsPage />} />
+            <Route path="faq" element={<FaqPage />} />
+            <Route path="contact" element={<ContactPage />} />
+            <Route path="book" element={<BookPage />} />
+            <Route path="privacy" element={<PrivacyPage />} />
+            <Route path="terms" element={<TermsPage />} />
             <Route element={<GuestRoute />}>
               <Route path="login" element={<LoginPage />} />
               <Route path="register" element={<RegisterPage />} />
@@ -57,6 +78,7 @@ export default function App() {
               <Route path="account" element={<AccountPage />} />
               <Route element={<ProtectedRoute roles={['patient']} />}>
                 <Route path="patient" element={<PatientDashboard />} />
+                <Route path="patient/book" element={<BookingPlaceholder />} />
               </Route>
               <Route element={<ProtectedRoute roles={['doctor', 'admin']} />}>
                 <Route path="doctor" element={<DoctorDashboard />} />

@@ -9,7 +9,7 @@ describe('App routing', () => {
   it('renders the home page heading', async () => {
     mockApi(() => undefined)
     renderApp('/')
-    expect(await screen.findByRole('heading', { level: 1, name: 'Meghnad Diagnostic Centre' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: /Imaging for a Healthier Tomorrow/ })).toBeInTheDocument()
   })
 
   it('renders not found for unknown routes', async () => {
