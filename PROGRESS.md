@@ -61,3 +61,12 @@ All POST, PUT, PATCH and DELETE need `X-CSRF-Token`.
 ## Next (Phase 3)
 
 Public portfolio site. Replace the placeholder `SiteHeader`, `SiteFooter`, `HomePage` and styles; keep the PCPNDT notice and disclaimer in the footer. Public read endpoints (branches, scan types, FAQs, public site settings, approved reviews) go in `backend/routes/api.php` without `auth`. Follow `docs/CONVENTIONS.md`.
+
+---
+
+## Phase 3 (public portfolio site) - implemented
+
+- Public API (GET only, no auth) under `/api/v1/public`: `site`, `doctor`, `branches`, `scan-categories`, `scan-types` (`modality`, `q`), `scan-types/{slug|uuid}`, `faqs` (`category`, `limit`), `reviews` (approved only, `is_demo` rows excluded when `APP_ENV=production`, returns `summary.count` and `summary.average_rating`). Code: `PublicController`, models `SiteSetting`, `Branch`, `ScanCategory`, `ScanType`, `Faq`, `Review`, `Services/PublicContentPresenter`. Only `is_public` settings are returned; placeholders come back as `value: null, is_placeholder: true`. Fees and durations are never exposed.
+- Frontend: Redux slice `features/public` (thunks with a duplicate-load guard), `usePublicResource` hook, pages Home, About, Services (+ scan detail), Branches, Reviews, FAQ, Contact, Book, Privacy, Terms in `src/pages` and `src/pages/public`. `/portal/patient/book` is a placeholder page until Phase 4. Styles: `src/styles/tokens.css` (all design tokens) and `src/styles/site.css`.
+- SEO: `usePageMeta`, JSON-LD `MedicalBusiness` and `Physician` (`components/public/StructuredData.tsx`), `scripts/generate-seo.mjs` writes `public/robots.txt` and `public/sitemap.xml` on build (`SITE_URL` env, default `https://www.example.com`).
+- Tests: PHPUnit 135 tests, 193 assertions; Vitest 49 tests in 6 files.

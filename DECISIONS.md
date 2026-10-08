@@ -71,3 +71,14 @@ Defaults chosen during the build. Each can be revisited.
 | Mail | `MAIL_DRIVER=log` (default) writes to `backend/storage/logs/mail.log`; `smtp` uses PHPMailer 6 | Works without SMTP credentials in development |
 | Timestamps | JSON timestamps are ISO 8601 with offset | Safe `Date` parsing in every browser |
 | Theme cookie | `theme` cookie (light or dark) set by the frontend `ThemeContext`; not read by the server | The "theme or language cookie" requirement; Context only for theme |
+
+## Phase 3: public site
+
+- No contact-form table exists, so there is no `POST /public/contact`. The Contact page shows phone, WhatsApp, email and hours (tel, wa.me and mailto links) and tells visitors not to send medical details by email.
+- All "Book an appointment" buttons go to `/book`, an explainer page whose button leads to `/portal/patient/book` (login required, handled by `ProtectedRoute`).
+- Placeholders show a "TODO: add real value" badge only when `import.meta.env.DEV`; in production the field, and the sticky-bar Call and WhatsApp buttons, are omitted.
+- The Services list is fetched once into Redux and filtered client-side with `useMemo`; the filter state lives in `ServicesPage` and is passed down. The scan detail page uses `useApiQuery` because only that page needs it.
+- Fonts: Fraunces (headings) and Figtree (body), loaded from Google Fonts in `index.html`. The existing light/dark theme toggle is kept; dark overrides are in `tokens.css`.
+- No stock photos are used. Illustrations are inline SVG. The logo is an SVG placeholder monogram until the real logo is supplied.
+- Privacy and Terms are drafts marked "Pending doctor and legal review".
+- Seeded FAQ "Will the centre tell me the sex of my baby?" (from Phase 1 seed) is rendered as-is; the doctor should confirm whether to keep it.

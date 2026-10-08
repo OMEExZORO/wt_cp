@@ -25,3 +25,10 @@ Things that need a human. Values marked as placeholders are editable later from 
 - [ ] Domain name and DNS
 - [ ] Before go-live: remove the dev users (`*@diagnocare.test`) and demo reviews (`npm run seed:purge-demo`), or use a separate production Supabase project seeded with `npm run seed` only
 - [ ] Start Docker Desktop if you want to use `docker compose up` (the daemon was not running during Phase 1, so images were not built)
+
+## Phase 3 additions
+
+- [ ] Copy the real logo and doctor photo into `frontend/public/images/client/` (see the README there) and set `clinic.logo_url` and `doctor.photo_url`
+- [ ] Set `SITE_URL` to the live domain before the production build so `sitemap.xml` and `robots.txt` are correct
+- [ ] Doctor and legal review of the Privacy and Terms pages, including retention periods, grievance contact and jurisdiction
+- [ ] Decide whether the seeded FAQ about fetal sex determination stays
