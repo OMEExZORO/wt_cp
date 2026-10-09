@@ -157,6 +157,10 @@ export interface CreateAppointmentRequest {
   consent: boolean
   patient_notes?: string
   answers: Record<string, string>
+  patient_id?: string
+  patient_full_name?: string
+  patient_phone?: string
+  urgency?: Urgency
 }
 
 export type StatusUpdate = { status: 'checked_in' | 'in_progress' | 'completed' | 'no_show' } | { urgency: Urgency }
