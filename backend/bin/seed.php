@@ -9,7 +9,7 @@ $paths = require dirname(__DIR__) . '/config/bootstrap.php';
 
 $seedsDir = $paths['repo_root'] . '/database/seeds';
 $mode = $argv[1] ?? '';
-$modes = ['base', 'dev', 'demo', 'purge-demo', 'counts'];
+$modes = ['base', 'dev', 'demo', 'client', 'purge-demo', 'counts'];
 
 function out(string $message): void
 {
@@ -87,6 +87,10 @@ if ($mode === 'dev') {
         fail('Dev seed failed and was rolled back: ' . $e->getMessage());
     }
     out(sprintf('Applied seed_dev.php (%d users, %d new slots)', $result['users'], $result['slots_inserted']));
+}
+
+if ($mode === 'client') {
+    $runSqlFile($seedsDir . '/seed_client.sql');
 }
 
 if ($mode === 'demo') {

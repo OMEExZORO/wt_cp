@@ -14,13 +14,13 @@ Only things that need a human. Content values marked as placeholders are editabl
 
 ## Client content (do not invent)
 
-- [ ] Real phone numbers for the centre and each branch (`contact.phone`, `branches.phone`)
+- [x] Bhosari phone, hours, address and Google link loaded from the Google listing (`php backend/bin/seed.php client`); still needed: second branch phone and hours
 - [ ] WhatsApp number (`contact.whatsapp`, `branches.whatsapp`)
 - [ ] Contact email (`contact.email`, `branches.email`)
-- [ ] Opening hours for each branch (`contact.opening_hours`, `branches.opening_hours`), then create real appointment slots from the admin panel
+- [ ] Create real appointment slots matching Mon-Sat 8 am to 9 pm from the admin panel; add second branch hours
 - [ ] Second branch: name and full address (`branches.slug = 'branch-2'`, inactive until filled)
 - [ ] Google Maps place links and embed URLs for each branch (`links.google_maps_url`, `branches.maps_url`, `branches.maps_embed_url`)
-- [ ] Google reviews page link (`links.google_reviews_url`)
+- [x] Google reviews link set; 21 real Google reviews imported via `seed_client.sql` (the doctor's own review excluded)
 - [ ] Real logo file and doctor photo, placed in `frontend/public/images/client/` (see the README there) with `clinic.logo_url` and `doctor.photo_url` set
 - [ ] High-resolution clinic photos (centre, reception, scan rooms, doctor): the client photos in `frontend/public/images/client/` are only 141 x 101 px, so they are used as small thumbnails. Replace them through `CLIENT_PHOTOS` and `CLIENT_OVERRIDES` in `frontend/src/lib/images.ts`
 - [ ] Doctor biography paragraph (`doctor.bio`)
