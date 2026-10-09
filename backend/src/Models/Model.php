@@ -139,7 +139,7 @@ abstract class Model
     private function table(): string
     {
         $table = static::TABLE;
-        if (preg_match('/^[a-z_]+$/', $table) !== 1) {
+        if (preg_match('/^[a-z0-9_]+$/', $table) !== 1) {
             throw new \LogicException(sprintf('Invalid table name on %s', static::class));
         }
         return $table;
@@ -149,7 +149,7 @@ abstract class Model
     {
         $data = [];
         foreach ($attributes as $column => $value) {
-            if (in_array($column, static::FILLABLE, true) && preg_match('/^[a-z_]+$/', (string) $column) === 1) {
+            if (in_array($column, static::FILLABLE, true) && preg_match('/^[a-z0-9_]+$/', (string) $column) === 1) {
                 $data[$column] = $value;
             }
         }

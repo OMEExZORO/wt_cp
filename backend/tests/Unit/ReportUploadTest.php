@@ -218,6 +218,11 @@ final class ReportUploadTest extends TestCase
         $stored = $this->storage->objects[$path];
         self::assertStringNotContainsString('%PDF', $stored);
         self::assertSame(strlen(self::PDF), strlen($stored));
+        $inserts = array_values(array_filter($this->pdo->writes(), static fn (string $sql): bool => str_starts_with(ltrim($sql), 'INSERT INTO reports')));
+        self::assertCount(1, $inserts);
+        foreach (['sha256', 'encryption_iv', 'encryption_tag', 'key_version', 'findings_encrypted', 'storage_path'] as $column) {
+            self::assertStringContainsString($column, $inserts[0]);
+        }
         self::assertContains('report.uploaded', $this->audit->actions());
         self::assertSame('secret clinical note', $response->decoded()['data']['report']['notes']);
     }
