@@ -25,6 +25,7 @@ use App\Middleware\VerifiedEmailMiddleware;
 use App\Models\AlertEvent;
 use App\Models\CriticalAlert;
 use App\Services\Alerts\AlertService;
+use App\Services\Alerts\EncryptedNoteProtector;
 use App\Services\Alerts\NoteProtector;
 use App\Services\Alerts\SmsGateway;
 use App\Services\Alerts\StubSmsGateway;
