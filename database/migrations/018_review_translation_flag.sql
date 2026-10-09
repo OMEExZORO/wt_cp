@@ -1,0 +1,1 @@
+ALTER TABLE reviews ADD COLUMN translated_by_google BOOLEAN NOT NULL DEFAULT FALSE;

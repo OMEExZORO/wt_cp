@@ -14,7 +14,7 @@ final class Review extends Model
 
     public function listApproved(bool $includeDemo, int $limit): array
     {
-        $sql = "SELECT id, display_name, rating, body, verified_visit, is_demo, created_at, source, source_url, external_review_date, reviewer_photo_url FROM reviews WHERE status = 'approved'";
+        $sql = "SELECT id, display_name, rating, body, verified_visit, is_demo, created_at, source, source_url, external_review_date, reviewer_photo_url, translated_by_google FROM reviews WHERE status = 'approved'";
         if (!$includeDemo) {
             $sql .= ' AND is_demo = FALSE';
         }

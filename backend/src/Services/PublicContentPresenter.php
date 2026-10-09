@@ -100,6 +100,7 @@ final class PublicContentPresenter
             'source' => $row['source'] ?? 'site',
             'source_url' => $row['source_url'] ?? null,
             'external_review_date' => $row['external_review_date'] ?? null,
+            'translated_by_google' => (bool) ($row['translated_by_google'] ?? false),
             'reviewer_photo_url' => $row['reviewer_photo_url'] ?? null,
         ];
         if ($exposeDemoFlag) {
