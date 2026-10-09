@@ -1,0 +1,128 @@
+services:
+  - type: web
+    name: diagnocare-api
+    runtime: docker
+    dockerContext: ./backend
+    dockerfilePath: ./backend/Dockerfile
+    plan: starter
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: PORT
+        value: "8080"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_TIMEZONE
+        value: Asia/Kolkata
+      - key: TRUST_PROXY
+        value: "true"
+      - key: SESSION_SAMESITE
+        value: None
+      - key: SESSION_SECURE
+        value: "true"
+      - key: STORAGE_DRIVER
+        value: supabase
+      - key: STORAGE_BUCKET
+        value: reports
+      - key: MAIL_DRIVER
+        value: smtp
+      - key: ENCRYPTION_KEY_VERSION
+        value: "1"
+      - key: ALERT_ESCALATION_MINUTES
+        value: "30"
+      - key: APP_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: APP_KEY
+        sync: false
+      - key: ENCRYPTION_KEY
+        sync: false
+      - key: ENCRYPTION_KEYS_PREVIOUS
+        sync: false
+      - key: CSRF_SECRET
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_SSLMODE
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_KEY
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+
+  - type: web
+    name: diagnocare-alerts
+    runtime: docker
+    dockerContext: ./services/alerts
+    dockerfilePath: ./services/alerts/Dockerfile
+    plan: starter
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: "10000"
+      - key: ALERTS_SERVICE_PORT
+        value: "10000"
+      - key: APP_ENV
+        value: production
+      - key: ALERT_ESCALATION_MINUTES
+        value: "30"
+      - key: REMINDER_LEAD_HOURS
+        value: "24"
+      - key: JOB_INTERVAL_SECONDS
+        value: "60"
+      - key: ALERTS_JOBS_ENABLED
+        value: "true"
+      - key: MAIL_DRIVER
+        value: smtp
+      - key: FRONTEND_URL
+        sync: false
+      - key: ALERTS_SERVICE_TOKEN
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_SSLMODE
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: MAIL_FROM
+        sync: false
