@@ -19,7 +19,8 @@ const ContactPage = lazy(() => import('./pages/public/ContactPage'))
 const BookPage = lazy(() => import('./pages/public/BookPage'))
 const PrivacyPage = lazy(() => import('./pages/public/PrivacyPage'))
 const TermsPage = lazy(() => import('./pages/public/TermsPage'))
-const BookingPlaceholder = lazy(() => import('./pages/portal/BookingPlaceholder'))
+const BookingPage = lazy(() => import('./pages/portal/BookingPage'))
+const AppointmentPage = lazy(() => import('./pages/portal/AppointmentPage'))
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'))
 const ForbiddenPage = lazy(() => import('./pages/ForbiddenPage'))
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'))
@@ -78,7 +79,8 @@ export default function App() {
               <Route path="account" element={<AccountPage />} />
               <Route element={<ProtectedRoute roles={['patient']} />}>
                 <Route path="patient" element={<PatientDashboard />} />
-                <Route path="patient/book" element={<BookingPlaceholder />} />
+                <Route path="patient/book" element={<BookingPage />} />
+                <Route path="patient/appointments/:id" element={<AppointmentPage />} />
               </Route>
               <Route element={<ProtectedRoute roles={['doctor', 'admin']} />}>
                 <Route path="doctor" element={<DoctorDashboard />} />
