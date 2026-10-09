@@ -1154,6 +1154,13 @@ p {
   color: var(--color-border);
 }
 
+/* Dark theme: var(--color-border) (#3a4266) as empty-star glyphs on dark
+   surfaces is ~1.6:1; lighten so off-stars stay visible yet dimmer than
+   active stars. Light theme untouched. */
+:root[data-theme='dark'] .stars__off {
+  color: #8b93b0;
+}
+
 .carousel {
   background: var(--color-navy);
   color: #ffffff;

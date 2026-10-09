@@ -133,6 +133,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
       return send<T>(path, options, fresh)
     }
     if (error instanceof ApiError && error.status === 401 && !options.skipUnauthorizedHandler) {
+      resetCsrfToken()
       unauthorizedHandler?.()
     }
     throw error

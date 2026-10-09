@@ -239,3 +239,53 @@
 .timeline__note {
   font-size: var(--text-sm);
 }
+
+/* Dark theme: hardcoded light-mode text/background pairs fail contrast,
+   so scope corrections here. Light theme is untouched. */
+:root[data-theme='dark'] .critical-banner {
+  /* rgba red over the dark page keeps an alert tint; body/meta text
+     (var(--color-text)/muted) reaches ~14.4/~9.1:1, title ~10.2:1. */
+  background: rgba(179, 38, 30, 0.22);
+}
+
+:root[data-theme='dark'] .urgency--priority {
+  color: var(--color-orange-strong);
+  border-color: var(--color-orange-strong);
+}
+
+:root[data-theme='dark'] .urgency--routine {
+  color: var(--color-teal);
+  border-color: var(--color-teal);
+}
+
+:root[data-theme='dark'] .wait--warning {
+  color: var(--color-orange-strong);
+}
+
+:root[data-theme='dark'] .wait--overdue {
+  color: var(--color-error);
+}
+
+:root[data-theme='dark'] .row--red-flag {
+  /* Light #fdecea would wash out light body text (~1.05:1); use a
+     translucent error tint so inherited text stays ~13:1+. */
+  background: rgba(255, 180, 171, 0.08);
+}
+
+:root[data-theme='dark'] .timeline__item--staff_flagged .timeline__what,
+:root[data-theme='dark'] .timeline__item--delivery_failed .timeline__what {
+  color: var(--color-error);
+}
+
+:root[data-theme='dark'] .btn--danger {
+  /* var(--color-error) is light pink in dark; white text would be 1.70:1. */
+  background: var(--color-error);
+  border-color: var(--color-error);
+  color: #1b0b0a;
+}
+
+:root[data-theme='dark'] .btn--danger:hover:not(:disabled) {
+  background: #8a1c14;
+  border-color: #8a1c14;
+  color: #ffffff;
+}

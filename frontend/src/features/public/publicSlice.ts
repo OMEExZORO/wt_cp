@@ -1,10 +1,11 @@
-import { createAsyncThunk, createSlice, type AsyncThunk, type ThunkAction, type UnknownAction } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSelector, createSlice, type AsyncThunk, type ThunkAction, type UnknownAction } from '@reduxjs/toolkit'
 import { ApiError } from '../../api/client'
 import { publicApi } from '../../api/public'
 import type { RootState } from '../../app/store'
 import type {
   BranchesResponse,
   FaqsResponse,
+  PublicBranch,
   ReviewsResponse,
   ScanCategoriesResponse,
   ScanTypesResponse,
@@ -130,6 +131,13 @@ const slice = createSlice({
 export default slice.reducer
 
 export const selectSettings = (state: RootState): SettingsMap => state.public.site.data?.settings ?? {}
+
+const EMPTY_BRANCHES: PublicBranch[] = []
+
+export const selectBranches = createSelector(
+  (state: RootState) => state.public.branches.data,
+  (data): PublicBranch[] => data?.branches ?? EMPTY_BRANCHES,
+)
 
 export function selectSetting(key: string) {
   return (state: RootState): SettingEntry | undefined => state.public.site.data?.settings[key]
