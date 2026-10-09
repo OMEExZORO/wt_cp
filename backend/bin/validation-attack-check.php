@@ -93,10 +93,28 @@ final class Http
 $pdo = Database::migrationConnection();
 $tables = ['users', 'patients', 'referrers', 'appointments', 'reports', 'critical_alerts', 'email_verifications', 'referrals', 'reviews', 'faqs', 'slots', 'scan_types', 'branches'];
 
-$snapshot = static function () use ($pdo, $tables, $paths): array {
+$query = static function (string $sql) use (&$pdo): array {
+    for ($attempt = 0; $attempt < 3; $attempt++) {
+        try {
+            return $pdo->query($sql)->fetch() ?: [];
+        } catch (PDOException $e) {
+            $pdo = Database::migrationConnection();
+        }
+    }
+    throw new RuntimeException('Database unreachable');
+};
+
+$snapshot = static function () use ($query, $tables, $paths): array {
+    $parts = [];
+    foreach ($tables as $table) {
+        $parts[] = sprintf('(SELECT count(*) FROM %1$s) AS %1$s', $table);
+    }
+    $parts[] = '(SELECT COALESCE(sum(booked_count),0) FROM slots) AS slots_booked_sum';
+    $parts[] = "(SELECT COALESCE(string_agg(full_name, '|' ORDER BY id), '') FROM patients) AS patient_names";
+    $row = $query('SELECT ' . implode(', ', $parts));
     $counts = [];
     foreach ($tables as $table) {
-        $counts[$table] = (int) $pdo->query('SELECT count(*) FROM ' . $table)->fetchColumn();
+        $counts[$table] = (int) $row[$table];
     }
     $files = 0;
     $dir = $paths['backend_root'] . '/storage/reports';
@@ -107,13 +125,13 @@ $snapshot = static function () use ($pdo, $tables, $paths): array {
         }
     }
     $counts['storage_files'] = $files;
-    $counts['slots_booked_sum'] = (int) $pdo->query('SELECT COALESCE(sum(booked_count),0) FROM slots')->fetchColumn();
-    $counts['patient_names_hash'] = crc32((string) $pdo->query("SELECT string_agg(full_name, '|' ORDER BY id) FROM patients")->fetchColumn());
+    $counts['slots_booked_sum'] = (int) $row['slots_booked_sum'];
+    $counts['patient_names_hash'] = crc32((string) $row['patient_names']);
     return $counts;
 };
 
-$clearThrottle = static function () use ($pdo): void {
-    $pdo->exec('DELETE FROM rate_limits');
+$clearThrottle = static function () use ($query): void {
+    $query('WITH d AS (DELETE FROM rate_limits RETURNING 1) SELECT count(*) FROM d');
 };
 
 $attacks = [
@@ -169,6 +187,7 @@ $validRegistration = static fn (array $override = []): array => array_merge([
 
 foreach ($attacks as $label => $payload) {
     foreach (['full_name', 'email', 'city'] as $field) {
+        $clearThrottle();
         $value = $field === 'email' ? $payload . '@diagnocare.test' : $payload;
         $run('register', "$label in $field", $payload, [422], static fn () => $anon->request('POST', '/auth/register', $validRegistration([$field => $value])));
     }
@@ -259,12 +278,12 @@ foreach ($attacks as $label => $payload) {
     $run('profile', "$label in full_name", $payload, [422], static fn () => $patient->request('PATCH', '/auth/me', ['full_name' => $payload]));
 }
 
-foreach ($attacks as $label => $payload) {
-    $run('search', "$label in query string q", $payload, [422], static fn () => $patient->request('GET', '/appointments', null, null, ['q' => $payload]));
-}
-
 $doctor = new Http($base);
 $doctor->login('doctor@diagnocare.test', 'Doctor@Dev2026!');
+
+foreach ($attacks as $label => $payload) {
+    $run('search', "$label in query string q (staff list)", $payload, [422], static fn () => $doctor->request('GET', '/appointments', null, null, ['q' => $payload]));
+}
 $appointments = $doctor->request('GET', '/appointments', null, null, ['per_page' => 1]);
 $appointmentId = $appointments['json']['data']['appointments'][0]['id'] ?? null;
 if ($appointmentId === null) {
@@ -318,12 +337,12 @@ foreach (glob($tmp . '/*') ?: [] as $file) {
 
 $tablesStillThere = [];
 foreach ($tables as $table) {
-    $tablesStillThere[$table] = (int) $pdo->query("SELECT count(*) FROM information_schema.tables WHERE table_name = '$table' AND table_schema = 'public'")->fetchColumn() === 1;
+    $tablesStillThere[$table] = (int) $query("SELECT count(*) AS n FROM information_schema.tables WHERE table_name = '$table' AND table_schema = 'public'")['n'] === 1;
 }
 $sanity = new Http($base);
 $adminLogin = $sanity->login('admin@diagnocare.test', 'Admin@Dev2026!');
-$sqliAudit = (int) $pdo->query("SELECT count(*) FROM audit_log WHERE action LIKE 'security.%_attempt' AND created_at > now() - interval '15 minutes'")->fetchColumn();
-$pdo->exec('DELETE FROM rate_limits');
+$sqliAudit = (int) $query("SELECT count(*) AS n FROM audit_log WHERE action LIKE 'security.%_attempt' AND created_at > now() - interval '15 minutes'")['n'];
+$clearThrottle();
 
 $passed = count(array_filter($results, static fn (array $row): bool => $row['pass']));
 $total = count($results);
