@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-label="DiagnoCare banner">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#121c42"/>
+      <stop offset="0.55" stop-color="#1b2a5c"/>
+      <stop offset="1" stop-color="#24387a"/>
+    </linearGradient>
+    <linearGradient id="sweep" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f28c28" stop-opacity="0"/>
+      <stop offset="0.5" stop-color="#f28c28" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#f28c28" stop-opacity="0"/>
+    </linearGradient>
+    <style>
+      .sweep { animation: sweep 6s ease-in-out infinite; }
+      @keyframes sweep { 0% { transform: translateX(-500px); } 100% { transform: translateX(1250px); } }
+      .pulse { animation: pulse 2.4s ease-in-out infinite; }
+      @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.25; } }
+    </style>
+  </defs>
+  <rect width="1200" height="320" fill="url(#bg)"/>
+  <rect class="sweep" x="0" y="0" width="500" height="320" fill="url(#sweep)"/>
+  <rect x="0" y="0" width="1200" height="320" fill="none" stroke="#f28c28" stroke-opacity="0.35" stroke-width="2"/>
+  <circle class="pulse" cx="96" cy="84" r="10" fill="#f28c28"/>
+  <text x="120" y="98" font-family="Segoe UI, system-ui, sans-serif" font-size="26" fill="#c9d0ea" letter-spacing="4">MEGHNAD DIAGNOSTIC CENTRE</text>
+  <text x="92" y="182" font-family="Segoe UI, system-ui, sans-serif" font-size="72" font-weight="700" fill="#ffffff">DiagnoCare</text>
+  <text x="94" y="228" font-family="Segoe UI, system-ui, sans-serif" font-size="26" fill="#c9d0ea">Clinic website + secure patient &amp; staff portal — React · PHP · Node</text>
+  <rect x="92" y="252" width="340" height="6" rx="3" fill="#f28c28"/>
+</svg>
