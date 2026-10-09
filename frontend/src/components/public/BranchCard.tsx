@@ -1,6 +1,6 @@
-import { branchAddress, formatPhone, directionsUrl, mapsEmbedUrl, telHref, whatsappHref } from '../../lib/contact'
+import { branchAddress, formatPhone, directionsUrl, mapsEmbedUrl, telHref } from '../../lib/contact'
 import type { PublicBranch } from '../../types/public'
-import { ClockIcon, ExternalIcon, MailIcon, PhoneIcon, PinIcon, WhatsAppIcon } from '../icons/Icons'
+import { ClockIcon, ExternalIcon, PhoneIcon, PinIcon } from '../icons/Icons'
 import { Todo } from './Primitives'
 
 export function BranchCard({ branch, headingLevel = 3 }: { branch: PublicBranch; headingLevel?: 2 | 3 }) {
@@ -33,24 +33,6 @@ export function BranchCard({ branch, headingLevel = 3 }: { branch: PublicBranch;
             <PhoneIcon size={20} />
             <div>{branch.phone ? <a href={telHref(branch.phone)}>{formatPhone(branch.phone)}</a> : <Todo label="phone" />}</div>
           </li>
-          {branch.whatsapp ? (
-            <li>
-              <WhatsAppIcon size={20} />
-              <div>
-                <a href={whatsappHref(branch.whatsapp)} target="_blank" rel="noopener noreferrer">
-                  WhatsApp {branch.whatsapp}
-                </a>
-              </div>
-            </li>
-          ) : null}
-          {branch.email ? (
-            <li>
-              <MailIcon size={20} />
-              <div>
-                <a href={`mailto:${branch.email}`}>{branch.email}</a>
-              </div>
-            </li>
-          ) : null}
         </ul>
         {directions ? (
           <a className="btn btn--primary" href={directions} target="_blank" rel="noopener noreferrer">

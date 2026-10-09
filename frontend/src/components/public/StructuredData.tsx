@@ -6,7 +6,6 @@ import { useJsonLd } from '../../lib/seo'
 export function StructuredData() {
   const branches = useAppSelector((state) => state.public.branches.data?.branches ?? [])
   const phone = settingText(useAppSelector(selectSetting('contact.phone')))
-  const email = settingText(useAppSelector(selectSetting('contact.email')))
   const primary = branches.find((branch) => !branch.address_is_placeholder)
 
   const business: Record<string, unknown> | null =
@@ -16,6 +15,8 @@ export function StructuredData() {
           '@context': 'https://schema.org',
           '@type': 'MedicalBusiness',
           name: 'Meghnad Diagnostic Centre',
+          logo: `${window.location.origin}/images/client/logo-lockup.png`,
+          image: `${window.location.origin}/images/client/logo-lockup.png`,
           alternateName: 'MDC',
           slogan: 'Imaging for a Healthier Tomorrow',
           medicalSpecialty: 'Radiography',
@@ -28,7 +29,6 @@ export function StructuredData() {
             addressCountry: 'IN',
           },
           ...(phone ? { telephone: phone } : {}),
-          ...(email ? { email } : {}),
           ...(primary.opening_hours ? { openingHours: primary.opening_hours } : {}),
           description: `Ultrasound, CT and image-guided biopsies at ${branchAddress(primary)}.`,
         }

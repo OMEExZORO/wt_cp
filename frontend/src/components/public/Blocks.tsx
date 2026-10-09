@@ -66,22 +66,13 @@ export function DoctorPortrait() {
           MP
         </text>
       </svg>
-      <Todo label="doctor photo" />
     </div>
   )
 }
 
 export function DoctorBio() {
   const bio = settingText(useAppSelector(selectSetting('doctor.bio')))
-  if (bio) {
-    return <p>{bio}</p>
-  }
-  return (
-    <>
-      <p>Dr. Meghnad Padsalgikar is a radiologist at Meghnad Diagnostic Centre in Bhosari, Pune, and is also associated with Sabale Hospital, Bhosari.</p>
-      <Todo label="doctor biography" />
-    </>
-  )
+  return bio ? <p>{bio}</p> : null
 }
 
 export function DoctorIntro({ withLink = true }: { withLink?: boolean }) {

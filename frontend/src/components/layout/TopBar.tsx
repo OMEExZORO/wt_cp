@@ -1,6 +1,6 @@
 import { formatPhone, telHref, whatsappHref } from '../../lib/contact'
 import { useContactInfo } from '../../lib/useContactInfo'
-import { MailIcon, PhoneIcon, WhatsAppIcon } from '../icons/Icons'
+import { PhoneIcon, WhatsAppIcon } from '../icons/Icons'
 import { Todo } from '../public/Primitives'
 
 export function TopBar() {
@@ -35,20 +35,10 @@ export function TopBar() {
           ))}
           {entries.length === 0 ? (
             <li className="topbar__item">
-              <Todo label="appointment phone and WhatsApp" />
+              <Todo label="appointment phone" />
             </li>
           ) : null}
         </ul>
-        {contact.email ? (
-          <a href={`mailto:${contact.email}`} className="topbar__link topbar__email">
-            <MailIcon size={15} />
-            <span>{contact.email}</span>
-          </a>
-        ) : (
-          <span className="topbar__email">
-            <Todo label="email" />
-          </span>
-        )}
       </div>
     </div>
   )

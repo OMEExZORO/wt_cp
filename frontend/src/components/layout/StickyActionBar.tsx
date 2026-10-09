@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom'
-import { telHref, whatsappHref } from '../../lib/contact'
+import { telHref } from '../../lib/contact'
 import { useContactInfo } from '../../lib/useContactInfo'
-import { CalendarIcon, PhoneIcon, WhatsAppIcon } from '../icons/Icons'
+import { CalendarIcon, PhoneIcon } from '../icons/Icons'
 
 export function StickyActionBar() {
-  const { primaryPhone: phone, primaryWhatsapp: whatsapp } = useContactInfo()
+  const { primaryPhone: phone } = useContactInfo()
   const dev = import.meta.env.DEV
 
   return (
@@ -18,17 +18,6 @@ export function StickyActionBar() {
         <span className="action-bar__item action-bar__item--todo">
           <PhoneIcon size={20} />
           TODO: phone
-        </span>
-      ) : null}
-      {whatsapp ? (
-        <a href={whatsappHref(whatsapp)} target="_blank" rel="noopener noreferrer" className="action-bar__item">
-          <WhatsAppIcon size={20} />
-          WhatsApp
-        </a>
-      ) : dev ? (
-        <span className="action-bar__item action-bar__item--todo">
-          <WhatsAppIcon size={20} />
-          TODO: WhatsApp
         </span>
       ) : null}
       <Link to="/book" className="action-bar__item action-bar__item--book">
