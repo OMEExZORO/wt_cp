@@ -163,3 +163,7 @@ Migration `014_reports.sql` adds `reports.impression_encrypted`, `reports.storag
 - Frontend: `/portal/admin/*` (lazy, nested under `pages/admin/AdminLayout`), reusable `components/admin/DataTable`, `EntityForm`, `CrudPage`, `Modal`, `ConfirmDialog`, `Pagination`, `BarChart`, `SettingsForm`; patient page `/portal/patient/reviews`.
 - Verified against Supabase with curl on port 8017: CRUD for FAQ, branch (edit and revert, create and delete), scan type, checklist item, slot capacity, block, bulk generate and delete, settings update and revert, doctor photo upload and delete, user create, role change, deactivate and reset; stats; audit log filters; patient, doctor, reception and referrer get 403 and guests 401 on admin routes; review submit, moderation and public visibility; demo reviews hidden with `APP_ENV=production`. All test rows were removed.
 - Tests: PHPUnit 285 tests, 704 assertions; Vitest 118 tests in 8 files; `npm run build` passes.
+
+## Phase 8A (testing) - implemented
+
+- Phase 8A: PHPUnit 431 tests (adds ContainerWiringTest, ValidationAttackMatrixTest), Vitest 146, alerts worker 17; live `backend/bin/validation-attack-check.php` 45/45; `tests/flow/full-journey.mjs` 15/15; Postman collection and environment in `postman/` run with newman (174 requests, 386 assertions, 0 failed); results in `docs/TEST_REPORT.md`. Bug fixed: missing `EncryptedNoteProtector` import in `backend/config/container.php` made flagging a report critical return 500.
