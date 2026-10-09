@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Controllers\AlertController;
 use App\Controllers\AppointmentController;
 use App\Controllers\AuthController;
 use App\Controllers\BookingController;
@@ -10,6 +11,7 @@ use App\Controllers\EmailVerificationController;
 use App\Controllers\HealthController;
 use App\Controllers\PasswordController;
 use App\Controllers\PublicController;
+use App\Controllers\QueueController;
 use App\Core\Router;
 
 return static function (Router $router): void {
@@ -58,6 +60,16 @@ return static function (Router $router): void {
             $router->patch('/{id:uuid}/reschedule', [AppointmentController::class, 'reschedule'], ['role:patient,receptionist,admin', 'verified', 'throttle:booking-change,30,60']);
             $router->patch('/{id:uuid}/cancel', [AppointmentController::class, 'cancel'], ['role:patient,receptionist,admin', 'throttle:booking-change,30,60']);
             $router->patch('/{id:uuid}/status', [AppointmentController::class, 'updateStatus'], ['role:receptionist,doctor,admin']);
+        });
+
+        $router->post('/reports/{id:uuid}/critical', [AlertController::class, 'flag'], ['auth', 'role:doctor,admin', 'throttle:alert-flag,20,10']);
+        $router->get('/doctor/queue', [QueueController::class, 'show'], ['auth', 'role:doctor,admin']);
+        $router->group('/alerts', ['auth'], static function (Router $router): void {
+            $router->get('/mine', [AlertController::class, 'mine'], ['role:patient,referrer']);
+            $router->get('', [AlertController::class, 'index'], ['role:receptionist,doctor,admin']);
+            $router->get('/{id:uuid}/events', [AlertController::class, 'events'], ['role:receptionist,doctor,admin']);
+            $router->post('/{id:uuid}/acknowledge', [AlertController::class, 'acknowledge'], ['role:patient,referrer', 'throttle:alert-ack,30,10']);
+            $router->patch('/{id:uuid}/resolve', [AlertController::class, 'resolve'], ['role:receptionist,admin']);
         });
 
         $router->group('/dashboards', ['auth'], static function (Router $router): void {
