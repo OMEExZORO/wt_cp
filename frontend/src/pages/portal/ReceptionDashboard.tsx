@@ -1,5 +1,14 @@
-import { DashboardStub } from './DashboardStub'
+import { useAppSelector } from '../../app/hooks'
+import { StaffAlertsBoard } from '../../features/alerts/StaffAlertsBoard'
+import { selectUser } from '../../features/auth/authSlice'
 
 export default function ReceptionDashboard() {
-  return <DashboardStub area="receptionist" title="Reception dashboard" upcoming={['Today\'s appointments and check-in', 'Walk-in patient registration', 'Escalated critical alerts']} />
+  const user = useAppSelector(selectUser)
+  return (
+    <section aria-labelledby="reception-title">
+      <h1 id="reception-title">Reception dashboard</h1>
+      <p>Welcome, {user?.full_name}.</p>
+      <StaffAlertsBoard canResolve />
+    </section>
+  )
 }

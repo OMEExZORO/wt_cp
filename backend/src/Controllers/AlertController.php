@@ -9,6 +9,7 @@ use App\Core\Response;
 use App\Exceptions\NotFoundException;
 use App\Models\AlertEvent;
 use App\Models\CriticalAlert;
+use App\Models\Model;
 use App\Services\Alerts\AlertPresenter;
 use App\Services\Alerts\AlertService;
 use App\Services\Alerts\AlertWorkflow;
@@ -87,7 +88,7 @@ final class AlertController extends Controller
         }
         $updated = $this->service->acknowledge($user, $alert);
         $this->audit->log('alert.acknowledged', $request, ['entity_type' => 'critical_alert', 'entity_id' => $updated['id']]);
-        return $this->ok(['alert_id' => $updated['id'], 'status' => $updated['status'], 'acknowledged_at' => $updated['acknowledged_at']]);
+        return $this->ok(['alert_id' => $updated['id'], 'status' => $updated['status'], 'acknowledged_at' => Model::iso($updated['acknowledged_at'])]);
     }
 
     public function resolve(Request $request): Response

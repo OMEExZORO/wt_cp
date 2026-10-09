@@ -2,6 +2,7 @@ import { Suspense, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
 import { authApi } from '../../api/auth'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
+import { AlertBanners } from '../../features/alerts/AlertBanners'
 import { logout, selectUser } from '../../features/auth/authSlice'
 import { AREA_ROLES, ROLE_LABEL } from '../../lib/roles'
 import { ErrorBoundary } from '../ErrorBoundary'
@@ -76,6 +77,7 @@ export function PortalLayout() {
           <NavLink to="/portal/account">My account</NavLink>
         </nav>
         <main id="main" className="portal__main">
+          <AlertBanners />
           {!user.email_verified ? <VerifyEmailBanner /> : null}
           <ErrorBoundary>
             <Suspense fallback={<PageLoader />}>
