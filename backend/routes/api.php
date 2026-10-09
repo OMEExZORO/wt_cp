@@ -10,6 +10,7 @@ use App\Controllers\DashboardController;
 use App\Controllers\EmailVerificationController;
 use App\Controllers\HealthController;
 use App\Controllers\PasswordController;
+use App\Controllers\PatientController;
 use App\Controllers\PublicController;
 use App\Controllers\QueueController;
 use App\Controllers\ReferralController;
@@ -74,6 +75,8 @@ return static function (Router $router): void {
             $router->patch('/{id:uuid}/cancel', [AppointmentController::class, 'cancel'], ['role:patient,receptionist,admin', 'throttle:booking-change,30,60']);
             $router->patch('/{id:uuid}/status', [AppointmentController::class, 'updateStatus'], ['role:receptionist,doctor,admin']);
         });
+
+        $router->get('/patients/lookup', [PatientController::class, 'lookup'], ['auth', 'role:receptionist,admin', 'throttle:patient-lookup,60,10']);
 
         $router->post('/reports/{id:uuid}/critical', [AlertController::class, 'flag'], ['auth', 'role:doctor,admin', 'throttle:alert-flag,20,10']);
         $router->get('/doctor/queue', [QueueController::class, 'show'], ['auth', 'role:doctor,admin']);
