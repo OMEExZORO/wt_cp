@@ -5,6 +5,7 @@ import { resetCsrfToken } from '../api/client'
 import App from '../App'
 import { setupStore, type RootState } from '../app/store'
 import { ThemeProvider } from '../context/ThemeContext'
+import { clearSessionHint, setSessionHint } from '../features/auth/sessionHint'
 import type { Role, User } from '../types/auth'
 
 export function makeUser(role: Role, overrides: Partial<User> = {}): User {
@@ -34,6 +35,11 @@ function json(status: number, body: unknown): Response {
 
 export function mockApi(handler: Handler, me: User | null = null) {
   resetCsrfToken()
+  if (me === null) {
+    clearSessionHint()
+  } else {
+    setSessionHint()
+  }
   const fetchMock = vi.fn(async (input: RequestInfo | URL, init: RequestInit = {}) => {
     const url = typeof input === 'string' ? input : input instanceof URL ? input.toString() : input.url
     const path = url.replace(/^.*\/api\/v1/, '')

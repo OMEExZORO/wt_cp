@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import { authApi } from '../../api/auth'
 import { ApiError } from '../../api/client'
+import { clearSessionHint, hasSessionHint, setSessionHint } from './sessionHint'
 import type { LoginRequest, RegisterRequest, User } from '../../types/auth'
 
 export type AuthStatus = 'idle' | 'loading' | 'authenticated' | 'guest'
@@ -35,11 +36,16 @@ function toPayload(error: unknown): AuthErrorPayload {
 export const fetchMe = createAsyncThunk<User | null, void, { rejectValue: AuthErrorPayload }>(
   'auth/fetchMe',
   async (_, { rejectWithValue }) => {
+    if (!hasSessionHint()) {
+      return null
+    }
     try {
       const { user } = await authApi.me()
+      setSessionHint()
       return user
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
+        clearSessionHint()
         return null
       }
       return rejectWithValue(toPayload(error))
@@ -52,6 +58,7 @@ export const login = createAsyncThunk<User, LoginRequest, { rejectValue: AuthErr
   async (payload, { rejectWithValue }) => {
     try {
       const { user } = await authApi.login(payload)
+      setSessionHint()
       return user
     } catch (error) {
       return rejectWithValue(toPayload(error))
@@ -64,6 +71,7 @@ export const register = createAsyncThunk<User, RegisterRequest, { rejectValue: A
   async (payload, { rejectWithValue }) => {
     try {
       const { user } = await authApi.register(payload)
+      setSessionHint()
       return user
     } catch (error) {
       return rejectWithValue(toPayload(error))
@@ -72,6 +80,7 @@ export const register = createAsyncThunk<User, RegisterRequest, { rejectValue: A
 )
 
 export const logout = createAsyncThunk('auth/logout', async () => {
+  clearSessionHint()
   try {
     await authApi.logout()
   } catch {
@@ -88,6 +97,7 @@ const authSlice = createSlice({
       state.status = 'authenticated'
     },
     sessionExpired(state) {
+      clearSessionHint()
       if (state.status === 'authenticated') {
         state.sessionExpired = true
       }
