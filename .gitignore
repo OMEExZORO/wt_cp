@@ -19,3 +19,4 @@ Thumbs.db
 dist-ssr/
 *.local
 .tmp/
+!backend/src/Services/Storage/
