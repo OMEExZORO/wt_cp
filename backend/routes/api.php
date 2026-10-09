@@ -14,6 +14,17 @@ use App\Controllers\PublicController;
 use App\Controllers\QueueController;
 use App\Controllers\ReferralController;
 use App\Controllers\ReportController;
+use App\Controllers\Admin\AuditLogController;
+use App\Controllers\Admin\BranchAdminController;
+use App\Controllers\Admin\CatalogAdminController;
+use App\Controllers\Admin\DoctorPhotoController;
+use App\Controllers\Admin\FaqAdminController;
+use App\Controllers\Admin\ReviewAdminController;
+use App\Controllers\Admin\SettingsAdminController;
+use App\Controllers\Admin\SlotAdminController;
+use App\Controllers\Admin\StatsController;
+use App\Controllers\Admin\UserAdminController;
+use App\Controllers\ReviewController;
 use App\Core\Router;
 
 return static function (Router $router): void {
@@ -96,6 +107,66 @@ return static function (Router $router): void {
             $router->get('/receptionist', [DashboardController::class, 'show'], ['role:receptionist,admin']);
             $router->get('/admin', [DashboardController::class, 'show'], ['role:admin']);
             $router->get('/referrer', [DashboardController::class, 'show'], ['role:referrer']);
+        });
+
+        $router->get('/public/doctor/photo', [DoctorPhotoController::class, 'show']);
+
+        $router->group('/reviews', ['auth'], static function (Router $router): void {
+            $router->get('/mine', [ReviewController::class, 'mine'], ['role:patient']);
+            $router->post('', [ReviewController::class, 'store'], ['role:patient', 'throttle:reviews,5,60']);
+        });
+
+        $router->group('/admin', ['auth', 'role:admin'], static function (Router $router): void {
+            $router->get('/stats', [StatsController::class, 'show']);
+            $router->get('/audit-log', [AuditLogController::class, 'index']);
+
+            $router->get('/users', [UserAdminController::class, 'index']);
+            $router->post('/users', [UserAdminController::class, 'store']);
+            $router->patch('/users/{id:uuid}', [UserAdminController::class, 'update']);
+            $router->post('/users/{id:uuid}/password-reset', [UserAdminController::class, 'passwordReset'], ['throttle:admin-password-reset,20,60']);
+
+            $router->get('/branches', [BranchAdminController::class, 'index']);
+            $router->post('/branches', [BranchAdminController::class, 'store']);
+            $router->put('/branches/{id:uuid}', [BranchAdminController::class, 'update']);
+            $router->patch('/branches/{id:uuid}', [BranchAdminController::class, 'update']);
+            $router->delete('/branches/{id:uuid}', [BranchAdminController::class, 'destroy']);
+
+            $router->get('/scan-categories', [CatalogAdminController::class, 'categoryIndex']);
+            $router->post('/scan-categories', [CatalogAdminController::class, 'categoryStore']);
+            $router->put('/scan-categories/{id:uuid}', [CatalogAdminController::class, 'categoryUpdate']);
+            $router->patch('/scan-categories/{id:uuid}', [CatalogAdminController::class, 'categoryUpdate']);
+            $router->delete('/scan-categories/{id:uuid}', [CatalogAdminController::class, 'categoryDestroy']);
+
+            $router->get('/scan-types', [CatalogAdminController::class, 'typeIndex']);
+            $router->post('/scan-types', [CatalogAdminController::class, 'typeStore']);
+            $router->put('/scan-types/{id:uuid}', [CatalogAdminController::class, 'typeUpdate']);
+            $router->patch('/scan-types/{id:uuid}', [CatalogAdminController::class, 'typeUpdate']);
+            $router->delete('/scan-types/{id:uuid}', [CatalogAdminController::class, 'typeDestroy']);
+
+            $router->get('/checklist-items', [CatalogAdminController::class, 'checklistIndex']);
+            $router->post('/checklist-items', [CatalogAdminController::class, 'checklistStore']);
+            $router->put('/checklist-items/{id:uuid}', [CatalogAdminController::class, 'checklistUpdate']);
+            $router->patch('/checklist-items/{id:uuid}', [CatalogAdminController::class, 'checklistUpdate']);
+            $router->delete('/checklist-items/{id:uuid}', [CatalogAdminController::class, 'checklistDestroy']);
+
+            $router->get('/slots', [SlotAdminController::class, 'index']);
+            $router->post('/slots/generate', [SlotAdminController::class, 'generate'], ['throttle:admin-slot-generate,20,60']);
+            $router->patch('/slots/{id:uuid}', [SlotAdminController::class, 'update']);
+            $router->delete('/slots/{id:uuid}', [SlotAdminController::class, 'destroy']);
+
+            $router->get('/settings', [SettingsAdminController::class, 'index']);
+            $router->patch('/settings', [SettingsAdminController::class, 'update']);
+            $router->post('/doctor/photo', [DoctorPhotoController::class, 'upload']);
+            $router->delete('/doctor/photo', [DoctorPhotoController::class, 'destroy']);
+
+            $router->get('/faqs', [FaqAdminController::class, 'index']);
+            $router->post('/faqs', [FaqAdminController::class, 'store']);
+            $router->put('/faqs/{id:uuid}', [FaqAdminController::class, 'update']);
+            $router->patch('/faqs/{id:uuid}', [FaqAdminController::class, 'update']);
+            $router->delete('/faqs/{id:uuid}', [FaqAdminController::class, 'destroy']);
+
+            $router->get('/reviews', [ReviewAdminController::class, 'index']);
+            $router->patch('/reviews/{id:uuid}', [ReviewAdminController::class, 'moderate']);
         });
     });
 };

@@ -89,6 +89,7 @@ export function PortalLayout() {
               {link.label}
             </NavLink>
           ))}
+          {user.role === 'patient' ? <NavLink to="/portal/patient/reviews">Write a review</NavLink> : null}
           <NavLink to="/portal/account">My account</NavLink>
         </nav>
         <main id="main" className="portal__main">

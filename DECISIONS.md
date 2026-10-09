@@ -118,3 +118,13 @@ Defaults chosen during the build. Each can be revisited.
 | Upload progress | The fetch based client shows a busy state with a spinner, not a byte-level progress bar | Fetch has no upload progress events |
 | `.gitignore` | Added `!backend/src/Services/Storage/` because the existing `storage/` rule also matched that source directory on case-insensitive filesystems | Keeps the storage service tracked |
 | Model change | The `Model` column whitelist regex now allows digits (`sha256`) | Previously such columns were dropped silently |
+## Phase 7: admin and reviews
+
+- One review per appointment (existing unique constraint). Only the owning patient, only when the appointment is `completed`; other patients get 404. Reviews start `pending` with `verified_visit = TRUE`; display name defaults to first name plus last initial; a publication consent checkbox is required. Submissions are throttled to 5 per hour.
+- Users are never deleted, only deactivated (history, immutable alert events). Admin cannot deactivate or re-role themselves, and the last active admin is protected. Role changes are limited to receptionist, doctor and admin.
+- Other deletes return 409 when a record is in use (FK violation), telling the admin to deactivate instead.
+- Settings: legal texts, JSON and image settings are read-only in the admin. Optional values cleared by the admin become placeholders again; a real value clears `is_placeholder`. Required clinic and doctor identity values cannot be cleared. URLs must be https only with no credentials. Phones use the Indian mobile pattern (landline numbers are not accepted yet).
+- Doctor photo: stored in `backend/storage/uploads/doctor` (the client images folder is not writable at runtime), validated with `finfo` (JPEG, PNG, WebP), 2 MB, 200 to 6000 px, random file name, served by `GET /public/doctor/photo`; `doctor.photo_url` points to it.
+- Stats window is the last N days (default 30) by visit date, cancelled bookings excluded from the chart.
+- Slot capacity cannot go below current bookings (row lock); bulk generation reuses `SlotGenerator` with a dry-run option and a 20000-row cap.
+- Admin list endpoints put pagination in `data` because `api` in the frontend client only returns `data`.

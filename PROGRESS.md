@@ -153,3 +153,13 @@ Migration `014_reports.sql` adds `reports.impression_encrypted`, `reports.storag
 - Referrer created a referral (notes stored encrypted); reception moved it to accepted and linked an appointment; the referrer cannot PATCH (403).
 - Test uploads, the test referral and the appointment link were removed afterwards.
 - PHPUnit: 251 tests, 577 assertions passing. Vitest: 61 tests in 8 files passing. `npm run build` passes.
+## Phase 7 (admin panel and reviews) - implemented
+
+- No migration was needed; the schema from 004, 005, 008 and 009 already covers everything (016 unused).
+- Admin API (all `auth` + `role:admin`, under `/api/v1/admin`, every write audited as `admin.*`): `GET /stats`, `GET /audit-log` (filters action prefix, actor_role, actor_user_id, entity_type, from, to; paged), users (`GET`, `POST` staff, `PATCH /{id}`, `POST /{id}/password-reset`), branches, scan-categories, scan-types, checklist-items, faqs (`GET`, `POST`, `PUT`/`PATCH /{id}`, `DELETE /{id}`), slots (`GET`, `PATCH /{id}` capacity and `is_blocked`, `DELETE /{id}`, `POST /generate`), settings (`GET`, `PATCH` with `{settings:{key:value}}`), `POST`/`DELETE /doctor/photo`, reviews (`GET`, `PATCH /{id}` approve, reject or reset).
+- Public: `GET /public/doctor/photo`. Patient: `POST /reviews`, `GET /reviews/mine` (own reviews plus eligible completed visits).
+- Paged lists return `{<key>: [...], pagination}` in `data` and the same object in `meta`.
+- Code: `Controllers/Admin/*`, `Controllers/ReviewController`, `Models/AdminRepository`, `AuditLogRepository`, `StatsRepository`, `ReviewRepository`, `Services/ReviewPolicy`, `Services/Admin/SettingsValidator`, `Services/Admin/ImageUploadStore`.
+- Frontend: `/portal/admin/*` (lazy, nested under `pages/admin/AdminLayout`), reusable `components/admin/DataTable`, `EntityForm`, `CrudPage`, `Modal`, `ConfirmDialog`, `Pagination`, `BarChart`, `SettingsForm`; patient page `/portal/patient/reviews`.
+- Verified against Supabase with curl on port 8017: CRUD for FAQ, branch (edit and revert, create and delete), scan type, checklist item, slot capacity, block, bulk generate and delete, settings update and revert, doctor photo upload and delete, user create, role change, deactivate and reset; stats; audit log filters; patient, doctor, reception and referrer get 403 and guests 401 on admin routes; review submit, moderation and public visibility; demo reviews hidden with `APP_ENV=production`. All test rows were removed.
+- Tests: PHPUnit 285 tests, 704 assertions; Vitest 118 tests in 8 files; `npm run build` passes.
