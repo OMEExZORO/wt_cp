@@ -18,11 +18,11 @@ final class MailService
     ) {
     }
 
-    public function sendTemplate(string $to, string $toName, string $template, array $vars = []): bool
+    public function sendTemplate(string $to, string $toName, string $template, array $vars = [], array $attachments = []): bool
     {
         try {
             [$subject, $html, $text] = $this->render($template, $vars);
-            $this->mailer->send(new MailMessage($to, $toName, $subject, $html, $text));
+            $this->mailer->send(new MailMessage($to, $toName, $subject, $html, $text, $attachments));
             return true;
         } catch (Throwable $e) {
             $this->logger->error('Email could not be sent', ['template' => $template, 'error' => $e->getMessage()]);

@@ -46,7 +46,7 @@ final class ErrorHandler
     public function render(Throwable $e): Response
     {
         if ($e instanceof AppException) {
-            $response = Response::error($e->errorCode(), $e->getMessage(), $e->status(), $e->fields());
+            $response = Response::error($e->errorCode(), $e->getMessage(), $e->status(), $e->fields(), $e->extra());
             if ($e instanceof RateLimitException) {
                 $response->setHeader('Retry-After', (string) $e->retryAfter());
             }

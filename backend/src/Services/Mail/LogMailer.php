@@ -22,7 +22,7 @@ final class LogMailer implements Mailer
             'From: ' . $this->from,
             'To: ' . $message->toName . ' <' . $message->to . '>',
             'Subject: ' . $message->subject,
-            'Attachments: ' . count($message->attachments),
+            'Attachments: ' . count($message->attachments) . self::attachmentNames($message->attachments),
             '',
             $message->text,
             '',
@@ -30,5 +30,14 @@ final class LogMailer implements Mailer
         if (@file_put_contents($this->path, $entry . "\n", FILE_APPEND | LOCK_EX) === false) {
             throw new \RuntimeException('Could not write to the mail log');
         }
+    }
+
+    private static function attachmentNames(array $attachments): string
+    {
+        $names = [];
+        foreach ($attachments as $attachment) {
+            $names[] = sprintf('%s (%s, %d bytes)', $attachment['name'] ?? 'file', $attachment['type'] ?? 'application/octet-stream', strlen((string) ($attachment['content'] ?? '')));
+        }
+        return $names === [] ? '' : ' [' . implode(', ', $names) . ']';
     }
 }

@@ -30,4 +30,9 @@ class AppException extends \RuntimeException
     {
         return $this->fields;
     }
+
+    public function extra(): array
+    {
+        return [];
+    }
 }

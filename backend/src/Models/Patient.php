@@ -17,6 +17,14 @@ final class Patient extends Model
         return $this->fetchOne('SELECT * FROM patients WHERE user_id = :user_id', ['user_id' => $userId]);
     }
 
+    public function findWalkIn(string $fullName, string $phone): ?array
+    {
+        return $this->fetchOne(
+            'SELECT * FROM patients WHERE phone = :phone AND lower(full_name) = lower(:full_name) ORDER BY created_at LIMIT 1',
+            ['phone' => $phone, 'full_name' => $fullName]
+        );
+    }
+
     public function syncContact(string $userId, string $fullName, ?string $phone): void
     {
         $this->execute(

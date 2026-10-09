@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Controllers\AppointmentController;
 use App\Controllers\AuthController;
+use App\Controllers\BookingController;
 use App\Controllers\DashboardController;
 use App\Controllers\EmailVerificationController;
 use App\Controllers\HealthController;
@@ -38,6 +40,24 @@ return static function (Router $router): void {
             $router->put('/password', [PasswordController::class, 'change'], ['auth', 'throttle:password-change,10,15']);
             $router->post('/email/verify', [EmailVerificationController::class, 'verify'], ['throttle:verify,20,15']);
             $router->post('/email/resend', [EmailVerificationController::class, 'resend'], ['auth', 'throttle:verify-resend,3,15']);
+        });
+
+        $router->group('/booking', ['auth'], static function (Router $router): void {
+            $router->get('/availability', [BookingController::class, 'availability']);
+            $router->get('/days', [BookingController::class, 'days']);
+            $router->get('/next-available', [BookingController::class, 'nextAvailable']);
+        });
+
+        $router->get('/scan-types/{id:uuid}/checklist', [BookingController::class, 'checklist'], ['auth']);
+
+        $router->group('/appointments', ['auth'], static function (Router $router): void {
+            $router->get('', [AppointmentController::class, 'index'], ['role:patient,receptionist,doctor,admin']);
+            $router->post('', [AppointmentController::class, 'store'], ['role:patient,receptionist,admin', 'verified', 'throttle:booking,30,60']);
+            $router->get('/{id:uuid}', [AppointmentController::class, 'show'], ['role:patient,receptionist,doctor,admin']);
+            $router->get('/{id:uuid}/ics', [AppointmentController::class, 'ics'], ['role:patient,receptionist,doctor,admin']);
+            $router->patch('/{id:uuid}/reschedule', [AppointmentController::class, 'reschedule'], ['role:patient,receptionist,admin', 'verified', 'throttle:booking-change,30,60']);
+            $router->patch('/{id:uuid}/cancel', [AppointmentController::class, 'cancel'], ['role:patient,receptionist,admin', 'throttle:booking-change,30,60']);
+            $router->patch('/{id:uuid}/status', [AppointmentController::class, 'updateStatus'], ['role:receptionist,doctor,admin']);
         });
 
         $router->group('/dashboards', ['auth'], static function (Router $router): void {

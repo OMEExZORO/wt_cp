@@ -16,4 +16,9 @@ final class Branch extends Model
     {
         return $this->fetchAll('SELECT * FROM branches WHERE is_active = TRUE ORDER BY sort_order, name');
     }
+
+    public function findActive(string $id): ?array
+    {
+        return $this->fetchOne('SELECT * FROM branches WHERE id = :id AND is_active = TRUE', ['id' => $id]);
+    }
 }
