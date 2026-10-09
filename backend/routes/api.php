@@ -10,6 +10,8 @@ use App\Controllers\EmailVerificationController;
 use App\Controllers\HealthController;
 use App\Controllers\PasswordController;
 use App\Controllers\PublicController;
+use App\Controllers\ReferralController;
+use App\Controllers\ReportController;
 use App\Core\Router;
 
 return static function (Router $router): void {
@@ -58,6 +60,22 @@ return static function (Router $router): void {
             $router->patch('/{id:uuid}/reschedule', [AppointmentController::class, 'reschedule'], ['role:patient,receptionist,admin', 'verified', 'throttle:booking-change,30,60']);
             $router->patch('/{id:uuid}/cancel', [AppointmentController::class, 'cancel'], ['role:patient,receptionist,admin', 'throttle:booking-change,30,60']);
             $router->patch('/{id:uuid}/status', [AppointmentController::class, 'updateStatus'], ['role:receptionist,doctor,admin']);
+        });
+
+        $router->group('/reports', ['auth'], static function (Router $router): void {
+            $router->get('', [ReportController::class, 'index'], ['role:patient,referrer,receptionist,doctor,admin']);
+            $router->post('', [ReportController::class, 'store'], ['role:doctor,receptionist,admin', 'throttle:report-upload,30,60']);
+            $router->get('/{id:uuid}', [ReportController::class, 'show'], ['role:patient,referrer,receptionist,doctor,admin']);
+            $router->get('/{id:uuid}/download', [ReportController::class, 'download'], ['role:patient,referrer,receptionist,doctor,admin', 'throttle:report-download,120,60']);
+            $router->patch('/{id:uuid}', [ReportController::class, 'update'], ['role:doctor,receptionist,admin']);
+            $router->delete('/{id:uuid}', [ReportController::class, 'destroy'], ['role:admin']);
+        });
+
+        $router->group('/referrals', ['auth'], static function (Router $router): void {
+            $router->get('', [ReferralController::class, 'index'], ['role:referrer,receptionist,doctor,admin']);
+            $router->post('', [ReferralController::class, 'store'], ['role:referrer', 'throttle:referral-create,30,60']);
+            $router->get('/{id:uuid}', [ReferralController::class, 'show'], ['role:referrer,receptionist,doctor,admin']);
+            $router->patch('/{id:uuid}', [ReferralController::class, 'update'], ['role:receptionist,doctor,admin']);
         });
 
         $router->group('/dashboards', ['auth'], static function (Router $router): void {
