@@ -70,3 +70,43 @@ Public portfolio site. Replace the placeholder `SiteHeader`, `SiteFooter`, `Home
 - Frontend: Redux slice `features/public` (thunks with a duplicate-load guard), `usePublicResource` hook, pages Home, About, Services (+ scan detail), Branches, Reviews, FAQ, Contact, Book, Privacy, Terms in `src/pages` and `src/pages/public`. `/portal/patient/book` is a placeholder page until Phase 4. Styles: `src/styles/tokens.css` (all design tokens) and `src/styles/site.css`.
 - SEO: `usePageMeta`, JSON-LD `MedicalBusiness` and `Physician` (`components/public/StructuredData.tsx`), `scripts/generate-seo.mjs` writes `public/robots.txt` and `public/sitemap.xml` on build (`SITE_URL` env, default `https://www.example.com`).
 - Tests: PHPUnit 135 tests, 193 assertions; Vitest 49 tests in 6 files.
+
+---
+
+## Phase 4 (booking) - COMPLETE
+
+Backend was finished earlier; this step added the frontend. No backend behaviour changed.
+
+### Endpoints used by the UI (all under `/api/v1`, session auth)
+
+| Method | Path | Used by |
+|---|---|---|
+| GET | `/booking/days` | day chips in the slot picker (next 14 days, remaining places) |
+| GET | `/booking/availability` | slot list, remaining capacity, `suggestion` when the branch is full |
+| GET | `/booking/next-available` | typed in `api/bookings.ts` for callers that need the earliest slot elsewhere |
+| GET | `/scan-types/{id}/checklist` | checklist step and preparation text |
+| POST | `/appointments` | wizard confirm; 422 field errors (`answers.<itemId>` mapped to the checklist), 409 `reason: SLOT_FULL` with `suggestion` |
+| GET | `/appointments?scope=upcoming\|past` | patient dashboard |
+| GET | `/appointments?date=&branch_id=&per_page=` | reception dashboard |
+| GET | `/appointments/{id}` | confirmation and detail page |
+| GET | `/appointments/{id}/ics` | "Download .ics file" link |
+| PATCH | `/appointments/{id}/reschedule`, `/cancel` | dialogs |
+| PATCH | `/appointments/{id}/status` | reception check-in, complete, no-show, urgency |
+
+### Frontend
+
+- `api/client.ts`: `ApiError.extra` carries extra error-envelope keys (`reason`, `suggestion`). `api/bookings.ts` holds every typed call; `types/booking.ts` the response types; `lib/booking.ts` date/time formatting, checklist validation (mirrors server rules) and `describeBookingError`.
+- Wizard `/portal/patient/book` (`features/booking/BookingWizard.tsx`): branch, searchable scan type (online-bookable only), date and slot (`SlotPicker`), checklist with one control per answer type plus preparation tips, review with DPDP-style consent. Draft and step live in the `booking` Redux slice; slot object and checklist data are local state lifted into the wizard. Focus moves to the step heading on each step change. Next and Book stay disabled until the step is valid.
+- Branch full: `SuggestionBanner` shows the earliest slot at the other branch with a one-click switch, both from the availability response and from a 409 at booking time.
+- Confirmation and detail page `/portal/patient/appointments/:id`: details, preparation, `.ics` download, Google Calendar link, cancel and reschedule.
+- Patient dashboard: upcoming and past appointments; `Dialog` (focus trap, Escape, focus return) hosts the cancel and reschedule flows; reschedule reuses `SlotPicker`.
+- Reception dashboard: date and branch filter, check in / complete / no-show (no-show asks for confirmation), urgency select, checklist attention flags.
+- Styles in `src/styles/booking.css`. Removed `BookingPlaceholder`.
+- Tests: Vitest 57 tests in 7 files (8 new in `features/booking/booking.test.tsx`: Book disabled until valid, step navigation and focus, branch-full suggestion and switch, 409 suggestion, cancel dialog flow, XSS in cancel reason, reception check-in and urgency, refused status change). PHPUnit 199 tests, 454 assertions.
+- Verified with curl through the Vite proxy: availability, days, checklist, create (including 422 field envelope), list, ics, reschedule, cancel as patient; list, urgency, check-in, complete as reception. Test bookings were deleted and slot counts restored.
+
+### Notes for Phase 5
+
+- `Dialog` and `StatusBadge` are reusable. Reports will need the appointment id and `patient.id` from `Appointment`; the doctor dashboard can reuse `bookingsApi.listForStaff` (it already returns `urgency`, `needs_attention`, `attention`) for the priority reading queue.
+- `ApiError.extra` is the place to read any extra envelope keys.
+- Reminder emails are not sent by the frontend; the Node service or a scheduled job still owns that.

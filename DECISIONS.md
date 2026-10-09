@@ -82,3 +82,12 @@ Defaults chosen during the build. Each can be revisited.
 - No stock photos are used. Illustrations are inline SVG. The logo is an SVG placeholder monogram until the real logo is supplied.
 - Privacy and Terms are drafts marked "Pending doctor and legal review".
 - Seeded FAQ "Will the centre tell me the sex of my baby?" (from Phase 1 seed) is rendered as-is; the doctor should confirm whether to keep it.
+
+## Phase 4: booking frontend
+
+- `ApiError` keeps unknown keys of the error envelope in `extra` so the 409 `suggestion` reaches the UI without changing the envelope shape.
+- Wizard state: the draft (ids, answers, notes, consent) and current step are in the `booking` slice; the selected `Slot` object and the loaded checklist are local to the wizard because they are derived from the API. If the wizard is reopened mid-way it returns to the slot step so the slot is re-validated against live capacity.
+- The confirmation page is `/portal/patient/appointments/:id` and doubles as the detail page; the "booked" banner appears only when navigation state says `confirmed`.
+- The `.ics` button is a plain link to the API URL (the session cookie authorises it) rather than a fetched blob.
+- Dialogs are custom (`role="dialog"`, `aria-modal`, focus trap, Escape, focus return) instead of `window.confirm` or native `<dialog>`; marking a no-show asks for confirmation because it cannot be undone.
+- Staff can change status and urgency only; staff cancel, reschedule and walk-in booking exist in the API but have no reception UI yet.
