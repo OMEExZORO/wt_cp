@@ -32,7 +32,18 @@ const PortalHome = lazy(() => import('./pages/portal/PortalHome'))
 const PatientDashboard = lazy(() => import('./pages/portal/PatientDashboard'))
 const DoctorDashboard = lazy(() => import('./pages/portal/DoctorDashboard'))
 const ReceptionDashboard = lazy(() => import('./pages/portal/ReceptionDashboard'))
-const AdminDashboard = lazy(() => import('./pages/portal/AdminDashboard'))
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'))
+const AdminHome = lazy(() => import('./pages/admin/AdminHome'))
+const AdminUsersPage = lazy(() => import('./pages/admin/UsersPage'))
+const AdminBranchesPage = lazy(() => import('./pages/admin/BranchesPage'))
+const AdminCatalogPage = lazy(() => import('./pages/admin/CatalogPage'))
+const AdminSlotsPage = lazy(() => import('./pages/admin/SlotsPage'))
+const AdminSettingsPage = lazy(() => import('./pages/admin/SettingsPage'))
+const AdminFaqsPage = lazy(() => import('./pages/admin/FaqsPage'))
+const AdminDoctorProfilePage = lazy(() => import('./pages/admin/DoctorProfilePage'))
+const AdminReviewsPage = lazy(() => import('./pages/admin/ReviewsModerationPage'))
+const AdminAuditLogPage = lazy(() => import('./pages/admin/AuditLogPage'))
+const WriteReviewPage = lazy(() => import('./pages/portal/WriteReviewPage'))
 const ReferrerDashboard = lazy(() => import('./pages/portal/ReferrerDashboard'))
 const AccountPage = lazy(() => import('./pages/portal/AccountPage'))
 
@@ -79,6 +90,7 @@ export default function App() {
               <Route element={<ProtectedRoute roles={['patient']} />}>
                 <Route path="patient" element={<PatientDashboard />} />
                 <Route path="patient/book" element={<BookingPlaceholder />} />
+                <Route path="patient/reviews" element={<WriteReviewPage />} />
               </Route>
               <Route element={<ProtectedRoute roles={['doctor', 'admin']} />}>
                 <Route path="doctor" element={<DoctorDashboard />} />
@@ -87,7 +99,19 @@ export default function App() {
                 <Route path="reception" element={<ReceptionDashboard />} />
               </Route>
               <Route element={<ProtectedRoute roles={['admin']} />}>
-                <Route path="admin" element={<AdminDashboard />} />
+                <Route path="admin" element={<AdminLayout />}>
+                  <Route index element={<AdminHome />} />
+                  <Route path="users" element={<AdminUsersPage />} />
+                  <Route path="branches" element={<AdminBranchesPage />} />
+                  <Route path="catalog" element={<AdminCatalogPage />} />
+                  <Route path="slots" element={<AdminSlotsPage />} />
+                  <Route path="settings" element={<AdminSettingsPage />} />
+                  <Route path="faqs" element={<AdminFaqsPage />} />
+                  <Route path="doctor" element={<AdminDoctorProfilePage />} />
+                  <Route path="reviews" element={<AdminReviewsPage />} />
+                  <Route path="audit-log" element={<AdminAuditLogPage />} />
+                  <Route path="*" element={<NotFoundPage />} />
+                </Route>
               </Route>
               <Route element={<ProtectedRoute roles={['referrer']} />}>
                 <Route path="referrer" element={<ReferrerDashboard />} />
