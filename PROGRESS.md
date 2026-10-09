@@ -163,3 +163,11 @@ Migration `014_reports.sql` adds `reports.impression_encrypted`, `reports.storag
 - Frontend: `/portal/admin/*` (lazy, nested under `pages/admin/AdminLayout`), reusable `components/admin/DataTable`, `EntityForm`, `CrudPage`, `Modal`, `ConfirmDialog`, `Pagination`, `BarChart`, `SettingsForm`; patient page `/portal/patient/reviews`.
 - Verified against Supabase with curl on port 8017: CRUD for FAQ, branch (edit and revert, create and delete), scan type, checklist item, slot capacity, block, bulk generate and delete, settings update and revert, doctor photo upload and delete, user create, role change, deactivate and reset; stats; audit log filters; patient, doctor, reception and referrer get 403 and guests 401 on admin routes; review submit, moderation and public visibility; demo reviews hidden with `APP_ENV=production`. All test rows were removed.
 - Tests: PHPUnit 285 tests, 704 assertions; Vitest 118 tests in 8 files; `npm run build` passes.
+
+## Phase 8B (documentation and deployment configs) - implemented
+
+- Added `docs/SYLLABUS_MAPPING.md`, `docs/SECURITY.md`, `docs/ARCHITECTURE.md` (Mermaid system, ER and alert sequence diagrams) and `docs/API.md`; rewrote `README.md` (run, test, deploy, key rotation, dev logins) and reduced `MANUAL_STEPS.md` to human-only items.
+- `backend/Dockerfile`: opcache, non-root `www-data`, listens on `$PORT` (default 8080), storage outside the document root; `docker-compose.yml` maps 8000 to 8080. `services/alerts/Dockerfile`: health check added.
+- Added `render.yaml` (API and worker, secrets `sync: false`), `frontend/vercel.json`, `frontend/public/_redirects` and `_headers`.
+- Docker daemon was not running, so `docker compose build` was not executed; only static validation was possible.
+- No production admin seed exists; the README documents creating the first admin with SQL.
