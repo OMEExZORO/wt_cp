@@ -37,6 +37,7 @@ const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'))
 const AdminHome = lazy(() => import('./pages/admin/AdminHome'))
 const AdminUsersPage = lazy(() => import('./pages/admin/UsersPage'))
 const AdminBranchesPage = lazy(() => import('./pages/admin/BranchesPage'))
+const WalkInBookingPage = lazy(() => import('./pages/portal/WalkInBookingPage'))
 const AdminCatalogPage = lazy(() => import('./pages/admin/CatalogPage'))
 const AdminSlotsPage = lazy(() => import('./pages/admin/SlotsPage'))
 const AdminSettingsPage = lazy(() => import('./pages/admin/SettingsPage'))
@@ -103,6 +104,7 @@ export default function App() {
               </Route>
               <Route element={<ProtectedRoute roles={['receptionist', 'admin']} />}>
                 <Route path="reception" element={<ReceptionDashboard />} />
+                <Route path="reception/walk-in" element={<WalkInBookingPage />} />
               </Route>
               <Route element={<ProtectedRoute roles={['admin']} />}>
                 <Route path="admin" element={<AdminLayout />}>
