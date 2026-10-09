@@ -10,14 +10,23 @@ export class ApiError extends Error {
   readonly status: number
   readonly fields: Record<string, string>
   readonly retryAfter: number | null
+  readonly extra: Record<string, unknown>
 
-  constructor(status: number, code: string, message: string, fields: Record<string, string> = {}, retryAfter: number | null = null) {
+  constructor(
+    status: number,
+    code: string,
+    message: string,
+    fields: Record<string, string> = {},
+    retryAfter: number | null = null,
+    extra: Record<string, unknown> = {},
+  ) {
     super(message)
     this.name = 'ApiError'
     this.status = status
     this.code = code
     this.fields = fields
     this.retryAfter = retryAfter
+    this.extra = extra
   }
 }
 
@@ -79,12 +88,14 @@ async function send<T>(path: string, options: RequestOptions, csrf: string | nul
   if (!response.ok || payload === null || payload.error !== null) {
     const error = payload?.error
     const retryHeader = response.headers.get('Retry-After')
+    const { code: _code, message: _message, fields: _fields, debug: _debug, ...extra } = (error ?? {}) as Record<string, unknown>
     throw new ApiError(
       response.status,
       error?.code ?? 'SERVER_ERROR',
       error?.message ?? 'Something went wrong. Please try again.',
       error?.fields ?? {},
       retryHeader !== null ? Number(retryHeader) : null,
+      extra,
     )
   }
   return payload.data
