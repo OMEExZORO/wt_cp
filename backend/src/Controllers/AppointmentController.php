@@ -153,7 +153,7 @@ final class AppointmentController extends Controller
             throw new ValidationException($errors === [] ? ['scan_type_id' => 'Choose a scan from the list.'] : $errors);
         }
 
-        $patient = $isStaff ? $this->walkInPatient($data, $user) : $this->ownPatient($user);
+        $patient = $isStaff ? $this->walkInPatient($data, $user, $request) : $this->ownPatient($user);
         $evaluated = ChecklistEvaluator::evaluate($items, $answers);
         $urgency = $isStaff ? ($data['urgency'] ?? 'Routine') : 'Routine';
 
@@ -328,7 +328,7 @@ final class AppointmentController extends Controller
         ]);
     }
 
-    private function walkInPatient(array $data, array $user): array
+    private function walkInPatient(array $data, array $user, Request $request): array
     {
         if (!empty($data['patient_id'])) {
             $patient = $this->patients->find($data['patient_id']);
@@ -341,12 +341,17 @@ final class AppointmentController extends Controller
         if ($existing !== null) {
             return $existing;
         }
-        return $this->patients->create([
+        $created = $this->patients->create([
             'full_name' => $data['patient_full_name'],
             'phone' => $data['patient_phone'],
             'consent_given_at' => $this->clock->now()->format(\DateTimeInterface::ATOM),
             'consent_version' => (string) $this->config->get('auth.consent_version'),
             'created_by_user_id' => $user['id'],
         ]);
+        $this->audit->log('patient.created_walk_in', $request, [
+            'entity_type' => 'patient',
+            'entity_id' => $created['id'] ?? null,
+        ]);
+        return $created;
     }
 }

@@ -8,7 +8,7 @@ const paths = ['/', '/about', '/services', '/branches', '/reviews', '/faq', '/co
 
 const urls = paths.map((path) => `  <url>\n    <loc>${base}${path === '/' ? '/' : path}</loc>\n  </url>`).join('\n')
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`
-const robots = `User-agent: *\nAllow: /\nDisallow: /portal/\nDisallow: /login\nDisallow: /register\nDisallow: /forgot-password\nDisallow: /reset-password\nDisallow: /verify-email\n\nSitemap: ${base}/sitemap.xml\n`
+const robots = `User-agent: *\nAllow: /\nDisallow: /portal/\nDisallow: /reset-password\nDisallow: /verify-email\n\nSitemap: ${base}/sitemap.xml\n`
 
 mkdirSync(root, { recursive: true })
 writeFileSync(join(root, 'sitemap.xml'), sitemap)

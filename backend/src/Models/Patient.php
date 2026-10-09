@@ -25,6 +25,15 @@ final class Patient extends Model
         );
     }
 
+    public function search(string $term, int $limit): array
+    {
+        $pattern = '%' . addcslashes(strtolower($term), '%_\\') . '%';
+        return $this->fetchAll(
+            'SELECT id, full_name, phone FROM patients WHERE lower(full_name) LIKE :pattern OR phone LIKE :pattern ORDER BY full_name, created_at LIMIT ' . max(1, min($limit, 25)),
+            ['pattern' => $pattern]
+        );
+    }
+
     public function syncContact(string $userId, string $fullName, ?string $phone): void
     {
         $this->execute(

@@ -6,9 +6,10 @@ import { RescheduleDialog } from './RescheduleDialog'
 export interface AppointmentActionsProps {
   appointment: Appointment
   onChanged: (appointment: Appointment) => void
+  patientName?: string
 }
 
-export function AppointmentActions({ appointment, onChanged }: AppointmentActionsProps) {
+export function AppointmentActions({ appointment, onChanged, patientName }: AppointmentActionsProps) {
   const [dialog, setDialog] = useState<'cancel' | 'reschedule' | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
 
@@ -17,12 +18,22 @@ export function AppointmentActions({ appointment, onChanged }: AppointmentAction
       {appointment.can_cancel || appointment.can_reschedule ? (
         <div className="appointment-card__actions">
           {appointment.can_reschedule ? (
-            <button type="button" className="btn btn--outline btn--sm" onClick={() => setDialog('reschedule')}>
+            <button
+              type="button"
+              className="btn btn--outline btn--sm"
+              aria-label={patientName === undefined ? undefined : `Reschedule ${patientName}`}
+              onClick={() => setDialog('reschedule')}
+            >
               Reschedule
             </button>
           ) : null}
           {appointment.can_cancel ? (
-            <button type="button" className="btn btn--outline btn--sm" onClick={() => setDialog('cancel')}>
+            <button
+              type="button"
+              className="btn btn--outline btn--sm"
+              aria-label={patientName === undefined ? undefined : `Cancel ${patientName}`}
+              onClick={() => setDialog('cancel')}
+            >
               Cancel
             </button>
           ) : null}

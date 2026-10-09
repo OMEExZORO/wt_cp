@@ -15,12 +15,13 @@ export const MODALITY_TONE: Record<Modality, string> = {
   BIOPSY: 'peach',
 }
 
-function ServiceCardBase({ scan }: { scan: PublicScanType }) {
+function ServiceCardBase({ scan, headingLevel = 3 }: { scan: PublicScanType; headingLevel?: 3 | 4 }) {
+  const Heading = headingLevel === 3 ? 'h3' : 'h4'
   return (
     <li className={`service-card service-card--${MODALITY_TONE[scan.modality]}`}>
       <div className="service-card__top">
         <span className="service-card__modality">{MODALITY_LABEL[scan.modality]}</span>
-        <h4 className="service-card__title">{scan.name}</h4>
+        <Heading className="service-card__title">{scan.name}</Heading>
         <p className="service-card__desc">{scan.short_description}</p>
       </div>
       <details className="service-card__prep">

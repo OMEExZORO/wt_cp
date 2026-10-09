@@ -64,6 +64,7 @@ Admin update routes accept both PUT and PATCH for the same handler so a client m
 | GET | `/booking/days` | session | Days with free slots for a calendar | Read-only |
 | GET | `/booking/next-available` | session | Earliest slot, used for the other-branch suggestion | Read-only |
 | GET | `/scan-types/{id}/checklist` | session | Pre-scan safety checklist for a scan | Read-only |
+| GET | `/patients/lookup?phone=&name=` | receptionist, admin | Find an existing patient by phone or name for walk-in booking (creating one writes audit action `patient.created_walk_in`) | Read-only search |
 | GET | `/appointments` | patient (own), receptionist, doctor, admin | List appointments, filtered by role | Read-only |
 | POST | `/appointments` | patient, receptionist, admin; verified email (`booking 30/60`) | Book a slot inside a locking transaction; 409 returns a suggestion when full | Creates an appointment |
 | GET | `/appointments/{id}` | patient (own), receptionist, doctor, admin | One appointment with checklist answers | Read-only; non-owners get 404 |

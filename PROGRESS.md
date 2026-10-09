@@ -171,3 +171,9 @@ Migration `014_reports.sql` adds `reports.impression_encrypted`, `reports.storag
 - Added `render.yaml` (API and worker, secrets `sync: false`), `frontend/vercel.json`, `frontend/public/_redirects` and `_headers`.
 - Docker daemon was not running, so `docker compose build` was not executed; only static validation was possible.
 - No production admin seed exists; the README documents creating the first admin with SQL.
+## Phase 8C: security, accessibility and reception gaps
+
+- Security audit found no string-built SQL, no unsafe HTML sinks, no code comments and no tracked secrets; every route has auth and role middleware and ownership checks. Added `GET /api/v1/patients/lookup` (receptionist, admin; validated, throttled, audited) and a `patient.created_walk_in` audit entry.
+- Lighthouse (mobile, vite preview): Home 63/96/96/100, Services 69/98/96/100, Login 72/100/96/63 before; Home 93/100/100/100, Services 95/100/100/100, Login 90/100/100/100 after (performance/accessibility/best-practices/SEO).
+- Reception UI: reschedule and cancel on each reception row, and `/portal/reception/walk-in` for booking on behalf of a new or existing patient.
+- Tests: PHPUnit 369 tests, 889 assertions; Vitest 157 tests in 14 files; `npm run build` passes.

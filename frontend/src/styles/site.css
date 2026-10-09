@@ -1106,6 +1106,7 @@ p {
   flex-wrap: wrap;
   gap: var(--space-3);
   padding: var(--space-6);
+  min-height: 320px;
   background: var(--color-surface);
   border: 1px dashed var(--color-border);
   border-radius: var(--radius);

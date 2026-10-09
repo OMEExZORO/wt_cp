@@ -131,7 +131,7 @@ export default function ServicesPage() {
                       {sub.title ? <h3 className="scan-group__title">{sub.title}</h3> : null}
                       <ul className="card-grid">
                         {sub.scans.map((scan) => (
-                          <ServiceCard key={scan.id} scan={scan} />
+                          <ServiceCard key={scan.id} scan={scan} headingLevel={sub.title ? 4 : 3} />
                         ))}
                       </ul>
                     </div>

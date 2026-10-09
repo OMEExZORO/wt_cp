@@ -1,6 +1,8 @@
+import { Link } from 'react-router-dom'
 import { useCallback, useEffect, useState } from 'react'
 import { StaffAlertsBoard } from '../../features/alerts/StaffAlertsBoard'
 import { bookingsApi } from '../../api/bookings'
+import { AppointmentActions } from '../../features/booking/AppointmentActions'
 import { Dialog } from '../../components/Dialog'
 import { FormAlert } from '../../components/form/FormAlert'
 import { PageLoader } from '../../components/PageLoader'
@@ -113,6 +115,7 @@ export function ReceptionRow({ appointment, onUpdated }: RowProps) {
             </button>
           ))}
         </div>
+        <AppointmentActions appointment={appointment} onChanged={onUpdated} patientName={appointment.patient.full_name} />
       </div>
       {confirmNoShow ? (
         <Dialog
@@ -171,6 +174,11 @@ export default function ReceptionDashboard() {
   return (
     <section aria-labelledby="dashboard-title">
       <h1 id="dashboard-title">Reception dashboard</h1>
+      <p>
+        <Link to="/portal/reception/walk-in" className="btn btn--primary btn--sm">
+          New walk-in booking
+        </Link>
+      </p>
       <div className="toolbar reception-filters">
         <div className="field">
           <label htmlFor="reception-date" className="field__label">
