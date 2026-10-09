@@ -85,7 +85,7 @@ Root npm scripts wrap these (`npm run migrate`, `npm run seed:dev`, `npm run db:
   - `referrals.status`: submitted, accepted, scheduled, completed, report_ready, declined, cancelled
   - `reports.status`: draft, final, amended; `reports.mime_type`: application/pdf, image/jpeg, image/png; size cap 10 MiB
   - `critical_alerts.status`: open, notified, escalated, acknowledged, resolved, cancelled
-  - `alert_events.event_type`: raised, notified, resent, escalated, staff_flagged, acknowledged, resolved, cancelled, delivery_failed; `actor_type`: user, system; `channel`: email, in_app, sms_stub, phone
+  - `alert_events.event_type`: raised, notified, resent, escalated, staff_flagged, acknowledged, phone_contacted, resolved, cancelled, delivery_failed; `actor_type`: user, system; `channel`: email, in_app, sms_stub, phone
   - `reviews.status`: pending, approved, rejected; rating 1 to 5
   - `checklist_items.answer_type`: yes_no, yes_no_unsure, text, date
   - `report_access_log.action`: upload, view, download, delete, denied
