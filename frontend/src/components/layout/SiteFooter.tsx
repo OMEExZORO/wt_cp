@@ -1,11 +1,11 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
-import { loadBranches, loadSite, selectSetting } from '../../features/public/publicSlice'
-import { branchAddress, formatPhone, settingText, telHref } from '../../lib/contact'
+import { loadBranches, loadSite } from '../../features/public/publicSlice'
+import { branchAddress, formatPhone, telHref } from '../../lib/contact'
 import { useContactInfo } from '../../lib/useContactInfo'
 import { Logo } from '../brand/Logo'
-import { MailIcon, PhoneIcon, PinIcon } from '../icons/Icons'
+import { PhoneIcon, PinIcon } from '../icons/Icons'
 import { GoogleListingNote } from '../public/GoogleListingNote'
 import { Todo } from '../public/Primitives'
 
@@ -39,7 +39,6 @@ export function SiteFooter() {
     void dispatch(loadBranches())
   }, [dispatch])
   const branches = useAppSelector((state) => state.public.branches.data?.branches ?? [])
-  const logo = settingText(useAppSelector(selectSetting('clinic.logo_url')))
   const contact = useContactInfo()
   const centres = branches.filter((branch) => !branch.address_is_placeholder)
 
@@ -47,17 +46,13 @@ export function SiteFooter() {
     <footer className="site-footer">
       <div className="container site-footer__grid">
         <div className="site-footer__brand">
-          <Logo src={logo} tone="light" />
+          <Logo tone="light" />
           <p className="site-footer__tagline">Imaging for a Healthier Tomorrow</p>
           <p className="site-footer__muted">Complete Diagnostic Care Under One Roof</p>
           <ul className="site-footer__contact">
             <li>
               <PhoneIcon size={16} />
               {contact.primaryPhone ? <a href={telHref(contact.primaryPhone)}>{formatPhone(contact.primaryPhone)}</a> : <Todo label="phone" />}
-            </li>
-            <li>
-              <MailIcon size={16} />
-              {contact.email ? <a href={`mailto:${contact.email}`}>{contact.email}</a> : <Todo label="email" />}
             </li>
           </ul>
         </div>

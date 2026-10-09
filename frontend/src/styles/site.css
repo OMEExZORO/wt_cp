@@ -219,47 +219,29 @@ p {
 .logo {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-3);
+}
+
+.logo picture {
+  display: block;
 }
 
 .logo__image {
-  border-radius: 12px;
+  display: block;
+  height: 40px;
+  width: auto;
   object-fit: contain;
 }
 
-.logo__text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.1;
-}
-
-.logo__name {
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 1.5rem;
-  letter-spacing: 0.04em;
-}
-
-.logo__name abbr {
-  text-decoration: none;
-}
-
-.logo__tag {
-  font-size: var(--text-xs);
-  margin-top: 4px;
-  opacity: 0.85;
-}
-
-.logo--dark .logo__name {
-  color: var(--color-heading);
+@media (min-width: 700px) {
+  .logo__image {
+    height: 50px;
+  }
 }
 
 .logo--light {
-  color: #ffffff;
-}
-
-.logo--light .logo__name {
-  color: #ffffff;
+  background: #ffffff;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius);
 }
 
 .site-header__toggle {

@@ -87,6 +87,13 @@ export default function ServicesPage() {
   return (
     <>
       <PageHero eyebrow="Services" title="Scans and procedures" intro="Search or filter to find a scan. Each one has a plain-language description and tips to prepare. Your own doctor or the centre may give different instructions, so follow those first." />
+      <div className="container">
+        <p>
+          <a className="text-link" href="/images/client/brochure-services.jpg" target="_blank" rel="noopener noreferrer">
+            View our services brochure
+          </a>
+        </p>
+      </div>
       <section className="section section--flush" aria-label="Browse services">
         <div className="container">
           <div className="toolbar">

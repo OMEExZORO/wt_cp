@@ -3,8 +3,6 @@ import { Link, NavLink, useLocation } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { useTheme } from '../../context/ThemeContext'
 import { logout, selectUser } from '../../features/auth/authSlice'
-import { selectSetting } from '../../features/public/publicSlice'
-import { settingText } from '../../lib/contact'
 import { homeFor } from '../../lib/roles'
 import { Logo } from '../brand/Logo'
 import { CloseIcon, MenuIcon, MoonIcon, SunIcon } from '../icons/Icons'
@@ -21,7 +19,6 @@ const LINKS: { to: string; label: string; end?: boolean }[] = [
 
 export function SiteHeader() {
   const user = useAppSelector(selectUser)
-  const logo = settingText(useAppSelector(selectSetting('clinic.logo_url')))
   const dispatch = useAppDispatch()
   const { theme, toggleTheme } = useTheme()
   const [open, setOpen] = useState(false)
@@ -54,7 +51,7 @@ export function SiteHeader() {
     <header className="site-header">
       <div className="container site-header__inner">
         <Link to="/" className="site-header__brand" aria-label="Meghnad Diagnostic Centre, home">
-          <Logo src={logo} compact />
+          <Logo />
         </Link>
         <button
           type="button"
