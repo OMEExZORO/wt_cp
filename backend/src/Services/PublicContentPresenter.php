@@ -97,6 +97,10 @@ final class PublicContentPresenter
             'body' => $row['body'],
             'verified_visit' => Model::flag($row['verified_visit']),
             'created_at' => Model::iso($row['created_at']),
+            'source' => $row['source'] ?? 'site',
+            'source_url' => $row['source_url'] ?? null,
+            'external_review_date' => $row['external_review_date'] ?? null,
+            'reviewer_photo_url' => $row['reviewer_photo_url'] ?? null,
         ];
         if ($exposeDemoFlag) {
             $review['is_demo'] = Model::flag($row['is_demo']);

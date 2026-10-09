@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use App\Controllers\Admin\FaqAdminController;
+use App\Controllers\Admin\ReviewAdminController;
 use App\Controllers\Admin\SlotAdminController;
 use App\Controllers\Admin\UserAdminController;
 use App\Controllers\PublicController;
@@ -101,6 +102,56 @@ final class AdminContentTest extends TestCase
         $response = $controller->store($this->request('POST', '/api/v1/admin/faqs', ['question' => 'Valid question here?', 'answer' => 'A valid answer.', 'category' => 'general']));
         self::assertSame(201, $response->status());
         self::assertSame(['admin.faq_created'], $audit->actions());
+    }
+
+    private function reviewController(FakePdo $pdo, InMemoryAuditLogger $audit): ReviewAdminController
+    {
+        $controller = new ReviewAdminController($audit, new Review($pdo), new AdminRepository($pdo));
+        $controller->setRequestValidator(new RequestValidator($audit));
+        return $controller;
+    }
+
+    private function googleBody(): array
+    {
+        return ['display_name' => 'Asha K', 'rating' => 5, 'body' => 'Calm staff and a clear explanation of the scan.', 'external_review_date' => '2026-09-01', 'source_url' => 'https://maps.app.goo.gl/example'];
+    }
+
+    public function testGoogleReviewIsCreatedApprovedAndUnverified(): void
+    {
+        $pdo = new FakePdo();
+        $pdo->on('INSERT INTO reviews', [['id' => 'r-1', 'display_name' => 'Asha K', 'rating' => 5, 'body' => 'Calm staff and a clear explanation of the scan.', 'status' => 'approved', 'verified_visit' => false, 'is_demo' => false, 'source' => 'google', 'source_url' => 'https://maps.app.goo.gl/example', 'external_review_date' => '2026-09-01', 'reviewer_photo_url' => null]]);
+        $audit = new InMemoryAuditLogger();
+        $response = $this->reviewController($pdo, $audit)->store($this->request('POST', '/api/v1/admin/reviews', $this->googleBody()));
+        self::assertSame(201, $response->status());
+        self::assertSame(['admin.review_created'], $audit->actions());
+        $inserts = array_filter($pdo->statements, static fn (string $sql): bool => str_starts_with($sql, 'INSERT INTO reviews'));
+        self::assertNotEmpty($inserts);
+        foreach ($inserts as $sql) {
+            self::assertStringContainsString('source', $sql);
+        }
+    }
+
+    public function testGoogleReviewRejectsNonHttpsLinkAndFutureDate(): void
+    {
+        foreach ([['source_url' => 'http://example.com/r'], ['external_review_date' => '2999-01-01'], ['rating' => 6]] as $override) {
+            $pdo = new FakePdo();
+            $audit = new InMemoryAuditLogger();
+            try {
+                $this->reviewController($pdo, $audit)->store($this->request('POST', '/api/v1/admin/reviews', $override + $this->googleBody()));
+                self::fail('Expected a validation error');
+            } catch (ValidationException $e) {
+                self::assertArrayHasKey(array_key_first($override), $e->fields());
+            }
+            self::assertSame([], $pdo->writes());
+        }
+    }
+
+    public function testSiteReviewsCannotBeEditedAsGoogleReviews(): void
+    {
+        $pdo = new FakePdo();
+        $pdo->on('FROM reviews WHERE', [['id' => self::OTHER, 'source' => 'site', 'status' => 'approved']]);
+        $this->expectException(ValidationException::class);
+        $this->reviewController($pdo, new InMemoryAuditLogger())->update($this->request('PUT', '/api/v1/admin/reviews/' . self::OTHER, $this->googleBody(), ['id' => self::OTHER]));
     }
 
     private function slotController(FakePdo $pdo, InMemoryAuditLogger $audit): SlotAdminController

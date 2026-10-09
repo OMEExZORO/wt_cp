@@ -199,7 +199,7 @@ final class AdminRepository extends Model
             $params['status'] = $status;
         }
         return $this->fetchAll(
-            'SELECT r.id, r.display_name, r.rating, r.body, r.status, r.verified_visit, r.is_demo, r.appointment_id, r.moderated_at, r.moderation_note, r.created_at
+            'SELECT r.id, r.display_name, r.rating, r.body, r.status, r.verified_visit, r.is_demo, r.appointment_id, r.moderated_at, r.moderation_note, r.created_at, r.source, r.source_url, r.external_review_date, r.reviewer_photo_url
              FROM reviews r' . $where . ' ORDER BY (r.status = \'pending\') DESC, r.created_at DESC LIMIT ' . $limit . ' OFFSET ' . $offset,
             $params
         );

@@ -169,6 +169,8 @@ return static function (Router $router): void {
             $router->delete('/faqs/{id:uuid}', [FaqAdminController::class, 'destroy']);
 
             $router->get('/reviews', [ReviewAdminController::class, 'index']);
+            $router->post('/reviews', [ReviewAdminController::class, 'store']);
+            $router->put('/reviews/{id:uuid}', [ReviewAdminController::class, 'update']);
             $router->patch('/reviews/{id:uuid}', [ReviewAdminController::class, 'moderate']);
         });
     });
