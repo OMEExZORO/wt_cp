@@ -162,7 +162,7 @@ export default function WalkInBooking() {
   }
 
   if (branches.status !== 'succeeded' || scanTypes.status !== 'succeeded') {
-    return <PageLoader label="Loading branches and scans…" />
+    return <PageLoader label="Loading scans…" />
   }
 
   if (booked !== null) {

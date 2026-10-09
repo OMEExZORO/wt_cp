@@ -68,7 +68,6 @@ return static function (PDO $pdo): array {
         'verified_by' => $ids['admin'],
     ]);
 
-    $pdo->exec("UPDATE branches SET is_active = TRUE WHERE slug = 'branch-2'");
 
     $slots = $pdo->exec(
         "INSERT INTO slots (branch_id, modality, slot_date, start_time, end_time, capacity)

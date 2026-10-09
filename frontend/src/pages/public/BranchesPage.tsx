@@ -9,10 +9,10 @@ export default function BranchesPage() {
   const { data, status, error, reload } = usePublicResource('branches')
   return (
     <>
-      <PageHero eyebrow="Branches" title="Find a centre near you" intro="Addresses, hours and directions for each branch." />
+      <PageHero eyebrow="Location" title="Visit our centre" intro="Address, opening hours and directions for Meghnad Diagnostic Centre, Bhosari." />
       <section className="section section--flush">
         <div className="container">
-          <AsyncState status={status} error={error} onRetry={reload} label="Loading branches">
+          <AsyncState status={status} error={error} onRetry={reload} label="Loading location">
             <div className="stack">
               {(data?.branches ?? []).map((branch) => (
                 <BranchCard key={branch.id} branch={branch} headingLevel={2} />

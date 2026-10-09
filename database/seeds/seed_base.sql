@@ -1,7 +1,6 @@
 INSERT INTO branches (slug, name, address_line, landmark, area, city, state, postal_code, is_placeholder, is_active, sort_order)
 VALUES
-    ('bhosari', 'MDC Bhosari', 'Nagdev Tower, Pune Nashik Road', 'Near Vishwavilas Hotel and Shraddha Jewellers', 'Bhosari', 'Pune', 'Maharashtra', '411039', TRUE, TRUE, 1),
-    ('branch-2', 'MDC Branch 2', 'TODO: add real value', NULL, NULL, 'Pune', 'Maharashtra', NULL, TRUE, FALSE, 2)
+    ('bhosari', 'MDC Bhosari', 'Nagdev Tower, Pune Nashik Road', 'Near Vishwavilas Hotel and Shraddha Jewellers', 'Bhosari', 'Pune', 'Maharashtra', '411039', TRUE, TRUE, 1)
 ON CONFLICT (slug) DO NOTHING;
 
 INSERT INTO scan_categories (parent_id, slug, modality, name, tagline, description, sort_order)

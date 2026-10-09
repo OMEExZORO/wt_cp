@@ -11,7 +11,7 @@ const LINKS: { to: string; label: string; end?: boolean }[] = [
   { to: '/', label: 'Home', end: true },
   { to: '/services', label: 'Services' },
   { to: '/about', label: 'Radiologist' },
-  { to: '/branches', label: 'Centres' },
+  { to: '/branches', label: 'Location' },
   { to: '/reviews', label: 'Reviews' },
   { to: '/faq', label: 'FAQ' },
   { to: '/contact', label: 'Contact' },

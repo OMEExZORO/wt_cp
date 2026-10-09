@@ -23,7 +23,7 @@ const PILLARS: { label: string; text: string; icon: ReactNode }[] = [
 ]
 
 export default function HomePage() {
-  usePageMeta('Meghnad Diagnostic Centre', 'Ultrasound, CT and image-guided biopsies at Meghnad Diagnostic Centre, Bhosari, Pune. Read about the services, centres and book an appointment.')
+  usePageMeta('Meghnad Diagnostic Centre', 'Ultrasound, CT and image-guided biopsies at Meghnad Diagnostic Centre, Bhosari, Pune. Read about the services and our location, and book an appointment.')
   const branches = usePublicResource('branches')
   const faqs = usePublicResource('faqs')
 
@@ -66,7 +66,7 @@ export default function HomePage() {
 
       <section className="section" aria-labelledby="branches-title">
         <div className="container">
-          <SectionHeading id="branches-title" eyebrow="Visit us" title="Our centres" />
+          <SectionHeading id="branches-title" eyebrow="Visit us" title="Our centre" />
           <AsyncState status={branches.status} error={branches.error} onRetry={branches.reload} label="Loading centres">
             <div className="stack">
               {(branches.data?.branches ?? []).map((branch) => (

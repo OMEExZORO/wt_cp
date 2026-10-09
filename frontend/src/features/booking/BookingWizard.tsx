@@ -240,7 +240,7 @@ export default function BookingWizard() {
   }
 
   if (branches.status === 'loading' || scanTypes.status === 'loading' || (branches.status === 'idle' && scanTypes.status === 'idle')) {
-    return <PageLoader label="Loading branches and scans…" />
+    return <PageLoader label="Loading scans…" />
   }
 
   const loadFailed = branches.status === 'failed' || scanTypes.status === 'failed'

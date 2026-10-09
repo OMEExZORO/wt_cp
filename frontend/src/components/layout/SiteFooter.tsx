@@ -19,7 +19,7 @@ const SERVICES: { to: string; label: string }[] = [
 const QUICK_LINKS: { to: string; label: string }[] = [
   { to: '/book', label: 'Book Appointment' },
   { to: '/about', label: 'Meet the radiologist' },
-  { to: '/branches', label: 'Centres and directions' },
+  { to: '/branches', label: 'Location and directions' },
   { to: '/reviews', label: 'Patient reviews' },
   { to: '/faq', label: 'FAQ' },
   { to: '/contact', label: 'Contact' },
@@ -77,7 +77,7 @@ export function SiteFooter() {
           </ul>
         </nav>
         <div className="site-footer__col">
-          <h2 className="site-footer__heading">Our centres</h2>
+          <h2 className="site-footer__heading">Our centre</h2>
           {centres.length === 0 ? (
             <address className="site-footer__address">Nagdev Tower, Pune Nashik Road, Bhosari, Pune 411039</address>
           ) : (
