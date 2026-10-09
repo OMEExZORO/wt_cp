@@ -177,3 +177,6 @@ Migration `014_reports.sql` adds `reports.impression_encrypted`, `reports.storag
 - Lighthouse (mobile, vite preview): Home 63/96/96/100, Services 69/98/96/100, Login 72/100/96/63 before; Home 93/100/100/100, Services 95/100/100/100, Login 90/100/100/100 after (performance/accessibility/best-practices/SEO).
 - Reception UI: reschedule and cancel on each reception row, and `/portal/reception/walk-in` for booking on behalf of a new or existing patient.
 - Tests: PHPUnit 369 tests, 889 assertions; Vitest 157 tests in 14 files; `npm run build` passes.
+## Phase 8A (testing) - implemented
+
+- Phase 8A: PHPUnit 431 tests (adds ContainerWiringTest, ValidationAttackMatrixTest), Vitest 146, alerts worker 17; live `backend/bin/validation-attack-check.php` 45/45; `tests/flow/full-journey.mjs` 15/15; Postman collection and environment in `postman/` run with newman (174 requests, 386 assertions, 0 failed); results in `docs/TEST_REPORT.md`. Bug fixed: missing `EncryptedNoteProtector` import in `backend/config/container.php` made flagging a report critical return 500.
