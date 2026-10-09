@@ -8,7 +8,7 @@ services:
     environment:
       APP_URL: http://localhost:8000
     ports:
-      - "8000:80"
+      - "8000:8080"
     volumes:
       - ./backend:/var/www/backend
       - ./database:/var/www/database
@@ -40,7 +40,7 @@ services:
     command: sh -c "npm ci && npm run dev -- --host 0.0.0.0 --port 5173"
     environment:
       VITE_API_BASE_URL: /api/v1
-      VITE_PROXY_TARGET: http://api:80
+      VITE_PROXY_TARGET: http://api:8080
     ports:
       - "5173:5173"
     volumes:
