@@ -4,6 +4,7 @@ import { authApi } from '../../api/auth'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { logout, selectUser } from '../../features/auth/authSlice'
 import { AREA_ROLES, ROLE_LABEL } from '../../lib/roles'
+import type { Role } from '../../types/auth'
 import { ErrorBoundary } from '../ErrorBoundary'
 import { PageLoader } from '../PageLoader'
 import { SiteFooter } from './SiteFooter'
@@ -14,6 +15,14 @@ const AREA_LINKS: { to: string; label: string }[] = [
   { to: '/portal/reception', label: 'Reception dashboard' },
   { to: '/portal/admin', label: 'Admin dashboard' },
   { to: '/portal/referrer', label: 'Referrer dashboard' },
+]
+
+const REPORT_LINKS: { to: string; label: string; roles: Role[] }[] = [
+  { to: '/portal/patient/reports', label: 'My reports', roles: ['patient'] },
+  { to: '/portal/doctor/reports', label: 'Reports', roles: ['doctor', 'admin'] },
+  { to: '/portal/doctor/referrals', label: 'Referrals', roles: ['doctor', 'admin'] },
+  { to: '/portal/reception/reports', label: 'Reports', roles: ['receptionist'] },
+  { to: '/portal/reception/referrals', label: 'Referrals', roles: ['receptionist'] },
 ]
 
 function VerifyEmailBanner() {
@@ -48,6 +57,7 @@ export function PortalLayout() {
     return null
   }
   const links = AREA_LINKS.filter((link) => AREA_ROLES[link.to]?.includes(user.role))
+  const reportLinks = REPORT_LINKS.filter((link) => link.roles.includes(user.role))
 
   return (
     <div className="portal">
@@ -69,6 +79,11 @@ export function PortalLayout() {
       <div className="container portal__body">
         <nav aria-label="Portal" className="portal__nav">
           {links.map((link) => (
+            <NavLink key={link.to} to={link.to}>
+              {link.label}
+            </NavLink>
+          ))}
+          {reportLinks.map((link) => (
             <NavLink key={link.to} to={link.to}>
               {link.label}
             </NavLink>
