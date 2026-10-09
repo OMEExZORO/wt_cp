@@ -20,3 +20,4 @@ dist-ssr/
 *.local
 .tmp/
 .claude/
+!backend/src/Services/Storage/

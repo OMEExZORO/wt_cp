@@ -121,3 +121,35 @@ Backend was finished earlier; this step added the frontend. No backend behaviour
 - Tests: PHPUnit 225 passing (queue sort, alert transitions, acknowledge ownership); Vitest 57 passing; `npm run build` and `services/alerts` `npm test` (17) pass.
 - Dev data left on the shared Supabase DB (the immutability trigger and RESTRICT FKs prevent deleting it): appointments `DEVP6-A1..A3`, referral `DEVP6-REF`, reports with storage path `devp6/*`, two critical alerts and their events. All are labelled DEVP6.
 - Merge notes: bind `NoteProtector` in `config/container.php` to an adapter over the Phase 5 `EncryptionService` (currently `UnavailableNoteProtector`, so the doctor's clinical note is dropped and the response says `note_stored: false`; the alert text itself is generic and non-clinical). Reports are flagged by ID only; nothing here uploads reports.
+## Phase 5 (reports with encryption, referrer portal) - implemented
+
+Migration `014_reports.sql` adds `reports.impression_encrypted`, `reports.storage_driver` and indexes.
+
+### Endpoints (all under `/api/v1`, all need `auth` and CSRF for unsafe methods)
+
+| Method | Path | Roles |
+|---|---|---|
+| GET | `/reports` (filters `q`, `status`, `patient_id`, `appointment_id`, `from`, `to`, `page`, `per_page`) | patient (own, released only), referrer (own referred patients, released only), receptionist, doctor, admin (all) |
+| POST | `/reports` (multipart: `appointment_id`, `title`, `file`, optional `patient_id`, `notes`, `impression`, `status` draft or final) | doctor, receptionist, admin |
+| GET | `/reports/{id}` | as list, logs `view` |
+| GET | `/reports/{id}/download` | as list, streams decrypted bytes, logs `download` |
+| PATCH | `/reports/{id}` (`title`, `notes`, `impression`, `status`) | doctor, receptionist, admin |
+| DELETE | `/reports/{id}` | admin (soft delete plus storage delete, logs `delete`) |
+| POST | `/referrals` | referrer |
+| GET | `/referrals`, `/referrals/{id}` | referrer (own), staff (all) |
+| PATCH | `/referrals/{id}` (`status`, `appointment_id`) | receptionist, doctor, admin |
+
+### Code map
+
+- `Services/EncryptionService` (AES-256-GCM, versioned keys), `Services/Storage/{StorageService,SupabaseStorage,LocalStorage}`, `Services/Reports/{ReportService,ReportAccessPolicy,UploadedFileValidator,ReportPresenter}`, `Controllers/{ReportController,ReferralController}`, `Models/{Report,ReportAccessLog,Referral}`, `bin/rotate-encryption.php`.
+- Frontend: `api/{reports,referrals}.ts`, `types/{report,referral}.ts`, `lib/reportFile.ts`, `features/reports/*`, `features/referrals/*`, `pages/portal/reports/*`, `pages/portal/ReferrerDashboard.tsx`. Routes: `/portal/patient/reports`, `/portal/{doctor,reception}/reports`, `/portal/{doctor,reception}/reports/new`, `/portal/{doctor,reception}/referrals`, `/portal/referrer`.
+
+### Verified (real runs, `php -S` on 8015 against Supabase with `STORAGE_DRIVER=supabase`)
+
+- Doctor uploaded a PDF for the dev patient; the object in the private bucket does not start with `%PDF`, does not contain the plaintext marker, and the public URL is refused.
+- Patient downloaded it; `cmp` shows the bytes identical; headers `Content-Type: application/pdf`, `Content-Disposition: attachment`, `X-Content-Type-Options: nosniff`, `Cache-Control: no-store`.
+- Referrer requesting an unlinked report by forged id got 404 on `GET` and `/download`; linking the appointment to the referrer's referral made it downloadable, and setting the report to draft hid it again.
+- A text file named `.pdf` got 422, PNG bytes named `.pdf` got 422, an 11 MB file got 413. Patients cannot upload (403), doctors cannot delete (403), admin delete returned 204 and the object was removed.
+- Referrer created a referral (notes stored encrypted); reception moved it to accepted and linked an appointment; the referrer cannot PATCH (403).
+- Test uploads, the test referral and the appointment link were removed afterwards.
+- PHPUnit: 251 tests, 577 assertions passing. Vitest: 61 tests in 8 files passing. `npm run build` passes.

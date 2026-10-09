@@ -103,6 +103,21 @@ npm run build        # type-check and build the frontend
 
 Individually: `php backend/vendor/bin/phpunit -c backend/phpunit.xml` and `npx vitest run` inside `frontend/`.
 
+## Encryption keys and rotation
+
+Report files, report notes and impressions, and referral notes are encrypted with AES-256-GCM (`App\Services\EncryptionService`). Each value gets a fresh 12 byte IV. Files store the IV, tag and `key_version` in the `reports` row; text columns hold a self-describing envelope `dc:v<version>:<iv>:<tag>:<ciphertext>`.
+
+Storage is chosen by `STORAGE_DRIVER`: `supabase` uses the private bucket `STORAGE_BUCKET` with the service key, `local` writes to `backend/storage/reports` (outside the web root, ignored by version control).
+
+To rotate the key:
+
+1. Generate a new key: `php -r "echo 'base64:' . base64_encode(random_bytes(32)), PHP_EOL;"`.
+2. Move the old key into `ENCRYPTION_KEYS_PREVIOUS` with its version, for example `ENCRYPTION_KEYS_PREVIOUS=1=base64:OLDKEY`, set `ENCRYPTION_KEY` to the new key and raise `ENCRYPTION_KEY_VERSION` (to `2`). New data uses the new key immediately; old data stays readable.
+3. Preview the work with `php backend/bin/rotate-encryption.php`, then run `php backend/bin/rotate-encryption.php --apply` to re-encrypt existing files and text values under the new key.
+4. When the script reports nothing left to rotate, remove the old key from `ENCRYPTION_KEYS_PREVIOUS`.
+
+Losing every copy of a key makes the data it protects unrecoverable. Keep keys in the hosting secret store and never commit them.
+
 ## Deploy
 
 Deployment configs are added in Phase 8.

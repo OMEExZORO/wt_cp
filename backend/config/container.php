@@ -31,10 +31,14 @@ use App\Services\Alerts\StubSmsGateway;
 use App\Services\Alerts\UnavailableNoteProtector;
 use App\Services\AuditLogger;
 use App\Services\DatabaseAuditLogger;
+use App\Services\EncryptionService;
 use App\Services\Mail\LogMailer;
 use App\Services\Mail\Mailer;
 use App\Services\Mail\MailService;
 use App\Services\Mail\SmtpMailer;
+use App\Services\Storage\LocalStorage;
+use App\Services\Storage\StorageService;
+use App\Services\Storage\SupabaseStorage;
 use App\Validation\RequestValidator;
 use App\Validation\Sanitizer;
 
@@ -68,7 +72,7 @@ return static function (Config $config): Container {
     ));
 
     $container->bind(SmsGateway::class, static fn (Container $c): SmsGateway => new StubSmsGateway($c->get(Logger::class)));
-    $container->bind(NoteProtector::class, static fn (): NoteProtector => new UnavailableNoteProtector());
+    $container->bind(NoteProtector::class, static fn (Container $c): NoteProtector => new EncryptedNoteProtector($c->get(EncryptionService::class)));
     $container->bind(AlertService::class, static fn (Container $c): AlertService => new AlertService(
         $c->get(CriticalAlert::class),
         $c->get(AlertEvent::class),
@@ -78,6 +82,13 @@ return static function (Config $config): Container {
         $config,
         Env::int('ALERT_ESCALATION_MINUTES', 30)
     ));
+    $container->bind(EncryptionService::class, static fn (): EncryptionService => EncryptionService::fromEnv());
+    $container->bind(StorageService::class, static function () use ($config): StorageService {
+        if (Env::get('STORAGE_DRIVER', 'local') === 'supabase') {
+            return new SupabaseStorage(Env::require('SUPABASE_URL'), Env::require('SUPABASE_SERVICE_KEY'), (string) $config->get('storage_bucket'));
+        }
+        return new LocalStorage((string) $config->get('storage_path') . '/reports');
+    });
 
     $container->bind(MiddlewareResolver::class, static fn (Container $c): MiddlewareResolver => new MiddlewareResolver($c, [
         'auth' => RequireAuthMiddleware::class,

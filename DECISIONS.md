@@ -99,3 +99,22 @@ Defaults chosen during the build. Each can be revisited.
 - PHP sets `next_escalation_at` to now plus `ALERT_ESCALATION_MINUTES` after notifying, the same variable the Node worker reads, so both use one window.
 - The reading queue is appointments with status `completed` and no non-draft report; waiting time runs from `completed_at` (falling back to the slot end). Overdue after 30 min (Urgent), 2 h (Priority), 6 h (Routine); warning at half.
 - The in-app banner is polled every 60 s rather than pushed; there is no websocket layer.
+## Phase 5: reports and referrals
+
+| Decision | Choice | Reason |
+|---|---|---|
+| Encryption format | AES-256-GCM, 12 byte random IV per value, 16 byte tag; files keep IV, tag and `key_version` in columns; text uses `dc:v<n>:iv:tag:cipher` | Self-describing and rotatable |
+| Key rotation | `ENCRYPTION_KEY` plus `ENCRYPTION_KEY_VERSION`, old keys in `ENCRYPTION_KEYS_PREVIOUS` (`1=base64:...`), `bin/rotate-encryption.php` re-encrypts | Old data stays readable while new data uses the new key |
+| Storage | `StorageService` interface; `SupabaseStorage` (REST via curl, service key, private bucket) and `LocalStorage` (`backend/storage/reports`), selected by `STORAGE_DRIVER` (default `local`); each report records its `storage_driver` | Works without Supabase and in tests |
+| Stored object name | `reports/YYYY/MM/<32 hex>.bin` | Random, no user input, never executable |
+| Upload validation | Real MIME through `finfo`; extension must match the MIME (`pdf`; `jpg` or `jpeg`; `png`); double extensions such as `.php.pdf` rejected; 10 MiB cap (413); metadata validated before the file is read; nothing is stored on any failure | Spec |
+| Which text is encrypted | `reports.findings_encrypted` holds the clinical notes, new `reports.impression_encrypted` holds the impression, `referrals.clinical_notes_encrypted` the referral notes | Reuses the Phase 1 column instead of adding a duplicate |
+| Visibility | Patients and referrers see only `final` and `amended` reports; staff see drafts. Notes and impression are returned to staff only | Patients should not see unreleased work or internal notes |
+| Referrer scope | Through `reports.appointment_id -> appointments.referral_id -> referrals.referrer_id`; staff link a referral to an appointment with `PATCH /referrals/{id}` and `appointment_id`, which also sets the referral's patient | A referral alone never grants access to a patient's other reports |
+| IDOR responses | Unauthorized report access returns 404 (same as an unknown id) and is written to `report_access_log` as `denied` and to `audit_log` | No existence oracle |
+| Referral statuses | DB values `submitted, accepted, scheduled, completed, report_ready, declined, cancelled`; the spec words map to received = accepted, reported = report_ready; staff cannot set `submitted`; linking an appointment moves `submitted` or `accepted` to `scheduled`; a final upload moves the referral to `report_ready` | Matches the Phase 1 schema |
+| Delete | Admin only: storage object deleted, row soft-deleted (`deleted_at`), access log kept | Keeps the audit trail |
+| Download | Whole file decrypted in memory, SHA-256 checked against the stored hash, sent with nosniff and no-store; the frontend uses a plain link so the browser handles the save | Files are capped at 10 MiB |
+| Upload progress | The fetch based client shows a busy state with a spinner, not a byte-level progress bar | Fetch has no upload progress events |
+| `.gitignore` | Added `!backend/src/Services/Storage/` because the existing `storage/` rule also matched that source directory on case-insensitive filesystems | Keeps the storage service tracked |
+| Model change | The `Model` column whitelist regex now allows digits (`sha256`) | Previously such columns were dropped silently |

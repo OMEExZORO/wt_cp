@@ -36,6 +36,10 @@ const ReceptionDashboard = lazy(() => import('./pages/portal/ReceptionDashboard'
 const AdminDashboard = lazy(() => import('./pages/portal/AdminDashboard'))
 const ReferrerDashboard = lazy(() => import('./pages/portal/ReferrerDashboard'))
 const AccountPage = lazy(() => import('./pages/portal/AccountPage'))
+const MyReportsPage = lazy(() => import('./pages/portal/reports/MyReportsPage'))
+const StaffReportsPage = lazy(() => import('./pages/portal/reports/StaffReportsPage'))
+const UploadReportPage = lazy(() => import('./pages/portal/reports/UploadReportPage'))
+const StaffReferralsPage = lazy(() => import('./pages/portal/reports/StaffReferralsPage'))
 
 export default function App() {
   const dispatch = useAppDispatch()
@@ -93,6 +97,19 @@ export default function App() {
               </Route>
               <Route element={<ProtectedRoute roles={['referrer']} />}>
                 <Route path="referrer" element={<ReferrerDashboard />} />
+              </Route>
+              <Route element={<ProtectedRoute roles={['patient']} />}>
+                <Route path="patient/reports" element={<MyReportsPage />} />
+              </Route>
+              <Route element={<ProtectedRoute roles={['doctor', 'admin']} />}>
+                <Route path="doctor/reports" element={<StaffReportsPage />} />
+                <Route path="doctor/reports/new" element={<UploadReportPage />} />
+                <Route path="doctor/referrals" element={<StaffReferralsPage />} />
+              </Route>
+              <Route element={<ProtectedRoute roles={['receptionist', 'admin']} />}>
+                <Route path="reception/reports" element={<StaffReportsPage />} />
+                <Route path="reception/reports/new" element={<UploadReportPage />} />
+                <Route path="reception/referrals" element={<StaffReferralsPage />} />
               </Route>
             </Route>
           </Route>
