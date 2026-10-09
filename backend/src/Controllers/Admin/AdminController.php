@@ -43,9 +43,10 @@ abstract class AdminController extends Controller
         return [$number, $perPage, ($number - 1) * $perPage];
     }
 
-    protected function paged(array $items, int $total, int $page, int $perPage): Response
+    protected function paged(string $key, array $items, int $total, int $page, int $perPage): Response
     {
-        return $this->ok($items, 200, ['page' => $page, 'per_page' => $perPage, 'total' => $total]);
+        $pagination = ['page' => $page, 'per_page' => $perPage, 'total' => $total];
+        return $this->ok([$key => $items, 'pagination' => $pagination], 200, $pagination);
     }
 
     protected function record(Request $request, string $action, string $entityType, string $entityId, array $metadata = []): void

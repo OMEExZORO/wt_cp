@@ -69,7 +69,7 @@ final class CatalogAdminController extends AdminController
         ]);
         $filters = array_filter($filters, static fn (mixed $value): bool => $value !== null);
         $rows = array_map($this->presentType(...), $this->repository->scanTypes($filters, $perPage, $offset));
-        return $this->paged($rows, $this->repository->scanTypeCount($filters), $page, $perPage);
+        return $this->paged('scan_types', $rows, $this->repository->scanTypeCount($filters), $page, $perPage);
     }
 
     public function typeStore(Request $request): Response

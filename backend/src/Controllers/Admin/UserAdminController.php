@@ -43,7 +43,7 @@ final class UserAdminController extends AdminController
         ]);
         $filters = array_filter($filters, static fn (mixed $value): bool => $value !== null);
         $rows = array_map($this->present(...), $this->repository->users($filters, $perPage, $offset));
-        return $this->paged($rows, $this->repository->userCount($filters), $page, $perPage);
+        return $this->paged('users', $rows, $this->repository->userCount($filters), $page, $perPage);
     }
 
     public function store(Request $request): Response

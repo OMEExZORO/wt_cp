@@ -38,7 +38,7 @@ final class SlotAdminController extends AdminController
         ]);
         $filters = array_filter($filters, static fn (mixed $value): bool => $value !== null);
         $rows = array_map($this->present(...), $this->repository->slots($filters, $perPage, $offset));
-        return $this->paged($rows, $this->repository->slotCount($filters), $page, $perPage);
+        return $this->paged('slots', $rows, $this->repository->slotCount($filters), $page, $perPage);
     }
 
     public function update(Request $request): Response

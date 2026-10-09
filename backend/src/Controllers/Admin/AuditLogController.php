@@ -48,6 +48,6 @@ final class AuditLogController extends AdminController
                 'created_at' => Model::iso($row['created_at']),
             ];
         }, $this->log->search($filters, $perPage, $offset));
-        return $this->paged($rows, $this->log->count($filters), $page, $perPage);
+        return $this->paged('entries', $rows, $this->log->count($filters), $page, $perPage);
     }
 }

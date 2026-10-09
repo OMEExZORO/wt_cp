@@ -24,7 +24,7 @@ final class ReviewAdminController extends AdminController
         $filters = $this->validate($request, ['status' => 'nullable|in:pending,approved,rejected']);
         $status = $filters['status'] ?? null;
         $rows = array_map($this->present(...), $this->repository->reviews($status, $perPage, $offset));
-        return $this->paged($rows, $this->repository->reviewCount($status), $page, $perPage);
+        return $this->paged('reviews', $rows, $this->repository->reviewCount($status), $page, $perPage);
     }
 
     public function moderate(Request $request): Response
