@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
 import { useAppSelector } from '../../app/hooks'
 import { selectSetting } from '../../features/public/publicSlice'
-import { settingText } from '../../lib/contact'
-import { ArrowRightIcon, CalendarIcon } from '../icons/Icons'
+import { settingText, telHref } from '../../lib/contact'
+import { useContactInfo } from '../../lib/useContactInfo'
+import { clientPhoto } from '../../lib/images'
+import { ArrowRightIcon, CalendarIcon, PhoneIcon } from '../icons/Icons'
 import { SectionHeading, Todo } from './Primitives'
 
 export function PageHero({ eyebrow, title, intro }: { eyebrow: string; title: string; intro?: string }) {
@@ -15,7 +17,8 @@ export function PageHero({ eyebrow, title, intro }: { eyebrow: string; title: st
   )
 }
 
-export function CtaBand({ title = 'Ready to book your scan?', text = 'Choose a branch, a scan and a time that suits you. A short safety checklist keeps you prepared.' }: { title?: string; text?: string }) {
+export function CtaBand({ title = 'Ready to book your scan?', text = 'Choose a centre, a scan and a time that suits you. A short safety checklist keeps you prepared.' }: { title?: string; text?: string }) {
+  const { primaryPhone } = useContactInfo()
   return (
     <section className="cta-band" aria-labelledby="cta-title">
       <div className="container cta-band__inner">
@@ -25,9 +28,18 @@ export function CtaBand({ title = 'Ready to book your scan?', text = 'Choose a b
           </h2>
           <p>{text}</p>
         </div>
-        <Link to="/book" className="btn btn--primary btn--lg">
-          <CalendarIcon size={20} /> Book an appointment
-        </Link>
+        <div className="cta-band__actions">
+          <Link to="/book" className="btn btn--primary btn--lg">
+            <CalendarIcon size={20} /> Book Appointment
+          </Link>
+          {primaryPhone ? (
+            <a href={telHref(primaryPhone)} className="btn btn--ghost-light btn--lg">
+              <PhoneIcon size={20} /> Call Now
+            </a>
+          ) : (
+            <Todo label="phone" />
+          )}
+        </div>
       </div>
     </section>
   )
@@ -39,6 +51,10 @@ export function DoctorPortrait() {
   const photo = settingText(useAppSelector(selectSetting('doctor.photo_url')))
   if (photo) {
     return <img className="doctor-portrait__img" src={photo} alt="Dr. Meghnad Padsalgikar" loading="lazy" width={360} height={420} />
+  }
+  const supplied = clientPhoto('doctor')
+  if (supplied) {
+    return <img className="doctor-portrait__small" src={supplied.src} alt={supplied.alt} loading="lazy" width={supplied.width} height={supplied.height} />
   }
   return (
     <div className="doctor-portrait__placeholder" aria-hidden="true">

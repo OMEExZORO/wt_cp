@@ -1,4 +1,4 @@
-import { branchAddress, directionsUrl, mapsEmbedUrl, telHref, whatsappHref } from '../../lib/contact'
+import { branchAddress, formatPhone, directionsUrl, mapsEmbedUrl, telHref, whatsappHref } from '../../lib/contact'
 import type { PublicBranch } from '../../types/public'
 import { ClockIcon, ExternalIcon, MailIcon, PhoneIcon, PinIcon, WhatsAppIcon } from '../icons/Icons'
 import { Todo } from './Primitives'
@@ -31,7 +31,7 @@ export function BranchCard({ branch, headingLevel = 3 }: { branch: PublicBranch;
           </li>
           <li>
             <PhoneIcon size={20} />
-            <div>{branch.phone ? <a href={telHref(branch.phone)}>{branch.phone}</a> : <Todo label="phone" />}</div>
+            <div>{branch.phone ? <a href={telHref(branch.phone)}>{formatPhone(branch.phone)}</a> : <Todo label="phone" />}</div>
           </li>
           {branch.whatsapp ? (
             <li>

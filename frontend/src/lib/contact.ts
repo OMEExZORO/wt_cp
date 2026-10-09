@@ -47,3 +47,8 @@ export function directionsUrl(branch: PublicBranch): string | null {
   }
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(branchAddress(branch))}`
 }
+
+export function formatPhone(phone: string): string {
+  const number = digits(phone)
+  return number.length === 10 ? `0${number.slice(0, 5)} ${number.slice(5)}` : phone
+}

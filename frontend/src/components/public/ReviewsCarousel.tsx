@@ -1,21 +1,36 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { prefersReducedMotion } from '../../lib/motion'
 import type { PublicReview } from '../../types/public'
 import { ChevronLeftIcon, ChevronRightIcon, PauseIcon, PlayIcon } from '../icons/Icons'
-import { StarRating } from './Primitives'
+import { ReviewCard } from './ReviewCard'
 
-const INTERVAL_MS = 7000
+const INTERVAL_MS = 6000
+const DESKTOP_QUERY = '(min-width: 900px)'
 
-function prefersReducedMotion(): boolean {
-  return typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+function useCardsPerView(): number {
+  const read = () => (typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia(DESKTOP_QUERY).matches ? 3 : 1)
+  const [count, setCount] = useState(read)
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') {
+      return undefined
+    }
+    const query = window.matchMedia(DESKTOP_QUERY)
+    const update = () => setCount(query.matches ? 3 : 1)
+    query.addEventListener('change', update)
+    return () => query.removeEventListener('change', update)
+  }, [])
+  return count
 }
 
-export function ReviewsCarousel({ reviews }: { reviews: PublicReview[] }) {
+export function ReviewsCarousel({ reviews, label = 'Patient reviews' }: { reviews: PublicReview[]; label?: string }) {
   const [index, setIndex] = useState(0)
   const [paused, setPaused] = useState(() => prefersReducedMotion())
   const [hovering, setHovering] = useState(false)
   const [focusWithin, setFocusWithin] = useState(false)
-  const timer = useRef<number | null>(null)
+  const perView = Math.min(useCardsPerView(), reviews.length)
   const total = reviews.length
+  const rotates = total > perView
+  const running = !paused && !hovering && !focusWithin && rotates
 
   const go = useCallback(
     (delta: number) => {
@@ -24,44 +39,41 @@ export function ReviewsCarousel({ reviews }: { reviews: PublicReview[] }) {
     [total],
   )
 
-  const running = !paused && !hovering && !focusWithin && total > 1
-
   useEffect(() => {
     if (!running) {
       return undefined
     }
-    timer.current = window.setInterval(() => go(1), INTERVAL_MS)
-    return () => {
-      if (timer.current !== null) {
-        window.clearInterval(timer.current)
-      }
-    }
+    const timer = window.setInterval(() => go(1), INTERVAL_MS)
+    return () => window.clearInterval(timer)
   }, [running, go])
 
   if (total === 0) {
     return null
   }
-  const review = reviews[Math.min(index, total - 1)]
+  const visible = Array.from({ length: perView }, (_, offset) => reviews[(index + offset) % total])
 
   return (
     <section
-      className="carousel"
+      className="review-carousel"
       aria-roledescription="carousel"
-      aria-label="Patient reviews"
+      aria-label={label}
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       onFocus={() => setFocusWithin(true)}
-      onBlur={() => setFocusWithin(false)}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+          setFocusWithin(false)
+        }
+      }}
     >
-      <div className="carousel__slide" role="group" aria-roledescription="slide" aria-label={`${index + 1} of ${total}`} aria-live={running ? 'off' : 'polite'}>
-        <StarRating rating={review.rating} size={22} />
-        <blockquote className="carousel__quote">{review.body}</blockquote>
-        <p className="carousel__author">
-          {review.display_name}
-          {review.verified_visit ? <span className="carousel__verified">Verified visit</span> : null}
-        </p>
-      </div>
-      {total > 1 ? (
+      <ul className="review-carousel__track" aria-live={running ? 'off' : 'polite'} data-per-view={perView}>
+        {visible.map((review) => (
+          <li key={review.id} className="review-carousel__item" aria-roledescription="slide">
+            <ReviewCard review={review} />
+          </li>
+        ))}
+      </ul>
+      {rotates ? (
         <div className="carousel__controls">
           <button type="button" className="icon-btn" onClick={() => go(-1)} aria-label="Previous review">
             <ChevronLeftIcon />

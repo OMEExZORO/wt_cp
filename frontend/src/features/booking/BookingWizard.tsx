@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { bookingsApi } from '../../api/bookings'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { FormAlert } from '../../components/form/FormAlert'
@@ -9,6 +9,7 @@ import { SubmitButton } from '../../components/form/SubmitButton'
 import { TextField } from '../../components/form/TextField'
 import { PageLoader } from '../../components/PageLoader'
 import { usePublicResource } from '../../hooks/usePublicResource'
+import { MODALITY_OPTIONS, readBookPrefill } from '../../lib/prefill'
 import { NOTES_MAX, checklistErrors, describeBookingError, formatDate, formatSlotRange, notesProblem, type BookingFailure } from '../../lib/booking'
 import type { ChecklistResponse, Slot, SlotSuggestion } from '../../types/booking'
 import type { PublicBranch, PublicScanType } from '../../types/public'
@@ -79,6 +80,10 @@ export default function BookingWizard() {
   const branches = usePublicResource('branches')
   const scanTypes = usePublicResource('scanTypes')
   const [query, setQuery] = useState('')
+  const [searchParams] = useSearchParams()
+  const prefill = useMemo(() => readBookPrefill(searchParams), [searchParams])
+  const [modality, setModality] = useState(prefill.modality)
+  const prefilled = useRef(false)
   const [slot, setSlot] = useState<Slot | null>(null)
   const [checklist, setChecklist] = useState<{ data: ChecklistResponse | null; loading: boolean; error: string | null }>({
     data: null,
@@ -95,7 +100,20 @@ export default function BookingWizard() {
   const branchList: PublicBranch[] = branches.data?.branches ?? []
   const scanList: PublicScanType[] = scanTypes.data?.scan_types ?? []
   const branch = branchList.find((candidate) => candidate.id === draft.branch_id) ?? null
+  const modalityScans = modality === null ? scanList : scanList.filter((candidate) => candidate.modality === modality)
   const scan = scanList.find((candidate) => candidate.id === draft.scan_type_id) ?? null
+
+  useEffect(() => {
+    if (prefilled.current || prefill.branch === null) {
+      return
+    }
+    const match = branchList.find((candidate) => candidate.slug === prefill.branch)
+    if (match !== undefined) {
+      prefilled.current = true
+      dispatch(branchSelected(match.id))
+      dispatch(stepChanged(prefill.modality !== null ? 1 : 0))
+    }
+  }, [branchList, prefill, dispatch])
 
   useEffect(() => {
     if (step > 2) {
@@ -302,9 +320,18 @@ export default function BookingWizard() {
           />
         ) : null}
 
+        {step === 1 && modality !== null ? (
+          <p className="wizard__filter" role="status">
+            Showing {MODALITY_OPTIONS.find((option) => option.value === modality)?.label ?? modality} only.{' '}
+            <button type="button" className="link-button" onClick={() => setModality(null)}>
+              Show all scans
+            </button>
+          </p>
+        ) : null}
+
         {step === 1 ? (
           <ScanSearch
-            scans={scanList}
+            scans={modalityScans}
             query={query}
             selected={draft.scan_type_id}
             onQueryChange={setQuery}

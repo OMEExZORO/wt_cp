@@ -85,6 +85,8 @@ export const adminApi = {
   deleteFaq: (id: string) => api.delete<void>(`/admin/faqs/${id}`),
 
   reviews: (query: Query) => api.get<ReviewsAdminResponse>(`/admin/reviews${toQuery(query)}`),
+  createGoogleReview: (body: Payload) => api.post<AdminReview>('/admin/reviews', body),
+  updateGoogleReview: (id: string, body: Payload) => api.put<AdminReview>(`/admin/reviews/${id}`, body),
   moderateReview: (id: string, status: ReviewStatus, moderationNote?: string) =>
     api.patch<AdminReview>(`/admin/reviews/${id}`, { status, moderation_note: moderationNote ?? null }),
 }

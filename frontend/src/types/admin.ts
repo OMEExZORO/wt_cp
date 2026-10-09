@@ -157,6 +157,10 @@ export interface AdminReview {
   status: ReviewStatus
   verified_visit: boolean
   is_demo: boolean
+  source: 'site' | 'google'
+  source_url: string | null
+  external_review_date: string | null
+  reviewer_photo_url: string | null
   moderation_note: string | null
   moderated_at: string | null
   created_at: string | null

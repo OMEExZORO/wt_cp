@@ -11,9 +11,9 @@ import { CloseIcon, MenuIcon, MoonIcon, SunIcon } from '../icons/Icons'
 
 const LINKS: { to: string; label: string; end?: boolean }[] = [
   { to: '/', label: 'Home', end: true },
-  { to: '/about', label: 'About the doctor' },
   { to: '/services', label: 'Services' },
-  { to: '/branches', label: 'Branches' },
+  { to: '/about', label: 'Radiologist' },
+  { to: '/branches', label: 'Centres' },
   { to: '/reviews', label: 'Reviews' },
   { to: '/faq', label: 'FAQ' },
   { to: '/contact', label: 'Contact' },
@@ -100,7 +100,7 @@ export function SiteHeader() {
               {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
             </button>
             <Link to="/book" className="btn btn--primary btn--sm" onClick={close}>
-              Book an appointment
+              Book Appointment
             </Link>
           </div>
         </div>

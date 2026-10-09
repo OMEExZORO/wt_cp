@@ -4,6 +4,7 @@ import { reviewsApi } from '../../api/admin'
 import { useAppSelector } from '../../app/hooks'
 import { EntityForm, type FieldDef } from '../../components/admin/EntityForm'
 import { FormAlert } from '../../components/form/FormAlert'
+import { StarRating } from '../../components/public/Primitives'
 import { PageLoader } from '../../components/PageLoader'
 import { selectUser } from '../../features/auth/authSlice'
 import { useApiQuery } from '../../hooks/useApi'
@@ -109,10 +110,7 @@ export default function WriteReviewPage() {
               <ul className="plain-list">
                 {data.reviews.map((review) => (
                   <li key={review.id}>
-                    <span aria-label={`${review.rating} out of 5 stars`} className="stars">
-                      {'★'.repeat(review.rating)}
-                      {'☆'.repeat(5 - review.rating)}
-                    </span>{' '}
+                    <StarRating rating={review.rating} size={16} />{' '}
                     <strong>{STATUS_TEXT[review.status]}</strong>
                     <p>{review.body}</p>
                   </li>

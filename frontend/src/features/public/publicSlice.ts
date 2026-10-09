@@ -82,7 +82,7 @@ export const loadBranches = makeLoader('branches', publicApi.branches)
 export const loadScanTypes = makeLoader('scanTypes', () => publicApi.scanTypes())
 export const loadCategories = makeLoader('categories', () => publicApi.scanCategories())
 export const loadFaqs = makeLoader('faqs', publicApi.faqs)
-export const loadReviews = makeLoader('reviews', () => publicApi.reviews(12))
+export const loadReviews = makeLoader('reviews', () => publicApi.reviews(30))
 
 export type Loader = (arg?: LoadArg) => ThunkAction<unknown, RootState, undefined, UnknownAction>
 

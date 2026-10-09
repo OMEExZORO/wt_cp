@@ -1,12 +1,10 @@
 import { Link } from 'react-router-dom'
-import { useAppSelector } from '../../app/hooks'
-import { selectSetting } from '../../features/public/publicSlice'
-import { settingText, telHref, whatsappHref } from '../../lib/contact'
+import { telHref, whatsappHref } from '../../lib/contact'
+import { useContactInfo } from '../../lib/useContactInfo'
 import { CalendarIcon, PhoneIcon, WhatsAppIcon } from '../icons/Icons'
 
 export function StickyActionBar() {
-  const phone = settingText(useAppSelector(selectSetting('contact.phone')))
-  const whatsapp = settingText(useAppSelector(selectSetting('contact.whatsapp')))
+  const { primaryPhone: phone, primaryWhatsapp: whatsapp } = useContactInfo()
   const dev = import.meta.env.DEV
 
   return (

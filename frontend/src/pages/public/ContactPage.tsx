@@ -2,10 +2,11 @@ import { useAppSelector } from '../../app/hooks'
 import { ClockIcon, MailIcon, PhoneIcon, WhatsAppIcon } from '../../components/icons/Icons'
 import { BranchCard } from '../../components/public/BranchCard'
 import { PageHero } from '../../components/public/Blocks'
+import { GoogleListingNote } from '../../components/public/GoogleListingNote'
 import { AsyncState, Todo } from '../../components/public/Primitives'
 import { selectSetting } from '../../features/public/publicSlice'
 import { usePublicResource } from '../../hooks/usePublicResource'
-import { settingText, telHref, whatsappHref } from '../../lib/contact'
+import { formatPhone, settingText, telHref, whatsappHref } from '../../lib/contact'
 import { usePageMeta } from '../../lib/seo'
 
 export default function ContactPage() {
@@ -26,7 +27,7 @@ export default function ContactPage() {
             <li className="contact-card">
               <PhoneIcon size={26} />
               <h2>Phone</h2>
-              {phone ? <a href={telHref(phone)}>{phone}</a> : <Todo label="phone" />}
+              {phone ? <a href={telHref(phone)}>{formatPhone(phone)}</a> : <Todo label="phone" />}
             </li>
             <li className="contact-card">
               <WhatsAppIcon size={26} />
@@ -51,7 +52,8 @@ export default function ContactPage() {
             </li>
           </ul>
           <p className="callout callout--plain">Please do not send medical details by email or WhatsApp. To book, use the appointment page so your details stay in the secure portal.</p>
-          <h2 className="contact-branches-title">Branches</h2>
+          <GoogleListingNote />
+          <h2 className="contact-branches-title">Centres</h2>
           <AsyncState status={branches.status} error={branches.error} onRetry={branches.reload} label="Loading branches">
             <div className="stack">
               {(branches.data?.branches ?? []).map((branch) => (

@@ -1,11 +1,36 @@
-import { Link } from 'react-router-dom'
-import { useAppSelector } from '../../app/hooks'
-import { loadBranches, loadSite, selectSetting } from '../../features/public/publicSlice'
-import { useAppDispatch } from '../../app/hooks'
 import { useEffect } from 'react'
-import { branchAddress, settingText, telHref } from '../../lib/contact'
+import { Link } from 'react-router-dom'
+import { useAppDispatch, useAppSelector } from '../../app/hooks'
+import { loadBranches, loadSite, selectSetting } from '../../features/public/publicSlice'
+import { branchAddress, formatPhone, settingText, telHref } from '../../lib/contact'
+import { useContactInfo } from '../../lib/useContactInfo'
 import { Logo } from '../brand/Logo'
+import { MailIcon, PhoneIcon, PinIcon } from '../icons/Icons'
+import { GoogleListingNote } from '../public/GoogleListingNote'
 import { Todo } from '../public/Primitives'
+
+const SERVICES: { to: string; label: string }[] = [
+  { to: '/services?type=USG', label: 'Ultrasound (USG)' },
+  { to: '/services?type=CT', label: 'CT scan' },
+  { to: '/services?type=BIOPSY', label: 'Image-guided biopsies' },
+  { to: '/services', label: 'All scans and preparation' },
+]
+
+const QUICK_LINKS: { to: string; label: string }[] = [
+  { to: '/book', label: 'Book Appointment' },
+  { to: '/about', label: 'Meet the radiologist' },
+  { to: '/branches', label: 'Centres and directions' },
+  { to: '/reviews', label: 'Patient reviews' },
+  { to: '/faq', label: 'FAQ' },
+  { to: '/contact', label: 'Contact' },
+]
+
+const LEGAL: { to: string; label: string }[] = [
+  { to: '/privacy', label: 'Privacy policy' },
+  { to: '/terms', label: 'Terms of use' },
+  { to: '/login', label: 'Patient sign in' },
+  { to: '/register', label: 'Create an account' },
+]
 
 export function SiteFooter() {
   const dispatch = useAppDispatch()
@@ -14,10 +39,9 @@ export function SiteFooter() {
     void dispatch(loadBranches())
   }, [dispatch])
   const branches = useAppSelector((state) => state.public.branches.data?.branches ?? [])
-  const phone = settingText(useAppSelector(selectSetting('contact.phone')))
-  const email = settingText(useAppSelector(selectSetting('contact.email')))
   const logo = settingText(useAppSelector(selectSetting('clinic.logo_url')))
-  const primary = branches.find((branch) => !branch.address_is_placeholder)
+  const contact = useContactInfo()
+  const centres = branches.filter((branch) => !branch.address_is_placeholder)
 
   return (
     <footer className="site-footer">
@@ -26,58 +50,65 @@ export function SiteFooter() {
           <Logo src={logo} tone="light" />
           <p className="site-footer__tagline">Imaging for a Healthier Tomorrow</p>
           <p className="site-footer__muted">Complete Diagnostic Care Under One Roof</p>
-        </div>
-        <nav aria-label="Explore" className="site-footer__col">
-          <h2 className="site-footer__heading">Explore</h2>
-          <ul>
+          <ul className="site-footer__contact">
             <li>
-              <Link to="/services">Services</Link>
+              <PhoneIcon size={16} />
+              {contact.primaryPhone ? <a href={telHref(contact.primaryPhone)}>{formatPhone(contact.primaryPhone)}</a> : <Todo label="phone" />}
             </li>
             <li>
-              <Link to="/about">About the doctor</Link>
-            </li>
-            <li>
-              <Link to="/branches">Branches</Link>
-            </li>
-            <li>
-              <Link to="/reviews">Reviews</Link>
-            </li>
-            <li>
-              <Link to="/faq">FAQ</Link>
+              <MailIcon size={16} />
+              {contact.email ? <a href={`mailto:${contact.email}`}>{contact.email}</a> : <Todo label="email" />}
             </li>
           </ul>
-        </nav>
-        <nav aria-label="Patients" className="site-footer__col">
-          <h2 className="site-footer__heading">Patients</h2>
+        </div>
+        <nav aria-label="Services" className="site-footer__col">
+          <h2 className="site-footer__heading">Services</h2>
           <ul>
-            <li>
-              <Link to="/book">Book an appointment</Link>
-            </li>
-            <li>
-              <Link to="/login">Sign in</Link>
-            </li>
-            <li>
-              <Link to="/register">Register</Link>
-            </li>
-            <li>
-              <Link to="/privacy">Privacy policy</Link>
-            </li>
-            <li>
-              <Link to="/terms">Terms of use</Link>
-            </li>
+            {SERVICES.map((item) => (
+              <li key={item.to}>
+                <Link to={item.to}>{item.label}</Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <nav aria-label="Quick links" className="site-footer__col">
+          <h2 className="site-footer__heading">Quick links</h2>
+          <ul>
+            {QUICK_LINKS.map((item) => (
+              <li key={item.to}>
+                <Link to={item.to}>{item.label}</Link>
+              </li>
+            ))}
           </ul>
         </nav>
         <div className="site-footer__col">
-          <h2 className="site-footer__heading">Find us</h2>
-          <address className="site-footer__address">
-            {primary ? branchAddress(primary) : 'Nagdev Tower, Pune Nashik Road, Bhosari, Pune 411039'}
-          </address>
-          <p>
-            {phone ? <a href={telHref(phone)}>{phone}</a> : <Todo label="phone" />}
-          </p>
-          <p>{email ? <a href={`mailto:${email}`}>{email}</a> : <Todo label="email" />}</p>
-          <Link to="/contact">Contact details</Link>
+          <h2 className="site-footer__heading">Our centres</h2>
+          {centres.length === 0 ? (
+            <address className="site-footer__address">Nagdev Tower, Pune Nashik Road, Bhosari, Pune 411039</address>
+          ) : (
+            <ul className="site-footer__centres">
+              {centres.map((branch) => (
+                <li key={branch.id}>
+                  <strong>{branch.name}</strong>
+                  <address className="site-footer__address">
+                    <PinIcon size={14} /> {branchAddress(branch)}
+                  </address>
+                  {branch.phone ? <a href={telHref(branch.phone)}>{formatPhone(branch.phone)}</a> : null}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
+        <nav aria-label="Legal" className="site-footer__col">
+          <h2 className="site-footer__heading">Legal and account</h2>
+          <ul>
+            {LEGAL.map((item) => (
+              <li key={item.to}>
+                <Link to={item.to}>{item.label}</Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
       </div>
       <div className="site-footer__legal">
         <div className="container">
@@ -87,6 +118,7 @@ export function SiteFooter() {
           <p className="site-footer__disclaimer">
             This website does not provide medical advice and is not for emergencies. In an emergency, call 112 or go to the nearest hospital.
           </p>
+          <GoogleListingNote className="site-footer__copy" />
           <p className="site-footer__copy">© {new Date().getFullYear()} Meghnad Diagnostic Centre, Bhosari, Pune</p>
         </div>
       </div>

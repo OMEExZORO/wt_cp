@@ -4,6 +4,7 @@ import { selectSetting } from '../../features/public/publicSlice'
 import { settingText } from '../../lib/contact'
 import { ExternalIcon } from '../icons/Icons'
 import { AsyncState, StarRating, Todo } from './Primitives'
+import { ReviewCard } from './ReviewCard'
 import { ReviewsCarousel } from './ReviewsCarousel'
 
 export function GoogleReviewsButton({ variant = 'primary', label = 'Review us on Google' }: { variant?: 'primary' | 'outline'; label?: string }) {
@@ -19,36 +20,43 @@ export function GoogleReviewsButton({ variant = 'primary', label = 'Review us on
   )
 }
 
+export function GoogleRating() {
+  const rating = Number(settingText(useAppSelector(selectSetting('google.rating'))))
+  const count = Number(settingText(useAppSelector(selectSetting('google.review_count'))))
+  if (!Number.isFinite(rating) || rating <= 0 || rating > 5 || !Number.isFinite(count) || count <= 0) {
+    return null
+  }
+  return (
+    <div className="google-rating">
+      <p className="google-rating__label">Rated on Google</p>
+      <p className="google-rating__score" aria-label={`Google rating ${rating.toFixed(1)} out of 5 from ${count} reviews`}>
+        {rating.toFixed(1)}
+      </p>
+      <StarRating rating={rating} size={22} />
+      <p className="google-rating__count">from {count} Google reviews</p>
+    </div>
+  )
+}
+
 export function ReviewsPanel({ layout }: { layout: 'carousel' | 'list' }) {
   const { data, status, error, reload } = usePublicResource('reviews')
   usePublicResource('site')
 
   return (
     <AsyncState status={status} error={error} onRetry={reload} label="Loading reviews">
-      {data !== null && data.summary.count > 0 ? (
+      {data !== null && data.reviews.length > 0 ? (
         <div className="reviews">
           <div className="reviews__summary">
-            <p className="reviews__score" aria-label={`Average rating ${data.summary.average_rating} out of 5`}>
-              {data.summary.average_rating?.toFixed(1)}
-            </p>
-            <StarRating rating={data.summary.average_rating ?? 0} size={24} />
-            <p className="reviews__count">
-              {data.summary.count} approved {data.summary.count === 1 ? 'review' : 'reviews'}
-            </p>
-            <GoogleReviewsButton variant="outline" label="See more on Google" />
+            <GoogleRating />
+            <GoogleReviewsButton variant="outline" label="See all reviews on Google" />
           </div>
           {layout === 'carousel' ? (
-            <ReviewsCarousel reviews={data.reviews} />
+            <ReviewsCarousel reviews={data.reviews} label="Patient reviews from Google" />
           ) : (
-            <ul className="review-list">
+            <ul className="review-grid">
               {data.reviews.map((review) => (
-                <li key={review.id} className="review-card">
-                  <StarRating rating={review.rating} />
-                  <p className="review-card__body">{review.body}</p>
-                  <p className="review-card__author">
-                    {review.display_name}
-                    {review.verified_visit ? <span className="carousel__verified">Verified visit</span> : null}
-                  </p>
+                <li key={review.id}>
+                  <ReviewCard review={review} />
                 </li>
               ))}
             </ul>

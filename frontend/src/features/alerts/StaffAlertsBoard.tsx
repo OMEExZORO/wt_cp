@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { alertsApi } from '../../api/alerts'
 import { ApiError } from '../../api/client'
+import { FlagIcon } from '../../components/icons/Icons'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { FormAlert } from '../../components/form/FormAlert'
 import { useApiQuery } from '../../hooks/useApi'
@@ -123,7 +124,7 @@ export function StaffAlertsBoard({ canResolve }: { canResolve: boolean }) {
                   <td>
                     {alert.red_flag ? (
                       <span className="urgency urgency--urgent">
-                        <span aria-hidden="true">⚑</span> Phone patient now
+                        <FlagIcon size={14} /> Phone patient now
                       </span>
                     ) : (
                       <span className="status-chip">{alert.status}</span>

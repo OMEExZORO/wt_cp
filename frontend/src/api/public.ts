@@ -30,5 +30,5 @@ export const publicApi = {
   },
   scanType: (ref: string) => api.get<ScanTypeResponse>(`/public/scan-types/${encodeURIComponent(ref)}`),
   faqs: () => api.get<FaqsResponse>('/public/faqs'),
-  reviews: (limit = 12) => api.get<ReviewsResponse>(`/public/reviews?limit=${limit}`),
+  reviews: (limit = 30) => api.get<ReviewsResponse>(`/public/reviews?limit=${limit}`),
 }

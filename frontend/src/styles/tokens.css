@@ -23,7 +23,7 @@
   --color-star: #d97706;
   --color-heading: #1b2a5c;
 
-  --font-display: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --font-display: 'Figtree', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-body: 'Figtree', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
   --text-xs: 0.8125rem;

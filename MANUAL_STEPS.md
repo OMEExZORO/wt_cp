@@ -22,6 +22,7 @@ Only things that need a human. Content values marked as placeholders are editabl
 - [ ] Google Maps place links and embed URLs for each branch (`links.google_maps_url`, `branches.maps_url`, `branches.maps_embed_url`)
 - [ ] Google reviews page link (`links.google_reviews_url`)
 - [ ] Real logo file and doctor photo, placed in `frontend/public/images/client/` (see the README there) with `clinic.logo_url` and `doctor.photo_url` set
+- [ ] High-resolution clinic photos (centre, reception, scan rooms, doctor): the client photos in `frontend/public/images/client/` are only 141 x 101 px, so they are used as small thumbnails. Replace them through `CLIENT_PHOTOS` and `CLIENT_OVERRIDES` in `frontend/src/lib/images.ts`
 - [ ] Doctor biography paragraph (`doctor.bio`)
 - [ ] Fees, only if the centre wants them published (`fees.note`, `scan_types.fee_inr`)
 - [ ] Doctor's review and approval of service descriptions, preparation tips, checklist questions and FAQ answers in `database/seeds/seed_base.sql`, including whether the seeded FAQ about fetal sex determination stays

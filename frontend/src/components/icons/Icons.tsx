@@ -1,128 +1,89 @@
-import type { ReactNode, SVGProps } from 'react'
+import {
+  Activity,
+  ArrowRight,
+  Calendar,
+  Check,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Cpu,
+  Flag,
+  ExternalLink,
+  FileText,
+  HeartHandshake,
+  Info,
+  Mail,
+  Menu,
+  MessageCircle,
+  Moon,
+  Navigation,
+  Pause,
+  Phone,
+  Play,
+  Quote,
+  Scan,
+  ShieldCheck,
+  Star,
+  Stethoscope,
+  Sun,
+  Syringe,
+  Timer,
+  User,
+  X,
+  MapPin,
+} from 'lucide-react'
+import type { LucideProps } from 'lucide-react'
 
-export type IconProps = Omit<SVGProps<SVGSVGElement>, 'children'> & { size?: number }
+export type IconProps = Omit<LucideProps, 'ref'> & { size?: number }
 
-function make(paths: ReactNode) {
+function wrap(Component: typeof Activity) {
   return function Icon({ size = 24, ...rest }: IconProps) {
-    return (
-      <svg
-        width={size}
-        height={size}
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-        focusable="false"
-        {...rest}
-      >
-        {paths}
-      </svg>
-    )
+    return <Component size={size} strokeWidth={1.75} aria-hidden="true" focusable="false" {...rest} />
   }
 }
 
-export const PhoneIcon = make(<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" />)
-export const WhatsAppIcon = make(
-  <>
-    <path d="M4 20l1.3-4.2A8 8 0 1 1 8.4 19z" />
-    <path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1.2-1.5-2-1-1 .7a4 4 0 0 1-1.9-1.9l.7-1-1-2z" />
-  </>,
-)
-export const CalendarIcon = make(
-  <>
-    <rect x="3.5" y="5" width="17" height="15" rx="2.5" />
-    <path d="M3.5 10h17M8 3v4M16 3v4" />
-  </>,
-)
-export const PinIcon = make(
-  <>
-    <path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.800 12 21 12 21z" />
-    <circle cx="12" cy="9.5" r="2.5" />
-  </>,
-)
-export const ClockIcon = make(
-  <>
-    <circle cx="12" cy="12" r="9" />
-    <path d="M12 7v5l3.5 2" />
-  </>,
-)
-export const MailIcon = make(
-  <>
-    <rect x="3" y="5" width="18" height="14" rx="2.5" />
-    <path d="M4 7l8 6 8-6" />
-  </>,
-)
-export const StarIcon = make(<path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.9L12 16.9l-5.2 2.8 1-5.9-4.3-4.1 5.9-.8z" />)
-export const ChevronDownIcon = make(<path d="M6 9l6 6 6-6" />)
-export const ChevronLeftIcon = make(<path d="M15 6l-6 6 6 6" />)
-export const ChevronRightIcon = make(<path d="M9 6l6 6-6 6" />)
-export const ArrowRightIcon = make(<path d="M5 12h14M13 6l6 6-6 6" />)
-export const MenuIcon = make(<path d="M4 7h16M4 12h16M4 17h16" />)
-export const CloseIcon = make(<path d="M6 6l12 12M18 6L6 18" />)
-export const CheckIcon = make(<path d="M5 12.5l4.5 4.5L19 7.500" />)
-export const PauseIcon = make(<path d="M8 5v14M16 5v14" />)
-export const PlayIcon = make(<path d="M8 5l11 7-11 7z" />)
-export const SunIcon = make(
-  <>
-    <circle cx="12" cy="12" r="4" />
-    <path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.600 5.600l1.400 1.400M17 17l1.400 1.400M5.600 18.400L7 17M17 7l1.400-1.400" />
-  </>,
-)
-export const MoonIcon = make(<path d="M20 14.500A8 8 0 0 1 9.500 4 8 8 0 1 0 20 14.500z" />)
-export const ReportIcon = make(
-  <>
-    <path d="M7 3h7l4 4v14H7z" />
-    <path d="M14 3v4h4M10 12h5M10 16h5" />
-  </>,
-)
-export const EyeIcon = make(
-  <>
-    <path d="M2.500 12S6 5.500 12 5.500 21.500 12 21.500 12 18 18.500 12 18.500 2.500 12 2.500 12z" />
-    <circle cx="12" cy="12" r="2.800" />
-  </>,
-)
-export const ChipIcon = make(
-  <>
-    <rect x="6" y="6" width="12" height="12" rx="2" />
-    <rect x="9.500" y="9.500" width="5" height="5" rx="1" />
-    <path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3" />
-  </>,
-)
-export const HeartIcon = make(<path d="M12 20s-7.500-4.600-7.500-10A4.300 4.300 0 0 1 12 7.300 4.300 4.300 0 0 1 19.500 10c0 5.400-7.500 10-7.500 10z" />)
-export const ShieldIcon = make(
-  <>
-    <path d="M12 3l7.500 3v5.500c0 4.500-3.200 8-7.500 9.500-4.300-1.500-7.500-5-7.500-9.500V6z" />
-    <path d="M9 12l2.200 2.200L15.500 10" />
-  </>,
-)
-export const WaveIcon = make(<path d="M3 12h3l2-6 4 12 3-9 2 3h4" />)
-export const ScanRingIcon = make(
-  <>
-    <circle cx="12" cy="12" r="8.500" />
-    <circle cx="12" cy="12" r="4" />
-    <path d="M12 3.500v2M12 18.500v2" />
-  </>,
-)
-export const NeedleIcon = make(
-  <>
-    <path d="M4 20l9-9" />
-    <path d="M13 11l3.500-3.500 3-3 .5.5-3 3L13.500 11.500z" />
-    <path d="M16 8l2 2" />
-  </>,
-)
-export const InfoIcon = make(
-  <>
-    <circle cx="12" cy="12" r="9" />
-    <path d="M12 11v5M12 8h.01" />
-  </>,
-)
-export const ExternalIcon = make(<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />)
-export const UserIcon = make(
-  <>
-    <circle cx="12" cy="8" r="3.800" />
-    <path d="M4.500 20a7.500 7.500 0 0 1 15 0" />
-  </>,
-)
+export const PhoneIcon = wrap(Phone)
+export const WhatsAppIcon = wrap(MessageCircle)
+export const CalendarIcon = wrap(Calendar)
+export const PinIcon = wrap(MapPin)
+export const ClockIcon = wrap(Clock)
+export const MailIcon = wrap(Mail)
+export const StarIcon = wrap(Star)
+export const ChevronDownIcon = wrap(ChevronDown)
+export const ChevronLeftIcon = wrap(ChevronLeft)
+export const ChevronRightIcon = wrap(ChevronRight)
+export const ArrowRightIcon = wrap(ArrowRight)
+export const MenuIcon = wrap(Menu)
+export const CloseIcon = wrap(X)
+export const CheckIcon = wrap(Check)
+export const PauseIcon = wrap(Pause)
+export const PlayIcon = wrap(Play)
+export const SunIcon = wrap(Sun)
+export const MoonIcon = wrap(Moon)
+export const ReportIcon = wrap(FileText)
+export const EyeIcon = wrap(Stethoscope)
+export const ChipIcon = wrap(Cpu)
+export const HeartIcon = wrap(HeartHandshake)
+export const ShieldIcon = wrap(ShieldCheck)
+export const WaveIcon = wrap(Activity)
+export const ScanRingIcon = wrap(Scan)
+export const NeedleIcon = wrap(Syringe)
+export const InfoIcon = wrap(Info)
+export const ExternalIcon = wrap(ExternalLink)
+export const UserIcon = wrap(User)
+export const FlagIcon = wrap(Flag)
+export const TimerIcon = wrap(Timer)
+export const NavigationIcon = wrap(Navigation)
+export const QuoteIcon = wrap(Quote)
+
+export function GoogleGIcon({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+      <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z" />
+      <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z" />
+      <path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6l7.9-6.1z" />
+      <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z" />
+    </svg>
+  )
+}

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useAppDispatch } from '../../app/hooks'
 import { CheckboxField } from '../../components/form/CheckboxField'
 import { FormAlert } from '../../components/form/FormAlert'
@@ -9,6 +9,7 @@ import { SubmitButton } from '../../components/form/SubmitButton'
 import { TextField } from '../../components/form/TextField'
 import { register } from '../../features/auth/authSlice'
 import { useForm } from '../../hooks/useForm'
+import { readBookPrefill } from '../../lib/prefill'
 import { compose, fieldRules, normalisePhone, rules } from '../../lib/validation'
 import type { AccountType, Gender, RegisterRequest } from '../../types/auth'
 
@@ -61,7 +62,9 @@ const initialValues = {
 export default function RegisterPage() {
   const dispatch = useAppDispatch()
   const [accountType, setAccountType] = useState<AccountType>('patient')
-  const form = useForm({ initialValues, validators: accountType === 'patient' ? patientValidators : referrerValidators })
+  const [params] = useSearchParams()
+  const prefill = readBookPrefill(params)
+  const form = useForm({ initialValues: { ...initialValues, full_name: prefill.name ?? '', phone: prefill.phone ?? '' }, validators: accountType === 'patient' ? patientValidators : referrerValidators })
   const [submitting, setSubmitting] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
 

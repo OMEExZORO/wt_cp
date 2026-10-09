@@ -10,6 +10,7 @@ import { sessionExpired } from './features/auth/authSlice'
 import './styles/tokens.css'
 import './index.css'
 import './styles/site.css'
+import './styles/home.css'
 import './styles/booking.css'
 
 setUnauthorizedHandler(() => {

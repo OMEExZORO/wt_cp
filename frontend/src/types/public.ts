@@ -101,6 +101,11 @@ export interface PublicReview {
   verified_visit: boolean
   created_at: string | null
   is_demo?: boolean
+  source?: 'site' | 'google'
+  source_url?: string | null
+  external_review_date?: string | null
+  reviewer_photo_url?: string | null
+  translated_by_google?: boolean
 }
 
 export interface ReviewSummary {

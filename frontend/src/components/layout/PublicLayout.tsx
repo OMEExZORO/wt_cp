@@ -8,6 +8,7 @@ import { StructuredData } from '../public/StructuredData'
 import { SiteFooter } from './SiteFooter'
 import { SiteHeader } from './SiteHeader'
 import { StickyActionBar } from './StickyActionBar'
+import { TopBar } from './TopBar'
 
 export function PublicLayout() {
   const dispatch = useAppDispatch()
@@ -27,6 +28,7 @@ export function PublicLayout() {
       <a href="#main" className="skip-link">
         Skip to content
       </a>
+      <TopBar />
       <SiteHeader />
       <main id="main" className="layout__main" tabIndex={-1}>
         <ErrorBoundary>
