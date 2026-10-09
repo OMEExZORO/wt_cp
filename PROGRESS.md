@@ -163,3 +163,10 @@ Migration `014_reports.sql` adds `reports.impression_encrypted`, `reports.storag
 - Frontend: `/portal/admin/*` (lazy, nested under `pages/admin/AdminLayout`), reusable `components/admin/DataTable`, `EntityForm`, `CrudPage`, `Modal`, `ConfirmDialog`, `Pagination`, `BarChart`, `SettingsForm`; patient page `/portal/patient/reviews`.
 - Verified against Supabase with curl on port 8017: CRUD for FAQ, branch (edit and revert, create and delete), scan type, checklist item, slot capacity, block, bulk generate and delete, settings update and revert, doctor photo upload and delete, user create, role change, deactivate and reset; stats; audit log filters; patient, doctor, reception and referrer get 403 and guests 401 on admin routes; review submit, moderation and public visibility; demo reviews hidden with `APP_ENV=production`. All test rows were removed.
 - Tests: PHPUnit 285 tests, 704 assertions; Vitest 118 tests in 8 files; `npm run build` passes.
+
+## Phase 8C: security, accessibility and reception gaps
+
+- Security audit found no string-built SQL, no unsafe HTML sinks, no code comments and no tracked secrets; every route has auth and role middleware and ownership checks. Added `GET /api/v1/patients/lookup` (receptionist, admin; validated, throttled, audited) and a `patient.created_walk_in` audit entry.
+- Lighthouse (mobile, vite preview): Home 63/96/96/100, Services 69/98/96/100, Login 72/100/96/63 before; Home 93/100/100/100, Services 95/100/100/100, Login 90/100/100/100 after (performance/accessibility/best-practices/SEO).
+- Reception UI: reschedule and cancel on each reception row, and `/portal/reception/walk-in` for booking on behalf of a new or existing patient.
+- Tests: PHPUnit 369 tests, 889 assertions; Vitest 157 tests in 14 files; `npm run build` passes.
