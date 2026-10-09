@@ -1,6 +1,7 @@
 import { useEffect, useMemo, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAppSelector } from '../../app/hooks'
+import { selectBranches } from '../../features/public/publicSlice'
 import { useForm } from '../../hooks/useForm'
 import { MODALITY_OPTIONS, buildBookQuery } from '../../lib/prefill'
 import { compose, fieldRules, normalisePhone, rules } from '../../lib/validation'
@@ -17,7 +18,7 @@ const validators = {
 
 export function QuickAppointment() {
   const navigate = useNavigate()
-  const branches = useAppSelector((state) => state.public.branches.data?.branches ?? [])
+  const branches = useAppSelector(selectBranches)
   const centres = useMemo(() => branches.filter((branch) => !branch.address_is_placeholder), [branches])
   const form = useForm({ initialValues: { branch: '', name: '', phone: '', modality: '' }, validators })
   const { setValue } = form
