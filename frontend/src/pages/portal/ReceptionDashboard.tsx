@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { StaffAlertsBoard } from '../../features/alerts/StaffAlertsBoard'
 import { bookingsApi } from '../../api/bookings'
 import { Dialog } from '../../components/Dialog'
 import { FormAlert } from '../../components/form/FormAlert'
@@ -214,6 +215,7 @@ export default function ReceptionDashboard() {
           )}
         </>
       ) : null}
+      <StaffAlertsBoard canResolve />
     </section>
   )
 }

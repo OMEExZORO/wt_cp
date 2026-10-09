@@ -1,41 +1,93 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { alertsApi } from '../../api/alerts'
+import { ApiError } from '../../api/client'
+import type { AlertBanner } from '../../types/alerts'
 
-export interface AlertBanner {
-  id: string
-  title: string
-  message: string
-  severity: 'info' | 'warning' | 'critical'
-  requires_acknowledgement: boolean
-  created_at: string
-}
+export type { AlertBanner } from '../../types/alerts'
 
 export interface AlertsState {
   items: AlertBanner[]
-  dismissed: string[]
+  status: 'idle' | 'loading' | 'ready' | 'error'
+  acknowledging: string[]
+  error: string | null
 }
 
 const initialState: AlertsState = {
   items: [],
-  dismissed: [],
+  status: 'idle',
+  acknowledging: [],
+  error: null,
 }
+
+function messageOf(error: unknown): string {
+  return error instanceof ApiError ? error.message : 'Something went wrong. Please try again.'
+}
+
+export const fetchMyAlerts = createAsyncThunk<AlertBanner[], void, { rejectValue: string }>(
+  'alerts/fetchMine',
+  async (_, { rejectWithValue }) => {
+    try {
+      const { alerts } = await alertsApi.mine()
+      return alerts
+    } catch (error) {
+      return rejectWithValue(messageOf(error))
+    }
+  },
+)
+
+export const acknowledgeAlert = createAsyncThunk<string, string, { rejectValue: string }>(
+  'alerts/acknowledge',
+  async (id, { rejectWithValue }) => {
+    try {
+      await alertsApi.acknowledge(id)
+      return id
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 409) {
+        return id
+      }
+      return rejectWithValue(messageOf(error))
+    }
+  },
+)
 
 const alertsSlice = createSlice({
   name: 'alerts',
   initialState,
   reducers: {
-    alertsReceived(state, action: PayloadAction<AlertBanner[]>) {
-      state.items = action.payload
-    },
-    alertDismissed(state, action: PayloadAction<string>) {
-      if (!state.dismissed.includes(action.payload)) {
-        state.dismissed.push(action.payload)
-      }
-    },
     alertsCleared() {
       return initialState
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchMyAlerts.pending, (state) => {
+        if (state.status === 'idle') {
+          state.status = 'loading'
+        }
+      })
+      .addCase(fetchMyAlerts.fulfilled, (state, action) => {
+        state.items = action.payload
+        state.status = 'ready'
+        state.error = null
+      })
+      .addCase(fetchMyAlerts.rejected, (state, action) => {
+        state.status = 'error'
+        state.error = action.payload ?? 'Could not load alerts.'
+      })
+      .addCase(acknowledgeAlert.pending, (state, action) => {
+        state.acknowledging.push(action.meta.arg)
+        state.error = null
+      })
+      .addCase(acknowledgeAlert.fulfilled, (state, action) => {
+        state.acknowledging = state.acknowledging.filter((id) => id !== action.payload)
+        state.items = state.items.filter((item) => item.id !== action.payload)
+      })
+      .addCase(acknowledgeAlert.rejected, (state, action) => {
+        state.acknowledging = state.acknowledging.filter((id) => id !== action.meta.arg)
+        state.error = action.payload ?? 'Could not acknowledge the alert.'
+      })
+  },
 })
 
-export const { alertsReceived, alertDismissed, alertsCleared } = alertsSlice.actions
+export const { alertsCleared } = alertsSlice.actions
 export default alertsSlice.reducer

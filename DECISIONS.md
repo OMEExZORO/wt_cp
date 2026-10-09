@@ -91,3 +91,11 @@ Defaults chosen during the build. Each can be revisited.
 - The `.ics` button is a plain link to the API URL (the session cookie authorises it) rather than a fetched blob.
 - Dialogs are custom (`role="dialog"`, `aria-modal`, focus trap, Escape, focus return) instead of `window.confirm` or native `<dialog>`; marking a no-show asks for confirmation because it cannot be undone.
 - Staff can change status and urgency only; staff cancel, reschedule and walk-in booking exist in the API but have no reception UI yet.
+## Phase 6: critical alerts
+
+- Alert creation uses the schema's `raised` event; a `phone_contacted` event type was added by migration 015 for reception call notes.
+- Alerts, emails, banners and SMS never carry clinical findings. The banner and email say a finding needs attention and ask the recipient to sign in and contact the centre. An optional doctor note is stored only through `NoteProtector` (encrypted); without an encryption service it is discarded and the API reports `note_stored: false`.
+- Either the patient or the linked referrer acknowledging closes the escalation (single `acknowledged` state, actor recorded in the event). Non-owners receive 404 so the alert's existence is not revealed.
+- PHP sets `next_escalation_at` to now plus `ALERT_ESCALATION_MINUTES` after notifying, the same variable the Node worker reads, so both use one window.
+- The reading queue is appointments with status `completed` and no non-draft report; waiting time runs from `completed_at` (falling back to the slot end). Overdue after 30 min (Urgent), 2 h (Priority), 6 h (Routine); warning at half.
+- The in-app banner is polled every 60 s rather than pushed; there is no websocket layer.

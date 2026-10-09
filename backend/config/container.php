@@ -22,6 +22,13 @@ use App\Middleware\RoleMiddleware;
 use App\Middleware\SecurityHeadersMiddleware;
 use App\Middleware\StartSessionMiddleware;
 use App\Middleware\VerifiedEmailMiddleware;
+use App\Models\AlertEvent;
+use App\Models\CriticalAlert;
+use App\Services\Alerts\AlertService;
+use App\Services\Alerts\NoteProtector;
+use App\Services\Alerts\SmsGateway;
+use App\Services\Alerts\StubSmsGateway;
+use App\Services\Alerts\UnavailableNoteProtector;
 use App\Services\AuditLogger;
 use App\Services\DatabaseAuditLogger;
 use App\Services\Mail\LogMailer;
@@ -58,6 +65,18 @@ return static function (Config $config): Container {
         $c->get(Logger::class),
         (string) $config->get('mail.templates'),
         ['clinic_name' => (string) $config->get('mail.from_name'), 'frontend_url' => (string) $config->get('frontend_url')]
+    ));
+
+    $container->bind(SmsGateway::class, static fn (Container $c): SmsGateway => new StubSmsGateway($c->get(Logger::class)));
+    $container->bind(NoteProtector::class, static fn (): NoteProtector => new UnavailableNoteProtector());
+    $container->bind(AlertService::class, static fn (Container $c): AlertService => new AlertService(
+        $c->get(CriticalAlert::class),
+        $c->get(AlertEvent::class),
+        $c->get(MailService::class),
+        $c->get(SmsGateway::class),
+        $c->get(NoteProtector::class),
+        $config,
+        Env::int('ALERT_ESCALATION_MINUTES', 30)
     ));
 
     $container->bind(MiddlewareResolver::class, static fn (Container $c): MiddlewareResolver => new MiddlewareResolver($c, [
