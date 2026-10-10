@@ -4,4 +4,4 @@ Disallow: /portal/
 Disallow: /reset-password
 Disallow: /verify-email
 
-Sitemap: https://www.example.com/sitemap.xml
+Sitemap: https://meghnaddiagnostics.me/sitemap.xml

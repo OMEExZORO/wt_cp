@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'public')
-const base = (process.env.SITE_URL ?? 'https://www.example.com').replace(/\/+$/, '')
+const base = (process.env.SITE_URL ?? 'https://meghnaddiagnostics.me').replace(/\/+$/, '')
 const paths = ['/', '/about', '/services', '/branches', '/reviews', '/faq', '/contact', '/book', '/privacy', '/terms']
 
 const urls = paths.map((path) => `  <url>\n    <loc>${base}${path === '/' ? '/' : path}</loc>\n  </url>`).join('\n')
