@@ -41,6 +41,7 @@ docker-compose.yml Local containers
 ## Documentation
 
 - `docs/ARCHITECTURE.md` diagrams, request lifecycle, data model, alert flow
+- `docs/DEPLOYMENT.md` production setup on Vercel, Render and GitHub Actions
 - `docs/API.md` every endpoint with roles and HTTP method rationale
 - `docs/SECURITY.md` each control and the file that implements it
 - `docs/SYLLABUS_MAPPING.md` syllabus and checklist items mapped to files
@@ -149,6 +150,8 @@ npm run build          # type-check and production build of the frontend
 Results and use cases are in `docs/TEST_REPORT.md`; the Postman collection is in `postman/`.
 
 ## Deploy
+
+The live production setup (same-origin Vercel rewrite, Render free plan, scheduled jobs, SMTP switch) is described in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). The sections below are the generic guide.
 
 Production layout: frontend on Vercel or Cloudflare Pages, API and alerts worker on Render (Docker), database and bucket on Supabase.
 
