@@ -1,5 +1,5 @@
 import { useAppSelector } from '../app/hooks'
-import { selectSetting } from '../features/public/publicSlice'
+import { selectBranches, selectSetting } from '../features/public/publicSlice'
 import { settingText } from './contact'
 import { SHOW_EMAIL, SHOW_WHATSAPP } from './features'
 
@@ -21,7 +21,7 @@ export interface ContactInfo {
 }
 
 export function useContactInfo(): ContactInfo {
-  const branches = useAppSelector((state) => state.public.branches.data?.branches ?? [])
+  const branches = useAppSelector(selectBranches)
   const phone = settingText(useAppSelector(selectSetting('contact.phone')))
   const whatsapp = SHOW_WHATSAPP ? settingText(useAppSelector(selectSetting('contact.whatsapp'))) : null
   const siteEmail = SHOW_EMAIL ? settingText(useAppSelector(selectSetting('contact.email'))) : null
