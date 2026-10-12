@@ -32,7 +32,7 @@ export function CookieConsent() {
   }
 
   return (
-    <div className="cookie-banner" role="dialog" aria-modal="false" aria-labelledby="cookie-banner-title">
+    <div className="cookie-banner" role="region" aria-labelledby="cookie-banner-title">
       <div className="cookie-banner__card">
         <div className="cookie-banner__copy">
           <h2 id="cookie-banner-title" className="cookie-banner__title">

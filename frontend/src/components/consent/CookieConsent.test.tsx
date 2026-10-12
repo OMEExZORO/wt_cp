@@ -20,9 +20,9 @@ describe('CookieConsent', () => {
   it('shows the banner when no choice is stored and hides it after accepting', async () => {
     const user = userEvent.setup()
     renderBanner()
-    expect(screen.getByRole('dialog', { name: 'Cookies on this site' })).toBeInTheDocument()
+    expect(screen.getByRole('region', { name: 'Cookies on this site' })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Accept all' }))
-    expect(screen.queryByRole('dialog', { name: 'Cookies on this site' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Cookies on this site' })).not.toBeInTheDocument()
     expect(readCookieConsent()?.choice).toBe('all')
   })
 
@@ -33,16 +33,16 @@ describe('CookieConsent', () => {
     expect(readCookieConsent()?.choice).toBe('essential')
 
     window.dispatchEvent(new CustomEvent(OPEN_COOKIE_SETTINGS_EVENT))
-    expect(await screen.findByRole('dialog', { name: 'Cookies on this site' })).toBeInTheDocument()
+    expect(await screen.findByRole('region', { name: 'Cookies on this site' })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Reject' }))
     expect(readCookieConsent()?.choice).toBe('rejected')
-    expect(screen.queryByRole('dialog', { name: 'Cookies on this site' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Cookies on this site' })).not.toBeInTheDocument()
   })
 
   it('stays hidden when a choice is already stored', () => {
     localStorage.setItem('dc_cookie_consent', JSON.stringify({ choice: 'essential', version: '2026-10-v1', decidedAt: '2026-10-12T00:00:00.000Z' }))
     renderBanner()
-    expect(screen.queryByRole('dialog', { name: 'Cookies on this site' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('region', { name: 'Cookies on this site' })).not.toBeInTheDocument()
   })
 
   it('links to the privacy policy', () => {
