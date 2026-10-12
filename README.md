@@ -134,7 +134,7 @@ Generate the hash: `php -r "echo password_hash('CHOOSE-A-STRONG-PASSWORD', PASSW
 
 **2. Render** — New → Blueprint from this repo (`render.yaml`: `diagnocare-api` + `diagnocare-alerts`, health checks `/api/v1/health` and `/health`). Fill every `sync: false` variable: `APP_URL`, `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS` (exact origins, no trailing slash), `APP_KEY`, `ENCRYPTION_KEY`, `CSRF_SECRET`, DB values, Supabase keys, `SMTP_*`, `MAIL_FROM`, worker `ALERTS_SERVICE_TOKEN`. Keep `ALERT_ESCALATION_MINUTES` identical on both services. Single API instance; attach a disk at `/var/www/backend/storage` if sessions/uploads must survive restarts (see `DECISIONS.md`).
 
-**3. Frontend** — `VITE_API_BASE_URL=https://<api>/api/v1`, `SITE_URL=<live domain>`. Vercel: root `frontend` (`vercel.json` handles rewrite + headers). Cloudflare Pages: root `frontend`, build `npm run build`, output `dist`. Replace the placeholder API origin in `connect-src` (`vercel.json`, `public/_headers`) or browsers block API calls.
+**3. Frontend** — `VITE_API_BASE_URL=https://<api>/api/v1`, `SITE_URL=<live domain>`. Vercel: root `frontend` (`vercel.json` handles rewrite + headers). Cloudflare Pages: root `frontend`, build `npm run build`, output `dist`. CSP `connect-src` allows any `https:` origin so no header edit is needed when the API host changes.
 
 Cookie/CORS contract: cross-site needs `SameSite=None; Secure` over HTTPS both sides; `CORS_ALLOWED_ORIGINS` exact origins (no wildcards — cookies are sent); `TRUST_PROXY=true` only behind a trusted proxy; `APP_ENV=production` + `APP_DEBUG=false` for generic errors and HSTS.
 
