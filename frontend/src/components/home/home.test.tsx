@@ -71,7 +71,7 @@ describe('HeroCarousel', () => {
     expect(slideTitle()).toBe('Imaging for a Healthier Tomorrow')
   })
 
-  it('rotates automatically and the pause button stops it', async () => {
+  it('rotates automatically through the slides', async () => {
     vi.useFakeTimers()
     renderHero()
     await act(async () => {
@@ -79,19 +79,19 @@ describe('HeroCarousel', () => {
     })
     expect(slideTitle()).toContain('ultrasound')
     await act(async () => {
-      screen.getByRole('button', { name: 'Pause automatic slide show' }).click()
+      await vi.advanceTimersByTimeAsync(6600)
     })
-    expect(screen.getByRole('button', { name: 'Start automatic slide show' })).toBeInTheDocument()
+    expect(slideTitle()).toContain('CT')
+  })
+
+  it('starts paused when the visitor prefers reduced motion', async () => {
+    vi.useFakeTimers()
+    vi.stubGlobal('matchMedia', (query: string) => ({ matches: query.includes('reduce'), media: query, addEventListener: () => undefined, removeEventListener: () => undefined }))
+    renderHero()
     await act(async () => {
       await vi.advanceTimersByTimeAsync(20000)
     })
-    expect(slideTitle()).toContain('ultrasound')
-  })
-
-  it('starts paused when the visitor prefers reduced motion', () => {
-    vi.stubGlobal('matchMedia', (query: string) => ({ matches: query.includes('reduce'), media: query, addEventListener: () => undefined, removeEventListener: () => undefined }))
-    renderHero()
-    expect(screen.getByRole('button', { name: 'Start automatic slide show' })).toBeInTheDocument()
+    expect(slideTitle()).toBe('Imaging for a Healthier Tomorrow')
   })
 })
 

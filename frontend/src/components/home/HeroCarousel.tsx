@@ -4,7 +4,7 @@ import { siteImage, type ImageKey } from '../../lib/images'
 import { prefersReducedMotion } from '../../lib/motion'
 import { telHref } from '../../lib/contact'
 import { useContactInfo } from '../../lib/useContactInfo'
-import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon, PauseIcon, PhoneIcon, PlayIcon } from '../icons/Icons'
+import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon, PhoneIcon } from '../icons/Icons'
 import { Todo } from '../public/Primitives'
 
 export interface HeroSlide {
@@ -54,12 +54,14 @@ const INTERVAL_MS = 6500
 
 export function HeroCarousel({ slides = HERO_SLIDES }: { slides?: HeroSlide[] }) {
   const [index, setIndex] = useState(0)
-  const [paused, setPaused] = useState(() => prefersReducedMotion())
   const [hovering, setHovering] = useState(false)
   const [focusWithin, setFocusWithin] = useState(false)
   const contact = useContactInfo()
   const headingId = useId()
   const total = slides.length
+  // No play/pause control: the show always rotates, except while the visitor
+  // hovers over it, tabs into it, or prefers reduced motion.
+  const paused = prefersReducedMotion()
   const running = !paused && !hovering && !focusWithin && total > 1
 
   const go = useCallback(
@@ -163,14 +165,6 @@ export function HeroCarousel({ slides = HERO_SLIDES }: { slides?: HeroSlide[] })
         <div className="hero-carousel__controls">
           <button type="button" className="hero-carousel__btn" onClick={() => go(-1)} aria-label="Previous slide">
             <ChevronLeftIcon size={20} />
-          </button>
-          <button
-            type="button"
-            className="hero-carousel__btn"
-            onClick={() => setPaused((value) => !value)}
-            aria-label={paused ? 'Start automatic slide show' : 'Pause automatic slide show'}
-          >
-            {paused ? <PlayIcon size={20} /> : <PauseIcon size={20} />}
           </button>
           <button type="button" className="hero-carousel__btn" onClick={() => go(1)} aria-label="Next slide">
             <ChevronRightIcon size={20} />

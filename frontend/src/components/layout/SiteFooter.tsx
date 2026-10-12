@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { loadBranches, loadSite } from '../../features/public/publicSlice'
 import { branchAddress, formatPhone, telHref } from '../../lib/contact'
+import { openCookieSettings } from '../../lib/consent'
 import { useContactInfo } from '../../lib/useContactInfo'
 import { Logo } from '../brand/Logo'
 import { PhoneIcon, PinIcon } from '../icons/Icons'
@@ -102,6 +103,11 @@ export function SiteFooter() {
                 <Link to={item.to}>{item.label}</Link>
               </li>
             ))}
+            <li>
+              <button type="button" className="site-footer__linkbtn" onClick={openCookieSettings}>
+                Cookie choices
+              </button>
+            </li>
           </ul>
         </nav>
       </div>
