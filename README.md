@@ -72,6 +72,27 @@ docker-compose.yml Local containers
 <details>
 <summary><strong>Full local setup (env, secrets, seeds)</strong></summary>
 
+### Documentation
+
+- `docs/ARCHITECTURE.md` diagrams, request lifecycle, data model, alert flow
+- `docs/DEPLOYMENT.md` production setup on Vercel, Render and GitHub Actions
+- `docs/API.md` every endpoint with roles and HTTP method rationale
+- `docs/SECURITY.md` each control and the file that implements it
+- `docs/SYLLABUS_MAPPING.md` syllabus and checklist items mapped to files
+- `docs/TEST_REPORT.md` test cases with real results
+- `docs/CONVENTIONS.md` coding conventions and the schema notes
+- `DECISIONS.md` design decisions, `PROGRESS.md` phase log, `MANUAL_STEPS.md` items that need a human
+
+### Prerequisites
+
+- PHP 8.3 with `pdo_pgsql`, `openssl`, `mbstring`, `fileinfo`, `curl`
+- Composer 2
+- Node.js 20 or newer (24 used in development) and npm
+- A Supabase project (Postgres and Storage), or the optional local Postgres from Docker
+- Docker Desktop (optional)
+
+### Configure
+
 ```bash
 cp .env.example .env
 ```
@@ -123,7 +144,13 @@ Dev database only — never create these in production.
 
 Production layout: frontend on Vercel or Cloudflare Pages; API + worker on Render (Docker); database + bucket on Supabase.
 
-**1. Supabase** — create a project, run `npm run migrate`, `npm run seed`, `npm run storage:setup` against it (never `seed:dev`/`seed:demo`). First admin via SQL:
+The live production setup (same-origin Vercel rewrite, Render free plan, scheduled jobs, SMTP switch) is described in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). The sections below are the generic guide.
+
+### 1. Supabase
+
+1. Create a project and note the connection details, `SUPABASE_URL` and the service key.
+2. Run the migrations and the base seed against it from your machine with production values in `.env`: `npm run migrate`, `npm run seed`, `npm run storage:setup`. Do not run `seed:dev` or `seed:demo`.
+3. Create the first admin account. Generate a hash with `php -r "echo password_hash('CHOOSE-A-STRONG-PASSWORD', PASSWORD_ARGON2ID), PHP_EOL;"`, then run in the Supabase SQL editor:
 
 ```sql
 INSERT INTO users (email, password_hash, role, full_name, email_verified_at, password_changed_at)
@@ -134,7 +161,7 @@ Generate the hash: `php -r "echo password_hash('CHOOSE-A-STRONG-PASSWORD', PASSW
 
 **2. Render** — New → Blueprint from this repo (`render.yaml`: `diagnocare-api` + `diagnocare-alerts`, health checks `/api/v1/health` and `/health`). Fill every `sync: false` variable: `APP_URL`, `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS` (exact origins, no trailing slash), `APP_KEY`, `ENCRYPTION_KEY`, `CSRF_SECRET`, DB values, Supabase keys, `SMTP_*`, `MAIL_FROM`, worker `ALERTS_SERVICE_TOKEN`. Keep `ALERT_ESCALATION_MINUTES` identical on both services. Single API instance; attach a disk at `/var/www/backend/storage` if sessions/uploads must survive restarts (see `DECISIONS.md`).
 
-**3. Frontend** — `VITE_API_BASE_URL=https://<api>/api/v1`, `SITE_URL=<live domain>`. Vercel: root `frontend` (`vercel.json` handles rewrite + headers). Cloudflare Pages: root `frontend`, build `npm run build`, output `dist`. CSP `connect-src` allows any `https:` origin so no header edit is needed when the API host changes.
+**3. Frontend** — `VITE_API_BASE_URL=https://<api>/api/v1`, `SITE_URL=<live domain>`. Vercel: root `frontend` (`vercel.json` handles rewrite + headers). Cloudflare Pages: root `frontend`, build `npm run build`, output `dist`.
 
 Cookie/CORS contract: cross-site needs `SameSite=None; Secure` over HTTPS both sides; `CORS_ALLOWED_ORIGINS` exact origins (no wildcards — cookies are sent); `TRUST_PROXY=true` only behind a trusted proxy; `APP_ENV=production` + `APP_DEBUG=false` for generic errors and HSTS.
 

@@ -7,7 +7,7 @@ export function TopBar() {
   const contact = useContactInfo()
   const entries = contact.centres.length > 0 ? contact.centres : contact.phone !== null || contact.whatsapp !== null ? [{ id: 'main', label: '', phone: contact.phone, whatsapp: contact.whatsapp }] : []
 
-  if (!contact.hasAny && !import.meta.env.DEV) {
+  if (!contact.hasCall && !import.meta.env.DEV) {
     return null
   }
 

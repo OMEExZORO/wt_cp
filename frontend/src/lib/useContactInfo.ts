@@ -17,6 +17,7 @@ export interface ContactInfo {
   email: string | null
   primaryPhone: string | null
   primaryWhatsapp: string | null
+  hasCall: boolean
   hasAny: boolean
 }
 
@@ -33,6 +34,7 @@ export function useContactInfo(): ContactInfo {
   const email = siteEmail ?? branchEmail
   const primaryPhone = centres.find((centre) => centre.phone !== null)?.phone ?? phone
   const primaryWhatsapp = centres.find((centre) => centre.whatsapp !== null)?.whatsapp ?? whatsapp
+  const hasCall = centres.length > 0 || phone !== null || whatsapp !== null
 
   return {
     centres,
@@ -41,6 +43,7 @@ export function useContactInfo(): ContactInfo {
     email,
     primaryPhone,
     primaryWhatsapp,
-    hasAny: centres.length > 0 || phone !== null || whatsapp !== null || email !== null,
+    hasCall,
+    hasAny: hasCall || email !== null,
   }
 }
