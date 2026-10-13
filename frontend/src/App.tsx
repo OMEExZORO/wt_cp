@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from './app/hooks'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { GuestRoute } from './components/GuestRoute'
+import { CookieConsent } from './components/consent/CookieConsent'
 import { PublicLayout } from './components/layout/PublicLayout'
 import { PageLoader } from './components/PageLoader'
 import { ProtectedRoute } from './components/ProtectedRoute'
@@ -140,6 +141,7 @@ export default function App() {
             </Route>
           </Route>
         </Routes>
+        <CookieConsent />
       </Suspense>
     </ErrorBoundary>
   )

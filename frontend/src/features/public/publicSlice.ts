@@ -130,7 +130,8 @@ const slice = createSlice({
 
 export default slice.reducer
 
-export const selectSettings = (state: RootState): SettingsMap => state.public.site.data?.settings ?? {}
+const NO_SETTINGS: SettingsMap = {}
+export const selectSettings = (state: RootState): SettingsMap => state.public.site.data?.settings ?? NO_SETTINGS
 
 const EMPTY_BRANCHES: PublicBranch[] = []
 

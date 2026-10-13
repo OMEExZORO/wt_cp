@@ -123,6 +123,14 @@ h3 {
 
 .hero-slide__copy {
   max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 400px;
+}
+
+.hero-slide__copy .eyebrow {
+  min-height: 3.4em;
 }
 
 .hero-slide__title {
@@ -131,6 +139,7 @@ h3 {
   line-height: 1.1;
   font-weight: 700;
   color: #ffffff;
+  min-height: 3.4em;
 }
 
 .hero-slide__text {
@@ -144,6 +153,7 @@ h3 {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-3);
+  margin-top: auto;
 }
 
 .hero-carousel__bar {
@@ -258,7 +268,8 @@ h3 {
 
   .hero-wrap__quick {
     position: absolute;
-    top: var(--space-6);
+    top: 50%;
+    transform: translateY(-50%);
     left: 0;
     right: 0;
     padding: 0 16px;
@@ -269,10 +280,23 @@ h3 {
     pointer-events: auto;
     margin-left: auto;
     width: 360px;
+    padding: var(--space-4);
+  }
+
+  .quick-card__lead {
+    margin-bottom: var(--space-3);
+  }
+
+  .quick-card .field {
+    margin-bottom: var(--space-2);
   }
 
   .hero-slide__copy {
     max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    min-height: 410px;
   }
 }
 
@@ -280,6 +304,10 @@ h3 {
   .hero-wrap__quick {
     padding-left: 24px;
     padding-right: 24px;
+  }
+
+  .hero-slide__copy .eyebrow {
+    min-height: 0;
   }
 }
 

@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="430" viewBox="0 0 920 430" role="img" aria-label="DiagnoCare request flow diagram">
+  <defs>
+    <style>
+      .flow { stroke-dasharray: 10 8; animation: dash 1.2s linear infinite; }
+      @keyframes dash { to { stroke-dashoffset: -36; } }
+      .node { font-family: Segoe UI, system-ui, sans-serif; }
+    </style>
+  </defs>
+  <rect width="920" height="430" fill="#0e1328"/>
+  <text x="24" y="36" font-family="Segoe UI, system-ui, sans-serif" font-size="20" font-weight="600" fill="#e8eaf2">Request flow — browser to encrypted storage</text>
+  <!-- nodes -->
+  <g>
+    <rect x="24" y="70" width="180" height="76" rx="12" fill="#1b2243" stroke="#3a4266" stroke-width="2"/>
+    <text x="114" y="102" text-anchor="middle" font-size="16" font-weight="600" fill="#ffffff" class="node">Browser</text>
+    <text x="114" y="126" text-anchor="middle" font-size="13" fill="#b7bccb" class="node">React 18 SPA</text>
+  </g>
+  <g>
+    <rect x="370" y="70" width="180" height="76" rx="12" fill="#1b2243" stroke="#f28c28" stroke-width="2"/>
+    <text x="460" y="102" text-anchor="middle" font-size="16" font-weight="600" fill="#ffffff" class="node">PHP 8.3 API</text>
+    <text x="460" y="126" text-anchor="middle" font-size="13" fill="#b7bccb" class="node">CORS · session · CSRF · RBAC</text>
+  </g>
+  <g>
+    <rect x="716" y="70" width="180" height="76" rx="12" fill="#1b2243" stroke="#3a4266" stroke-width="2"/>
+    <text x="806" y="102" text-anchor="middle" font-size="16" font-weight="600" fill="#ffffff" class="node">Supabase PG</text>
+    <text x="806" y="126" text-anchor="middle" font-size="13" fill="#b7bccb" class="node">RLS locked down</text>
+  </g>
+  <g>
+    <rect x="370" y="230" width="180" height="76" rx="12" fill="#1b2243" stroke="#3a4266" stroke-width="2"/>
+    <text x="460" y="262" text-anchor="middle" font-size="16" font-weight="600" fill="#ffffff" class="node">Alerts worker</text>
+    <text x="460" y="286" text-anchor="middle" font-size="13" fill="#b7bccb" class="node">escalation + reminders</text>
+  </g>
+  <g>
+    <rect x="716" y="230" width="180" height="76" rx="12" fill="#1b2243" stroke="#3a4266" stroke-width="2"/>
+    <text x="806" y="262" text-anchor="middle" font-size="16" font-weight="600" fill="#ffffff" class="node">Private bucket</text>
+    <text x="806" y="286" text-anchor="middle" font-size="13" fill="#b7bccb" class="node">AES-256-GCM files</text>
+  </g>
+  <g>
+    <rect x="24" y="230" width="180" height="76" rx="12" fill="#1b2243" stroke="#3a4266" stroke-width="2"/>
+    <text x="114" y="262" text-anchor="middle" font-size="16" font-weight="600" fill="#ffffff" class="node">Static host</text>
+    <text x="114" y="286" text-anchor="middle" font-size="13" fill="#b7bccb" class="node">Vercel / Pages</text>
+  </g>
+  <!-- flows -->
+  <line class="flow" x1="204" y1="108" x2="370" y2="108" stroke="#f28c28" stroke-width="3"/>
+  <line class="flow" x1="550" y1="108" x2="716" y2="108" stroke="#7fd9d1" stroke-width="3"/>
+  <line class="flow" x1="460" y1="146" x2="460" y2="230" stroke="#7fd9d1" stroke-width="3"/>
+  <line class="flow" x1="550" y1="268" x2="716" y2="268" stroke="#7fd9d1" stroke-width="3"/>
+  <line class="flow" x1="204" y1="92" x2="114" y2="230" stroke="#c4baf0" stroke-width="2"/>
+  <text x="24" y="350" font-family="Segoe UI, system-ui, sans-serif" font-size="14" fill="#b7bccb">JSON over HTTPS + cookies + X-CSRF-Token · browser never sees Supabase keys · critical alerts escalate until acknowledged</text>
+  <text x="24" y="376" font-family="Segoe UI, system-ui, sans-serif" font-size="14" fill="#b7bccb">Full static diagram with lifecycle notes: </text>
+  <text x="352" y="376" font-family="SFMono-Regular, Consolas, monospace" font-size="14" fill="#ffb36b">docs/ARCHITECTURE.md</text>
+</svg>
