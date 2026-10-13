@@ -2,10 +2,7 @@ import { useCallback, useEffect, useId, useState, type KeyboardEvent } from 'rea
 import { Link } from 'react-router-dom'
 import { siteImage, type ImageKey } from '../../lib/images'
 import { prefersReducedMotion } from '../../lib/motion'
-import { telHref } from '../../lib/contact'
-import { useContactInfo } from '../../lib/useContactInfo'
-import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon, PhoneIcon } from '../icons/Icons'
-import { Todo } from '../public/Primitives'
+import { CalendarIcon } from '../icons/Icons'
 
 export interface HeroSlide {
   id: string
@@ -56,11 +53,8 @@ export function HeroCarousel({ slides = HERO_SLIDES }: { slides?: HeroSlide[] })
   const [index, setIndex] = useState(0)
   const [hovering, setHovering] = useState(false)
   const [focusWithin, setFocusWithin] = useState(false)
-  const contact = useContactInfo()
   const headingId = useId()
   const total = slides.length
-  // No play/pause control: the show always rotates, except while the visitor
-  // hovers over it, tabs into it, or prefers reduced motion.
   const paused = prefersReducedMotion()
   const running = !paused && !hovering && !focusWithin && total > 1
 
@@ -147,13 +141,6 @@ export function HeroCarousel({ slides = HERO_SLIDES }: { slides?: HeroSlide[] })
                     <Link to={bookTo} className="btn btn--primary btn--lg" tabIndex={active ? 0 : -1}>
                       <CalendarIcon size={20} /> Book Appointment
                     </Link>
-                    {contact.primaryPhone ? (
-                      <a href={telHref(contact.primaryPhone)} className="btn btn--ghost-light btn--lg" tabIndex={active ? 0 : -1}>
-                        <PhoneIcon size={20} /> Call Now
-                      </a>
-                    ) : import.meta.env.DEV ? (
-                      <Todo label="phone for Call Now" />
-                    ) : null}
                   </div>
                 </div>
               </div>
@@ -161,25 +148,10 @@ export function HeroCarousel({ slides = HERO_SLIDES }: { slides?: HeroSlide[] })
           )
         })}
       </div>
-      <div className="container hero-carousel__bar">
-        <div className="hero-carousel__controls">
-          <button type="button" className="hero-carousel__btn" onClick={() => go(-1)} aria-label="Previous slide">
-            <ChevronLeftIcon size={20} />
-          </button>
-          <button type="button" className="hero-carousel__btn" onClick={() => go(1)} aria-label="Next slide">
-            <ChevronRightIcon size={20} />
-          </button>
-        </div>
+      <div className="container hero-carousel__bar" aria-hidden="true">
         <div className="hero-carousel__dots">
           {slides.map((slide, position) => (
-            <button
-              key={slide.id}
-              type="button"
-              className={`hero-carousel__dot${position === index ? ' hero-carousel__dot--active' : ''}`}
-              aria-label={`Go to slide ${position + 1}: ${slide.eyebrow}`}
-              aria-current={position === index ? 'true' : undefined}
-              onClick={() => setIndex(position)}
-            />
+            <span key={slide.id} className={`hero-carousel__dot${position === index ? ' hero-carousel__dot--active' : ''}`} />
           ))}
         </div>
       </div>

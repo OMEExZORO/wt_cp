@@ -46,21 +46,16 @@ describe('HeroCarousel', () => {
     expect(images.map((image) => image.getAttribute('loading'))).toEqual(['eager', 'lazy', 'lazy', 'lazy'])
   })
 
-  it('moves with the previous and next buttons and the dots', async () => {
-    const user = userEvent.setup()
+  it('has no manual slide buttons and a single booking button', () => {
     renderHero()
-    await user.click(screen.getByRole('button', { name: 'Next slide' }))
-    expect(slideTitle()).toContain('ultrasound')
-    await user.click(screen.getByRole('button', { name: 'Previous slide' }))
-    expect(slideTitle()).toBe('Imaging for a Healthier Tomorrow')
-    await user.click(screen.getByRole('button', { name: /Go to slide 3/ }))
-    expect(slideTitle()).toContain('CT')
+    expect(screen.queryByRole('button')).toBeNull()
+    expect(screen.queryByRole('link', { name: /Call Now/ })).toBeNull()
   })
 
   it('supports arrow keys, Home and End', async () => {
     const user = userEvent.setup()
     renderHero()
-    screen.getByRole('button', { name: 'Next slide' }).focus()
+    screen.getAllByRole('link', { name: /Book Appointment/ })[0].focus()
     await user.keyboard('{ArrowRight}')
     expect(slideTitle()).toContain('ultrasound')
     await user.keyboard('{ArrowLeft}')
