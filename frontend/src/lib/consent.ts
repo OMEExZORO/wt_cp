@@ -39,7 +39,6 @@ export function storeCookieConsent(choice: CookieChoice): StoredCookieConsent {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stored))
   } catch {
-    // Storage full or blocked: the banner simply shows again next visit.
   }
   return stored
 }
