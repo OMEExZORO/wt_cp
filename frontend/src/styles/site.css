@@ -72,7 +72,7 @@ p {
   justify-content: center;
   gap: var(--space-2);
   min-height: 44px;
-  border-radius: 999px;
+  border-radius: 6px;
   border: 2px solid transparent;
   padding: 10px 22px;
   font: inherit;
@@ -81,18 +81,16 @@ p {
   line-height: 1.2;
   text-decoration: none;
   cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 .btn--primary {
   background: var(--color-orange);
   color: var(--color-navy-deep);
-  box-shadow: 0 6px 16px -6px rgba(242, 140, 40, 0.7);
 }
 
 .btn--primary:hover {
-  background: #ffa044;
-  transform: translateY(-1px);
+  background: #e07b17;
 }
 
 .btn--primary:disabled {
@@ -122,13 +120,14 @@ p {
 }
 
 .btn--ghost-light {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.5);
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.7);
   color: #ffffff;
 }
 
 .btn--ghost-light:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: #ffffff;
+  color: var(--color-navy-deep);
 }
 
 .btn--sm {
