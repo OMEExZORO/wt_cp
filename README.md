@@ -127,15 +127,7 @@ npm run dev --prefix services/alerts        # worker
 
 With `MAIL_DRIVER=log`, verification/reset links land in `backend/storage/logs/mail.log`; set `MAIL_DRIVER=smtp` + `SMTP_*` for real mail.
 
-| Role | Email | Password |
-|---|---|---|
-| admin | admin@diagnocare.test | Admin@Dev2026! |
-| doctor | doctor@diagnocare.test | Doctor@Dev2026! |
-| receptionist | reception@diagnocare.test | Reception@Dev2026! |
-| patient | patient@diagnocare.test | Patient@Dev2026! |
-| referrer | referrer@diagnocare.test | Referrer@Dev2026! |
-
-Dev database only — never create these in production.
+The five dev accounts (one per role) are defined in `database/seeds/seed_dev.php` and created by `php backend/bin/seed.php dev`. Use them on a development database only, never on production.
 
 </details>
 

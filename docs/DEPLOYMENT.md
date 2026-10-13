@@ -11,7 +11,7 @@ Browser -> https://meghnaddiagnostics.me (Vercel, static SPA)
               v
           Supabase (Postgres + storage bucket)
 
-GitHub Actions (every 10 min) -> pings the API, then runs the alert jobs once against Supabase
+GitHub Actions (every 30 min) -> pings the API, then runs the alert jobs once against Supabase
 ```
 
 The alerts service (`diagnocare-alerts`) is defined in `render.yaml` but is not kept awake. Its jobs run from GitHub Actions through `npm run jobs:once`.
@@ -55,12 +55,12 @@ GitHub repository secrets used by `alert-jobs`: `DATABASE_URL`, `ALERT_ESCALATIO
 
 Render free web services sleep after 15 minutes idle and the workspace gets 750 instance-hours per month. A 31-day month is 744 hours, so only one service can stay on. The API is that service; a cold start takes up to about a minute.
 
-`.github/workflows/keepalive-and-jobs.yml` runs every 10 minutes:
+`.github/workflows/keepalive-and-jobs.yml` runs every 30 minutes:
 
 - `keepalive` calls the API health endpoint directly (retrying up to about 90 seconds for a cold start) and through the Vercel rewrite.
 - `alert-jobs` runs escalation and reminders once against the database, then exits. Both jobs time out at 5 minutes and runs do not overlap.
 
-GitHub Actions minutes: public repositories are free. Private repositories get 2000 free minutes a month; a run every 10 minutes is about 4,300 minutes (each job bills at least one minute). If the repository goes private, change the cron to `*/30 * * * *` and use cron-job.org for the 10-minute keep-alive.
+GitHub Actions minutes: public repositories are free. Private repositories get 2000 free minutes a month. The workflow is a single job every 30 minutes (about 1,500 minutes a month), so it fits a private repository. Render's free tier sleeps after 15 idle minutes, so the 10-minute cron-job.org ping below is required to keep the API awake.
 
 ## Backup keep-alive with cron-job.org
 
