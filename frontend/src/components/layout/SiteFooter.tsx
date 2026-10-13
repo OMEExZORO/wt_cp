@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
-import { loadBranches, loadSite } from '../../features/public/publicSlice'
+import { loadBranches, loadSite, selectBranches } from '../../features/public/publicSlice'
 import { branchAddress, formatPhone, telHref } from '../../lib/contact'
 import { useContactInfo } from '../../lib/useContactInfo'
 import { Logo } from '../brand/Logo'
@@ -38,7 +38,7 @@ export function SiteFooter() {
     void dispatch(loadSite())
     void dispatch(loadBranches())
   }, [dispatch])
-  const branches = useAppSelector((state) => state.public.branches.data?.branches ?? [])
+  const branches = useAppSelector(selectBranches)
   const contact = useContactInfo()
   const centres = branches.filter((branch) => !branch.address_is_placeholder)
 

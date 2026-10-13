@@ -1,9 +1,9 @@
 import { Suspense, useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { Navigate, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { authApi } from '../../api/auth'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { AlertBanners } from '../../features/alerts/AlertBanners'
-import { logout, selectUser } from '../../features/auth/authSlice'
+import { logout, selectAuth } from '../../features/auth/authSlice'
 import { AREA_ROLES, ROLE_LABEL } from '../../lib/roles'
 import type { Role } from '../../types/auth'
 import { ErrorBoundary } from '../ErrorBoundary'
@@ -52,10 +52,14 @@ function VerifyEmailBanner() {
 }
 
 export function PortalLayout() {
-  const user = useAppSelector(selectUser)
+  const { status, user } = useAppSelector(selectAuth)
   const dispatch = useAppDispatch()
+  const location = useLocation()
+  if (status === 'idle' || status === 'loading') {
+    return <PageLoader label="Checking your session…" />
+  }
   if (user === null) {
-    return null
+    return <Navigate to="/login" replace state={{ from: location.pathname + location.search }} />
   }
   const links = AREA_LINKS.filter((link) => AREA_ROLES[link.to]?.includes(user.role))
   const reportLinks = REPORT_LINKS.filter((link) => link.roles.includes(user.role))

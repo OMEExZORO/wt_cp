@@ -1,10 +1,10 @@
 import { useAppSelector } from '../../app/hooks'
-import { selectSetting } from '../../features/public/publicSlice'
+import { selectBranches, selectSetting } from '../../features/public/publicSlice'
 import { branchAddress, settingText } from '../../lib/contact'
 import { useJsonLd } from '../../lib/seo'
 
 export function StructuredData() {
-  const branches = useAppSelector((state) => state.public.branches.data?.branches ?? [])
+  const branches = useAppSelector(selectBranches)
   const phone = settingText(useAppSelector(selectSetting('contact.phone')))
   const primary = branches.find((branch) => !branch.address_is_placeholder)
 

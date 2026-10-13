@@ -131,7 +131,7 @@ export function HeroCarousel({ slides = HERO_SLIDES }: { slides?: HeroSlide[] })
                 height={image.height}
                 loading={position === 0 ? 'eager' : 'lazy'}
                 decoding={position === 0 ? 'sync' : 'async'}
-                {...(position === 0 ? { fetchPriority: 'high' as const } : {})}
+                {...(position === 0 ? ({ fetchpriority: 'high' } as Record<string, string>) : {})}
               />
               <div className="hero-slide__shade" />
               <div className="container hero-slide__content">
@@ -149,9 +149,9 @@ export function HeroCarousel({ slides = HERO_SLIDES }: { slides?: HeroSlide[] })
                       <a href={telHref(contact.primaryPhone)} className="btn btn--ghost-light btn--lg" tabIndex={active ? 0 : -1}>
                         <PhoneIcon size={20} /> Call Now
                       </a>
-                    ) : (
+                    ) : import.meta.env.DEV ? (
                       <Todo label="phone for Call Now" />
-                    )}
+                    ) : null}
                   </div>
                 </div>
               </div>

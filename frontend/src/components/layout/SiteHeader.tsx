@@ -23,6 +23,7 @@ export function SiteHeader() {
   const { theme, toggleTheme } = useTheme()
   const [open, setOpen] = useState(false)
   const toggleRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLDivElement>(null)
   const location = useLocation()
 
   const close = useCallback(() => {
@@ -37,10 +38,29 @@ export function SiteHeader() {
     if (!open) {
       return undefined
     }
+    panelRef.current?.querySelector<HTMLElement>('a[href], button:not([disabled])')?.focus()
     const onKey = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setOpen(false)
         toggleRef.current?.focus()
+        return
+      }
+      if (event.key !== 'Tab') {
+        return
+      }
+      const nodes = Array.from(panelRef.current?.querySelectorAll<HTMLElement>('a[href], button:not([disabled])') ?? [])
+      if (nodes.length === 0) {
+        event.preventDefault()
+        return
+      }
+      const first = nodes[0]
+      const last = nodes[nodes.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
       }
     }
     document.addEventListener('keydown', onKey)
@@ -64,7 +84,14 @@ export function SiteHeader() {
         >
           {open ? <CloseIcon /> : <MenuIcon />}
         </button>
-        <div id="primary-nav" className={`site-header__panel${open ? ' site-header__panel--open' : ''}`}>
+        <div
+          id="primary-nav"
+          ref={panelRef}
+          className={`site-header__panel${open ? ' site-header__panel--open' : ''}`}
+          role={open ? 'dialog' : undefined}
+          aria-modal={open ? true : undefined}
+          aria-label={open ? 'Site menu' : undefined}
+        >
           <nav aria-label="Main" className="site-header__nav">
             {LINKS.map((link) => (
               <NavLink key={link.to} to={link.to} end={link.end} onClick={close}>

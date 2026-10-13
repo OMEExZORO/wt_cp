@@ -11,7 +11,7 @@ export interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElemen
 }
 
 export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function TextField(
-  { label, name, error, hint, required, type = 'text', id, ...rest },
+  { label, name, value, onChange, onBlur, error, hint, required, type = 'text', id, ...rest },
   ref,
 ) {
   const generatedId = useId()
@@ -36,6 +36,9 @@ export const TextField = forwardRef<HTMLInputElement, TextFieldProps>(function T
         aria-describedby={describedBy}
         className="field__input"
         {...rest}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
       />
       {hint !== undefined ? (
         <p id={hintId} className="field__hint">
