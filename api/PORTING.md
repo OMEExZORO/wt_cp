@@ -145,26 +145,26 @@ Pick a `todo` row, set it to `in progress (name)` in your first commit, `done` i
 | AuthController | `auth` | GET /auth/csrf; POST /auth/register, /login, /logout; GET,PATCH /auth/me; DELETE /auth/sessions | done |
 | PasswordController | `auth` | POST /auth/password/forgot, /reset; PUT /auth/password | done |
 | EmailVerificationController | `auth` | POST /auth/email/verify, /resend | done |
-| PublicController | `public` | GET /public/site, /doctor, /branches, /scan-categories, /scan-types, /scan-types/{ref}, /faqs, /reviews | todo |
-| BookingController | `booking` | GET /booking/availability, /days, /next-available; GET /scan-types/{id:uuid}/checklist | todo |
-| AppointmentController | `appointments` | GET,POST /appointments; GET /{id}, /{id}/ics; PATCH /{id}/reschedule, /cancel, /status | todo |
-| PatientController | `patients` | GET /patients/lookup | todo |
-| AlertController | `alerts` | POST /reports/{id}/critical; GET /alerts, /alerts/mine, /alerts/{id}/events; POST /alerts/{id}/acknowledge; PATCH /alerts/{id}/resolve | todo |
-| QueueController | `queue` | GET /doctor/queue | todo |
-| ReportController | `reports` | GET,POST /reports; GET,PATCH,DELETE /reports/{id}; GET /reports/{id}/download | todo |
-| ReferralController | `referrals` | GET,POST /referrals; GET,PATCH /referrals/{id} | todo |
-| DashboardController | `dashboards` | GET /dashboards/patient, /doctor, /receptionist, /admin, /referrer | todo |
-| ReviewController | `reviews` | GET /reviews/mine; POST /reviews | todo |
-| Admin\DoctorPhotoController | `doctor-photo` | GET /public/doctor/photo; POST,DELETE /admin/doctor/photo | todo |
-| Admin\StatsController | `admin-stats` | GET /admin/stats | todo |
-| Admin\AuditLogController | `admin-audit-log` | GET /admin/audit-log | todo |
-| Admin\UserAdminController | `admin-users` | GET,POST /admin/users; PATCH /admin/users/{id}; POST /admin/users/{id}/password-reset | todo |
-| Admin\BranchAdminController | `admin-branches` | GET,POST /admin/branches; PUT,PATCH,DELETE /admin/branches/{id} | todo |
-| Admin\CatalogAdminController | `admin-catalog` | CRUD /admin/scan-categories, /admin/scan-types, /admin/checklist-items | todo |
-| Admin\SlotAdminController | `admin-slots` | GET /admin/slots; POST /admin/slots/generate; PATCH,DELETE /admin/slots/{id} | todo |
-| Admin\SettingsAdminController | `admin-settings` | GET,PATCH /admin/settings | todo |
-| Admin\FaqAdminController | `admin-faqs` | GET,POST /admin/faqs; PUT,PATCH,DELETE /admin/faqs/{id} | todo |
-| Admin\ReviewAdminController | `admin-reviews` | GET,POST /admin/reviews; PUT /admin/reviews/{id}; PATCH /admin/reviews/{id} (moderate) | todo |
+| PublicController | `public` | GET /public/site, /doctor, /branches, /scan-categories, /scan-types, /scan-types/{ref}, /faqs, /reviews | done |
+| BookingController | `booking` | GET /booking/availability, /days, /next-available; GET /scan-types/{id:uuid}/checklist | done |
+| AppointmentController | `appointments` | GET,POST /appointments; GET /{id}, /{id}/ics; PATCH /{id}/reschedule, /cancel, /status | done |
+| PatientController | `patients` | GET /patients/lookup | done |
+| AlertController | `alerts` | POST /reports/{id}/critical; GET /alerts, /alerts/mine, /alerts/{id}/events; POST /alerts/{id}/acknowledge; PATCH /alerts/{id}/resolve | done |
+| QueueController | `queue` | GET /doctor/queue | done |
+| ReportController | `reports` | GET,POST /reports; GET,PATCH,DELETE /reports/{id}; GET /reports/{id}/download | done |
+| ReferralController | `referrals` | GET,POST /referrals; GET,PATCH /referrals/{id} | done |
+| DashboardController | `dashboards` | GET /dashboards/patient, /doctor, /receptionist, /admin, /referrer | done |
+| ReviewController | `reviews` | GET /reviews/mine; POST /reviews | done |
+| Admin\DoctorPhotoController | `doctor-photo` | GET /public/doctor/photo; POST,DELETE /admin/doctor/photo | done |
+| Admin\StatsController | `admin-stats` | GET /admin/stats | done |
+| Admin\AuditLogController | `admin-audit-log` | GET /admin/audit-log | done |
+| Admin\UserAdminController | `admin-users` | GET,POST /admin/users; PATCH /admin/users/{id}; POST /admin/users/{id}/password-reset | done |
+| Admin\BranchAdminController | `admin-branches` | GET,POST /admin/branches; PUT,PATCH,DELETE /admin/branches/{id} | done |
+| Admin\CatalogAdminController | `admin-catalog` | CRUD /admin/scan-categories, /admin/scan-types, /admin/checklist-items | done |
+| Admin\SlotAdminController | `admin-slots` | GET /admin/slots; POST /admin/slots/generate; PATCH,DELETE /admin/slots/{id} | done |
+| Admin\SettingsAdminController | `admin-settings` | GET,PATCH /admin/settings | done |
+| Admin\FaqAdminController | `admin-faqs` | GET,POST /admin/faqs; PUT,PATCH,DELETE /admin/faqs/{id} | done |
+| Admin\ReviewAdminController | `admin-reviews` | GET,POST /admin/reviews; PUT /admin/reviews/{id}; PATCH /admin/reviews/{id} (moderate) | done |
 
 Admin modules use `group('/admin', ['auth', 'role:admin'], [...])`; keep the exact middleware lists, including per-route `throttle:` entries, from `backend/routes/api.php`.
 

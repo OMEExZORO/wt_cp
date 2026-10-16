@@ -1,4 +1,6 @@
 import { escapeHtml as e } from '../../../validation/sanitizer.js'
+import { bookingTemplates } from './booking.js'
+import { criticalAlert } from './critical-alert.js'
 
 const BUTTON_STYLE =
   'display:inline-block;background:#f28c28;color:#1b2a5c;padding:12px 20px;border-radius:6px;text-decoration:none;font-weight:bold;'
@@ -52,6 +54,9 @@ export const templates = {
 <p>The link expires in ${e(v.minutes)} minutes and can be used once. If you did not ask for this, you can ignore this email; your password will not change.</p>
 `,
   }),
+
+  ...bookingTemplates,
+  'critical-alert': criticalAlert,
 
   'password-changed': (v) => ({
     subject: 'Your password was changed',
