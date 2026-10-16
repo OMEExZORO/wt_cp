@@ -22,3 +22,4 @@ dist-ssr/
 .claude/
 !backend/src/Services/Storage/
 .playwright-mcp
+!api/src/services/storage/
