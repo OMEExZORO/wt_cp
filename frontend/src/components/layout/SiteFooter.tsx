@@ -21,7 +21,6 @@ const QUICK_LINKS: { to: string; label: string }[] = [
   { to: '/book', label: 'Book Appointment' },
   { to: '/about', label: 'Meet the radiologist' },
   { to: '/branches', label: 'Location and directions' },
-  { to: '/reviews', label: 'Patient reviews' },
   { to: '/faq', label: 'FAQ' },
   { to: '/contact', label: 'Contact' },
 ]

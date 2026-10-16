@@ -445,11 +445,6 @@ h3 {
   margin-bottom: var(--space-4);
 }
 
-.radiologist__portrait {
-  flex: none;
-  width: 140px;
-}
-
 .radiologist__name {
   margin: 0;
   font-size: var(--text-xl);
@@ -462,26 +457,7 @@ h3 {
   color: var(--color-orange-strong);
 }
 
-.radiologist__media {
-  border-radius: var(--radius);
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-}
 
-.radiologist__media img {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-
-.doctor-portrait__small {
-  display: block;
-  width: 140px;
-  height: auto;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
-  border: 3px solid var(--color-surface-raised);
-}
 
 @media (min-width: 900px) {
   .radiologist {
@@ -830,8 +806,7 @@ h3 {
   height: 100%;
 }
 
-.modality__media .art,
-.radiologist__media .art {
+.modality__media .art {
   width: 100%;
   height: auto;
   aspect-ratio: 4 / 3;

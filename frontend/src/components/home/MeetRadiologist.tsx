@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { ModalityArt } from '../art'
 import { ArrowRightIcon } from '../icons/Icons'
 import { CREDENTIALS, DoctorBio, DoctorPortrait } from '../public/Blocks'
 
@@ -8,9 +7,6 @@ export function MeetRadiologist() {
     <div className="radiologist">
       <div className="radiologist__text">
         <div className="radiologist__head">
-          <div className="radiologist__portrait">
-            <DoctorPortrait />
-          </div>
           <div>
             <h3 className="radiologist__name">Dr. Meghnad Padsalgikar</h3>
             <p className="radiologist__role">Radiologist</p>
@@ -27,7 +23,9 @@ export function MeetRadiologist() {
         </Link>
       </div>
       <div className="radiologist__media">
-        <ModalityArt kind="reporting" />
+        <div className="doctor-portrait doctor-portrait--wide">
+          <DoctorPortrait />
+        </div>
       </div>
     </div>
   )

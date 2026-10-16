@@ -1,7 +1,7 @@
-import { screen, waitFor, within } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { mockApi, renderApp } from '../../test/utils'
-import type { PublicBranch, PublicFaq, PublicScanType, SettingsMap } from '../../types/public'
+import type { PublicBranch, PublicFaq, PublicScanType } from '../../types/public'
 import { filterScans, groupScans } from './ServicesPage'
 
 const scans: PublicScanType[] = [
@@ -77,10 +77,6 @@ const faqs: PublicFaq[] = [
   { id: 'f2', question: 'Is ultrasound safe?', answer: 'It uses sound waves.', category: 'general', sort_order: 2 },
 ]
 
-const placeholderSettings: SettingsMap = {
-  'links.google_reviews_url': { value: null, type: 'url', group: 'links', label: 'Google reviews', is_placeholder: true },
-}
-
 afterEach(() => {
   vi.unstubAllGlobals()
   vi.unstubAllEnvs()
@@ -149,92 +145,6 @@ describe('Services page', () => {
   })
 })
 
-describe('Reviews page', () => {
-  function reviewsApi(settings: SettingsMap) {
-    return mockApi((path) => {
-      if (path.startsWith('/public/reviews')) {
-        return { status: 200, body: { reviews: [], summary: { count: 0, average_rating: null } } }
-      }
-      if (path === '/public/site') {
-        return { status: 200, body: { settings } }
-      }
-      return undefined
-    })
-  }
-
-  it('shows the empty state and a TODO badge in dev when the Google URL is a placeholder', async () => {
-    reviewsApi(placeholderSettings)
-    renderApp('/reviews')
-    expect(await screen.findByText('Be the first to share your experience')).toBeInTheDocument()
-    await waitFor(() => expect(screen.getAllByTestId('todo-badge').length).toBeGreaterThan(0))
-  })
-
-  it('hides the placeholder button in production', async () => {
-    vi.stubEnv('DEV', false)
-    reviewsApi(placeholderSettings)
-    renderApp('/reviews')
-    expect(await screen.findByText('Be the first to share your experience')).toBeInTheDocument()
-    expect(screen.queryByTestId('todo-badge')).not.toBeInTheDocument()
-    expect(screen.queryByRole('link', { name: /Review us on Google/ })).not.toBeInTheDocument()
-  })
-
-  it('links to the Google reviews page when the URL is set', async () => {
-    reviewsApi({
-      'links.google_reviews_url': { value: 'https://g.page/r/example/review', type: 'url', group: 'links', label: 'Google reviews', is_placeholder: false },
-    })
-    renderApp('/reviews')
-    const link = await screen.findByRole('link', { name: /Review us on Google/ })
-    expect(link).toHaveAttribute('href', 'https://g.page/r/example/review')
-  })
-
-  it('shows approved reviews without a computed average', async () => {
-    mockApi((path) =>
-      path.startsWith('/public/reviews')
-        ? {
-            status: 200,
-            body: {
-              reviews: [{ id: 'r1', display_name: 'Test Patient', rating: 5, body: 'Clear explanation and kind staff.', verified_visit: false, created_at: null }],
-              summary: { count: 1, average_rating: 5 },
-            },
-          }
-        : undefined,
-    )
-    renderApp('/reviews')
-    expect(await screen.findByText('Clear explanation and kind staff.')).toBeInTheDocument()
-    expect(screen.queryByText(/approved review/)).not.toBeInTheDocument()
-    expect(screen.queryByLabelText(/Average rating/)).not.toBeInTheDocument()
-    expect(screen.queryByText('Rated on Google')).not.toBeInTheDocument()
-  })
-
-  it('shows the Google rating from settings and a see-all link', async () => {
-    mockApi((path) => {
-      if (path.startsWith('/public/reviews')) {
-        return {
-          status: 200,
-          body: { reviews: [{ id: 'r1', display_name: 'A B', rating: 5, body: 'Good service here.', verified_visit: false, created_at: null }], summary: { count: 1, average_rating: 5 } },
-        }
-      }
-      if (path === '/public/site') {
-        return {
-          status: 200,
-          body: {
-            settings: {
-              'google.rating': { value: '3.3', type: 'string', group: 'links', label: 'Rating', is_placeholder: false },
-              'google.review_count': { value: '60', type: 'string', group: 'links', label: 'Count', is_placeholder: false },
-              'links.google_reviews_url': { value: 'https://g.page/r/example/review', type: 'url', group: 'links', label: 'Google', is_placeholder: false },
-            },
-          },
-        }
-      }
-      return undefined
-    })
-    renderApp('/reviews')
-    expect(await screen.findByText('Rated on Google')).toBeInTheDocument()
-    expect(screen.getByLabelText('Google rating 3.3 out of 5 from 60 reviews')).toBeInTheDocument()
-    expect(await screen.findByRole('link', { name: /See all reviews on Google/ })).toHaveAttribute('href', 'https://g.page/r/example/review')
-  })
-})
-
 describe('Branches page', () => {
   it('lists all four branches with both phone numbers and a Google Maps search link', async () => {
     mockApi((path) => (path.startsWith('/public/branches') ? { status: 200, body: { branches: branches4 } } : undefined))
@@ -278,6 +188,7 @@ describe('Footer and legal copy', () => {
     renderApp('/privacy')
     const footer = await screen.findByRole('contentinfo')
     expect(within(footer).getByText('Prenatal sex determination is prohibited under the PCPNDT Act.')).toBeInTheDocument()
-    expect(await screen.findByText(/Pending doctor and legal review/)).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'How long we keep it' })).toBeInTheDocument()
+    expect(screen.queryByText(/Pending doctor and legal review/)).not.toBeInTheDocument()
   })
 })

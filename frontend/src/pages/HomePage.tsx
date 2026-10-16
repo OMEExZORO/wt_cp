@@ -9,7 +9,6 @@ import { BranchCard } from '../components/public/BranchCard'
 import { CtaBand } from '../components/public/Blocks'
 import { FaqAccordion } from '../components/public/FaqAccordion'
 import { AsyncState, SectionHeading } from '../components/public/Primitives'
-import { ReviewsPanel } from '../components/public/ReviewsPanel'
 import { usePublicResource } from '../hooks/usePublicResource'
 import { usePageMeta } from '../lib/seo'
 import type { ReactNode } from 'react'
@@ -79,13 +78,6 @@ export default function HomePage() {
             <h3 className="gallery__title">Inside our centre</h3>
             <ClinicGallery />
           </div>
-        </div>
-      </section>
-
-      <section className="section section--tint" aria-labelledby="reviews-title">
-        <div className="container">
-          <SectionHeading id="reviews-title" eyebrow="Patient voices" title="What patients say on Google" />
-          <ReviewsPanel layout="carousel" />
         </div>
       </section>
 

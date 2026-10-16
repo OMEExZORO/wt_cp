@@ -43,7 +43,7 @@ Open `http://localhost:5173` (same-origin cookies). Dev logins after `npm run se
 
 | Role | What they can do |
 |---|---|
-| Public visitor | Services (USG / CT / Biopsy filters), doctor profile, branch with maps, approved reviews, FAQ, contact, privacy & terms |
+| Public visitor | Services (USG / CT / Biopsy filters), doctor profile, branch with maps, FAQ, contact, privacy & terms |
 | Patient | Register + verify email, book / reschedule / cancel (row-locked capacity, other-branch suggestion when full), safety checklist, `.ics` + Google Calendar link, encrypted report downloads, critical-alert acknowledgement, visit reviews |
 | Receptionist | Appointment list & status changes, report upload, referral linking, red-flag alert board, phone-contact logging |
 | Doctor | Priority reading queue (Routine / Priority / Urgent + waiting time), encrypted-note uploads, flag Critical |

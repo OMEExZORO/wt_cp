@@ -6,9 +6,6 @@ import { setupStore } from '../../app/store'
 import { mockApi, renderApp } from '../../test/utils'
 import { relativeAge } from '../../lib/format'
 import { buildBookQuery, readBookPrefill } from '../../lib/prefill'
-import type { PublicReview } from '../../types/public'
-import { ReviewCard } from '../public/ReviewCard'
-import { ReviewsCarousel } from '../public/ReviewsCarousel'
 import { HeroCarousel } from './HeroCarousel'
 
 function renderHero() {
@@ -89,81 +86,6 @@ describe('HeroCarousel', () => {
       await vi.advanceTimersByTimeAsync(20000)
     })
     expect(slideTitle()).toBe('Imaging for a Healthier Tomorrow')
-  })
-})
-
-const google: PublicReview = {
-  id: 'g1',
-  display_name: 'Asha Kumar',
-  rating: 5,
-  body: 'The staff were calm and explained every step of the scan clearly. The report was ready quickly and the doctor answered all our questions patiently.',
-  verified_visit: false,
-  created_at: '2026-10-01T10:00:00+05:30',
-  source: 'google',
-  source_url: 'https://share.google/example',
-  external_review_date: '2026-08-01',
-  reviewer_photo_url: null,
-}
-
-describe('ReviewCard', () => {
-  it('shows name, initial avatar, stars, age, Google badge and source', () => {
-    render(<ReviewCard review={google} />)
-    const card = screen.getByRole('article', { name: 'Review by Asha Kumar' })
-    expect(within(card).getByText('Asha Kumar')).toBeInTheDocument()
-    expect(within(card).getByText('A')).toBeInTheDocument()
-    expect(within(card).getByRole('img', { name: '5 out of 5 stars' })).toBeInTheDocument()
-    expect(within(card).getByRole('link', { name: 'Posted on Google' })).toHaveAttribute('href', 'https://share.google/example')
-    expect(within(card).getByText('Google')).toBeInTheDocument()
-    expect(card.querySelector('time')).toHaveAttribute('datetime', '2026-08-01')
-  })
-
-  it('opens the full text in an accessible dialog from Read more', async () => {
-    const user = userEvent.setup()
-    render(<ReviewCard review={google} />)
-    await user.click(screen.getByRole('button', { name: /Read more of the review by Asha Kumar/ }))
-    const dialog = screen.getByRole('dialog', { name: 'Review by Asha Kumar' })
-    expect(within(dialog).getByText(google.body)).toBeInTheDocument()
-    await user.keyboard('{Escape}')
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-  })
-
-  it('has no Read more for short text and no Google label for site reviews', () => {
-    render(<ReviewCard review={{ ...google, body: 'Good service', source: 'site', source_url: null }} />)
-    expect(screen.queryByRole('button', { name: /Read more/ })).not.toBeInTheDocument()
-    expect(screen.queryByText('Posted on Google')).not.toBeInTheDocument()
-  })
-
-  it('shows the Translated by Google note', () => {
-    render(<ReviewCard review={{ ...google, translated_by_google: true }} />)
-    expect(screen.getByText('Translated by Google')).toBeInTheDocument()
-  })
-})
-
-describe('ReviewsCarousel', () => {
-  const many = Array.from({ length: 4 }, (_, i) => ({ ...google, id: `g${i}`, display_name: `Reviewer ${i}`, body: `Review text number ${i} is here.` }))
-
-  it('rotates on a timer, pauses on request and wraps around', async () => {
-    vi.useFakeTimers()
-    render(<ReviewsCarousel reviews={many} />)
-    expect(screen.getByText('Reviewer 0')).toBeInTheDocument()
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(6100)
-    })
-    expect(screen.getByText('Reviewer 1')).toBeInTheDocument()
-    await act(async () => {
-      screen.getByRole('button', { name: 'Pause automatic rotation' }).click()
-    })
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(20000)
-    })
-    expect(screen.getByText('Reviewer 1')).toBeInTheDocument()
-    await act(async () => {
-      screen.getByRole('button', { name: 'Previous review' }).click()
-    })
-    await act(async () => {
-      screen.getByRole('button', { name: 'Previous review' }).click()
-    })
-    expect(screen.getByText('Reviewer 3')).toBeInTheDocument()
   })
 })
 

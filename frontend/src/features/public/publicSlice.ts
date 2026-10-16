@@ -6,7 +6,6 @@ import type {
   BranchesResponse,
   FaqsResponse,
   PublicBranch,
-  ReviewsResponse,
   ScanCategoriesResponse,
   ScanTypesResponse,
   SettingEntry,
@@ -28,7 +27,6 @@ export interface PublicState {
   scanTypes: Resource<ScanTypesResponse>
   categories: Resource<ScanCategoriesResponse>
   faqs: Resource<FaqsResponse>
-  reviews: Resource<ReviewsResponse>
 }
 
 export type PublicKey = keyof PublicState
@@ -43,7 +41,6 @@ const initialState: PublicState = {
   scanTypes: empty(),
   categories: empty(),
   faqs: empty(),
-  reviews: empty(),
 }
 
 export interface LoadArg {
@@ -83,7 +80,6 @@ export const loadBranches = makeLoader('branches', publicApi.branches)
 export const loadScanTypes = makeLoader('scanTypes', () => publicApi.scanTypes())
 export const loadCategories = makeLoader('categories', () => publicApi.scanCategories())
 export const loadFaqs = makeLoader('faqs', publicApi.faqs)
-export const loadReviews = makeLoader('reviews', () => publicApi.reviews(30))
 
 export type Loader = (arg?: LoadArg) => ThunkAction<unknown, RootState, undefined, UnknownAction>
 
@@ -93,7 +89,6 @@ export const loaders: Record<PublicKey, Loader> = {
   scanTypes: loadScanTypes,
   categories: loadCategories,
   faqs: loadFaqs,
-  reviews: loadReviews,
 }
 
 const slice = createSlice({
@@ -124,7 +119,6 @@ const slice = createSlice({
     attach('scanTypes', loadScanTypes)
     attach('categories', loadCategories)
     attach('faqs', loadFaqs)
-    attach('reviews', loadReviews)
   },
 })
 

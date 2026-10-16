@@ -14,7 +14,6 @@ const AboutPage = lazy(() => import('./pages/public/AboutPage'))
 const ServicesPage = lazy(() => import('./pages/public/ServicesPage'))
 const ScanDetailPage = lazy(() => import('./pages/public/ScanDetailPage'))
 const BranchesPage = lazy(() => import('./pages/public/BranchesPage'))
-const ReviewsPage = lazy(() => import('./pages/public/ReviewsPage'))
 const FaqPage = lazy(() => import('./pages/public/FaqPage'))
 const ContactPage = lazy(() => import('./pages/public/ContactPage'))
 const BookPage = lazy(() => import('./pages/public/BookPage'))
@@ -46,7 +45,6 @@ const AdminFaqsPage = lazy(() => import('./pages/admin/FaqsPage'))
 const AdminDoctorProfilePage = lazy(() => import('./pages/admin/DoctorProfilePage'))
 const AdminReviewsPage = lazy(() => import('./pages/admin/ReviewsModerationPage'))
 const AdminAuditLogPage = lazy(() => import('./pages/admin/AuditLogPage'))
-const WriteReviewPage = lazy(() => import('./pages/portal/WriteReviewPage'))
 const ReferrerDashboard = lazy(() => import('./pages/portal/ReferrerDashboard'))
 const AccountPage = lazy(() => import('./pages/portal/AccountPage'))
 const MyReportsPage = lazy(() => import('./pages/portal/reports/MyReportsPage'))
@@ -74,7 +72,6 @@ export default function App() {
             <Route path="services" element={<ServicesPage />} />
             <Route path="services/:slug" element={<ScanDetailPage />} />
             <Route path="branches" element={<BranchesPage />} />
-            <Route path="reviews" element={<ReviewsPage />} />
             <Route path="faq" element={<FaqPage />} />
             <Route path="contact" element={<ContactPage />} />
             <Route path="book" element={<BookPage />} />
@@ -98,7 +95,6 @@ export default function App() {
                 <Route path="patient" element={<PatientDashboard />} />
                 <Route path="patient/book" element={<BookingPage />} />
                 <Route path="patient/appointments/:id" element={<AppointmentPage />} />
-                <Route path="patient/reviews" element={<WriteReviewPage />} />
               </Route>
               <Route element={<ProtectedRoute roles={['doctor', 'admin']} />}>
                 <Route path="doctor" element={<DoctorDashboard />} />

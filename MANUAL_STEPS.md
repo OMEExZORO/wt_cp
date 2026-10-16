@@ -19,11 +19,11 @@ Only things that need a human. Content values marked as placeholders are editabl
 - [ ] Contact email (hidden in the UI by `SHOW_EMAIL` in `frontend/src/lib/features.ts`; `contact.email`, `branches.email`)
 - [ ] Keep appointment slots generated for Mon-Sat 8 am to 10 pm at all four branches, Sunday closed (admin Slots page or `php backend/bin/generate-slots.php`)
 - [ ] Optional: exact Google Maps place links per branch (branches currently use a Google Maps search link built from the address)
-- [x] Google reviews link set; 21 real Google reviews imported via `seed_client.sql` (the doctor's own review excluded)
+- [x] Google reviews link set; Google reviews were hidden from the public site by migration 022 (status set to pending) (the doctor's own review excluded)
 - [x] Logo files added (`logo-lockup.png`, `logo-mdc.png`)
 - [ ] Doctor photo, placed in `frontend/public/images/client/` (see the README there) with `clinic.logo_url` and `doctor.photo_url` set
 - [ ] High-resolution clinic photos (centre, reception, scan rooms, doctor): the client photos in `frontend/public/images/client/` are only 141 x 101 px, so they are used as small thumbnails. Replace them through `CLIENT_PHOTOS` and `CLIENT_OVERRIDES` in `frontend/src/lib/images.ts`
 - [ ] Doctor biography paragraph (`doctor.bio`)
 - [ ] Fees, only if the centre wants them published (`fees.note`, `scan_types.fee_inr`)
 - [ ] Doctor's review and approval of service descriptions, preparation tips, checklist questions and FAQ answers in `database/seeds/seed_base.sql`, including whether the seeded FAQ about fetal sex determination stays
-- [ ] Doctor and legal review of the Privacy and Terms pages, including retention periods, grievance contact and jurisdiction
+- [ ] Doctor to confirm the Privacy and Terms pages (3-year record retention, Bhosari phone as grievance contact, Pune jurisdiction) and the default doctor bio (migration 022)

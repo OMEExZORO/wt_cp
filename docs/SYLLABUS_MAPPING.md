@@ -91,5 +91,5 @@ Every syllabus item and instructor checklist item, with the files that demonstra
 | Reading queue | `Services/Alerts/ReadingQueue.php`, `Models/ReadingQueueQuery.php` | `features/alerts/ReadingQueueTable.tsx` |
 | Critical alerts | `Services/Alerts/AlertService.php`, `AlertWorkflow.php`, `Models/CriticalAlert.php`, `AlertEvent.php` | `features/alerts/AlertBanners.tsx`, `StaffAlertsBoard.tsx` |
 | Referrer portal | `Controllers/ReferralController.php`, `Models/Referral.php` | `features/referrals/*`, `pages/portal/ReferrerDashboard.tsx` |
-| Reviews | `Controllers/ReviewController.php`, `Services/ReviewPolicy.php` | `pages/portal/WriteReviewPage.tsx`, `components/public/ReviewsPanel.tsx` |
+| Reviews | `Controllers/ReviewController.php`, `Services/ReviewPolicy.php` | `pages/admin/ReviewsModerationPage.tsx` (public review pages removed) |
 | Audit log viewer | `Controllers/Admin/AuditLogController.php`, `Models/AuditLogRepository.php` | `pages/admin/AuditLogPage.tsx` |

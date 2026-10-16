@@ -54,7 +54,7 @@ export function DoctorPortrait() {
   }
   const supplied = clientPhoto('doctor')
   if (supplied) {
-    return <img className="doctor-portrait__small" src={supplied.src} alt={supplied.alt} loading="lazy" width={supplied.width} height={supplied.height} />
+    return <img className="doctor-portrait__photo" src={supplied.src} alt={supplied.alt} loading="lazy" width={supplied.width} height={supplied.height} />
   }
   return (
     <div className="doctor-portrait__placeholder" aria-hidden="true">

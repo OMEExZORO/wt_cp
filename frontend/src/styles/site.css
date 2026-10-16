@@ -764,6 +764,21 @@ p {
   display: block;
 }
 
+.doctor-portrait:has(.doctor-portrait__photo) {
+  aspect-ratio: auto;
+}
+
+.doctor-portrait--wide {
+  max-width: 420px;
+  margin-inline: auto;
+}
+
+.doctor-portrait__photo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .doctor-portrait__placeholder {
   width: 100%;
   height: 100%;
