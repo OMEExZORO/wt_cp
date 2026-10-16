@@ -2,8 +2,8 @@ services:
   - type: web
     name: diagnocare-api
     runtime: docker
-    dockerContext: ./backend
-    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./api
+    dockerfilePath: ./api/Dockerfile
     plan: free
     region: singapore
     healthCheckPath: /api/v1/health
