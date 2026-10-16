@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { describe, it } from 'node:test'
 import { ConflictError, NotFoundError } from '../src/core/errors.js'
 import * as alerts from '../src/modules/alerts/alerts.controller.js'
+import { register } from '../src/modules/alerts/index.js'
 import * as presenter from '../src/services/alerts/alert-presenter.js'
 import { assertTransition, canTransition, isRedFlagged, mayAcknowledge } from '../src/services/alerts/alert-workflow.js'
 import { EncryptionService } from '../src/services/encryption.js'
@@ -173,5 +174,33 @@ describe('alert controller', () => {
     const select = db.ran('ORDER BY (CASE')[0]
     assert.ok(select.sql.includes("ca.status IN ('open', 'notified', 'escalated')"))
     assert.deepEqual(select.params, ['%dev%', 25, 0])
+  })
+})
+
+describe('alert escalation window', () => {
+  const windowFor = async (value) => {
+    const { app, db } = makeApp({ db: new FakeDb() })
+    const previous = process.env.ALERT_ESCALATION_MINUTES
+    if (value === undefined) delete process.env.ALERT_ESCALATION_MINUTES
+    else process.env.ALERT_ESCALATION_MINUTES = value
+    try {
+      register(app)
+    } finally {
+      if (previous === undefined) delete process.env.ALERT_ESCALATION_MINUTES
+      else process.env.ALERT_ESCALATION_MINUTES = previous
+    }
+    await app.models.criticalAlerts.applyNotified(ALERT, 1, app.services.alerts.windowMinutes)
+    return { minutes: app.services.alerts.windowMinutes, sql: db.ran("status = 'notified', notify_count")[0] }
+  }
+
+  it('schedules next_escalation_at from ALERT_ESCALATION_MINUTES like the worker window', async () => {
+    const short = await windowFor('1')
+    assert.equal(short.minutes, 1)
+    assert.match(short.sql.sql, /next_escalation_at = now\(\) \+ make_interval\(mins => \$3\)/)
+    assert.deepEqual(short.sql.params, [ALERT, 1, 1])
+  })
+
+  it('defaults the window to 30 minutes', async () => {
+    assert.equal((await windowFor(undefined)).minutes, 30)
   })
 })
