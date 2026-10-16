@@ -31,7 +31,7 @@ const generateFields = (branches: { value: string; label: string }[]): FieldDef[
   { name: 'capacity_usg', label: 'Patients per slot: ultrasound', kind: 'number', min: 0, max: 50 },
   { name: 'capacity_ct', label: 'Patients per slot: CT', kind: 'number', min: 0, max: 50 },
   { name: 'capacity_biopsy', label: 'Patients per slot: biopsy', kind: 'number', min: 0, max: 50 },
-  { name: 'closed_weekdays', label: 'Closed weekdays', hint: '1 is Monday and 7 is Sunday. Separate with commas.', validators: [closedWeekdays] },
+  { name: 'closed_weekdays', label: 'Closed weekdays', hint: '1 is Monday and 7 is Sunday. Sunday (7) is the usual closed day. Separate with commas.', validators: [closedWeekdays] },
   { name: 'dry_run', label: 'Preview only, do not create slots', kind: 'checkbox' },
 ]
 

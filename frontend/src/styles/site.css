@@ -786,9 +786,6 @@ p {
   margin: var(--space-1) 0 var(--space-3);
 }
 
-.doctor-intro__affil {
-  color: var(--color-muted);
-}
 
 .credential-list {
   list-style: none;

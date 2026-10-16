@@ -89,7 +89,6 @@ export function DoctorIntro({ withLink = true }: { withLink?: boolean }) {
             <li key={credential}>{credential}</li>
           ))}
         </ul>
-        <p className="doctor-intro__affil">Associated with Sabale Hospital, Bhosari</p>
         <DoctorBio />
         {withLink ? (
           <Link to="/about" className="text-link">

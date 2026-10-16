@@ -17,7 +17,7 @@ Only things that need a human. Content values marked as placeholders are editabl
 - [x] Four official branches (Bhosari, Moshi, Pimple Gurav, Moi) with addresses and two phone numbers each are loaded by migration `019_branches_official.sql`
 - [ ] WhatsApp number (hidden in the UI by `SHOW_WHATSAPP` in `frontend/src/lib/features.ts`) (`contact.whatsapp`, `branches.whatsapp`)
 - [ ] Contact email (hidden in the UI by `SHOW_EMAIL` in `frontend/src/lib/features.ts`; `contact.email`, `branches.email`)
-- [ ] Keep appointment slots generated for Mon-Sat 8 am to 10 pm at all four branches (admin Slots page or `php backend/bin/generate-slots.php`); confirm whether Sunday is open
+- [ ] Keep appointment slots generated for Mon-Sat 8 am to 10 pm at all four branches, Sunday closed (admin Slots page or `php backend/bin/generate-slots.php`)
 - [ ] Optional: exact Google Maps place links per branch (branches currently use a Google Maps search link built from the address)
 - [x] Google reviews link set; 21 real Google reviews imported via `seed_client.sql` (the doctor's own review excluded)
 - [x] Logo files added (`logo-lockup.png`, `logo-mdc.png`)

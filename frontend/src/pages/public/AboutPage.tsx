@@ -12,7 +12,7 @@ const APPROACH = [
 ]
 
 export default function AboutPage() {
-  usePageMeta('About the Doctor', 'Dr. Meghnad Padsalgikar, radiologist (MBBS, DMRE, DNB Radiology), associated with Sabale Hospital, Bhosari and Meghnad Diagnostic Centre.')
+  usePageMeta('About the Doctor', 'Dr. Meghnad Padsalgikar, radiologist (MBBS, DMRE, DNB Radiology) at Meghnad Diagnostic Centre.')
   usePublicResource('site')
 
   return (
@@ -31,7 +31,6 @@ export default function AboutPage() {
                 <li key={credential}>{credential}</li>
               ))}
             </ul>
-            <p className="doctor-intro__affil">Also associated with Sabale Hospital, Bhosari</p>
             <DoctorBio />
           </div>
         </div>

@@ -10,7 +10,7 @@ final class SettingsValidator
 {
     public const NON_CLEARABLE = [
         'clinic.name', 'clinic.short_name', 'clinic.logo_tagline',
-        'doctor.name', 'doctor.qualifications', 'doctor.title', 'doctor.affiliation',
+        'doctor.name', 'doctor.qualifications', 'doctor.title',
         'alerts.escalation_minutes',
     ];
 

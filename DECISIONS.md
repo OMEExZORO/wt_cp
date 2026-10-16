@@ -43,7 +43,7 @@ Defaults chosen during the build. Each can be revisited.
 ## Development data
 
 - Dev users use the reserved `.test` domain and documented passwords (see `docs/CONVENTIONS.md`). They exist only through `seed.php dev`, which refuses to run with `APP_ENV=production`.
-- Dev slots run 08:00 to 22:00, Monday to Saturday, for 30 days, for all four branches. Official timing is 8:00 AM to 10:00 PM; Sunday closed is carried over from the earlier listing and is unconfirmed. The lab service runs 24 hours.
+- Dev slots run 08:00 to 22:00, Monday to Saturday, for 30 days, for all four branches. The clinic is closed on Sunday (client decision). The lab service runs 24 hours.
 - Demo reviews are labelled "Demo data" in both name and text, flagged `is_demo = TRUE`, and removable with `npm run seed:purge-demo`.
 
 ## Phase 2: PHP core and auth

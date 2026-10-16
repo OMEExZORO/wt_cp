@@ -2,6 +2,9 @@ import { PageHero } from '../../components/public/Blocks'
 import { usePageMeta } from '../../lib/seo'
 
 export function ReviewNotice() {
+  if (!import.meta.env.DEV) {
+    return null
+  }
   return (
     <p className="callout callout--warn" role="note">
       <strong>Pending doctor and legal review.</strong> This text is a draft written for the project. It must be reviewed and approved by the doctor and a legal adviser before the website goes live.
@@ -44,11 +47,10 @@ export default function PrivacyPage() {
             Only authorised staff who need it for your care, and your referring doctor for reports linked to your referral. Access to reports is logged.
           </p>
           <h2>How long we keep it</h2>
-          <p>We keep records for as long as needed for your care and to meet legal obligations. The exact retention periods will be confirmed after review.</p>
+          <p>We keep records for as long as needed for your care and to meet legal obligations.</p>
           <h2>Your rights</h2>
           <p>
             You can ask to access, correct or erase your personal data, to withdraw consent, and to complain about how your data is handled. Contact the centre using the details on the Contact page.
-            The centre&apos;s grievance contact will be published here once confirmed.
           </p>
           <h2>Not medical advice</h2>
           <p>This website does not provide medical advice and is not for emergencies. In an emergency, call 112 or go to the nearest hospital.</p>

@@ -33,11 +33,10 @@ export default function TermsPage() {
           <p>Reviews are checked before they are published. We may decline reviews that are abusive, unlawful or not about a real visit.</p>
           <h2>Liability</h2>
           <p>
-            We take care to keep the website accurate and available, but we cannot promise it will always be error free or uninterrupted. The extent of the centre&apos;s liability will be confirmed in
-            the legal review.
+            We take care to keep the website accurate and available, but we cannot promise it will always be error free or uninterrupted.
           </p>
           <h2>Governing law</h2>
-          <p>These terms are governed by the laws of India. The courts that may hear disputes will be confirmed in the legal review.</p>
+          <p>These terms are governed by the laws of India.</p>
         </div>
       </section>
     </>

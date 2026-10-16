@@ -183,7 +183,6 @@ VALUES
     ('doctor.name', 'Dr. Meghnad Padsalgikar', 'string', 'doctor', 'Doctor name', TRUE, FALSE),
     ('doctor.qualifications', 'MBBS, DMRE, DNB (Radiology)', 'string', 'doctor', 'Qualifications', TRUE, FALSE),
     ('doctor.title', 'Radiologist', 'string', 'doctor', 'Title', TRUE, FALSE),
-    ('doctor.affiliation', 'Sabale Hospital, Bhosari', 'string', 'doctor', 'Hospital affiliation', TRUE, FALSE),
     ('doctor.bio', NULL, 'text', 'doctor', 'Biography paragraph', TRUE, TRUE),
     ('doctor.photo_url', NULL, 'image', 'doctor', 'Doctor photo', TRUE, TRUE),
     ('fees.note', NULL, 'text', 'fees', 'Fees information', TRUE, TRUE),

@@ -57,7 +57,6 @@ export function StructuredData() {
       name,
     })),
     worksFor: { '@type': 'MedicalBusiness', name: 'Meghnad Diagnostic Centre' },
-    affiliation: { '@type': 'Hospital', name: 'Sabale Hospital, Bhosari' },
   }
 
   useJsonLd('ld-medical-business', business)
