@@ -5,14 +5,14 @@ import { usePublicResource } from '../../hooks/usePublicResource'
 import { usePageMeta } from '../../lib/seo'
 
 export default function BranchesPage() {
-  usePageMeta('Branches', 'Find Meghnad Diagnostic Centre branches: address, opening hours, phone, map and directions. Main branch at Nagdev Tower, Pune Nashik Road, Bhosari.')
+  usePageMeta('Branches', 'Meghnad Diagnostic Centre branches at Bhosari, Moshi, Pimple Gurav and Moi, Pune: address, phone numbers, timings and Google Maps. 24 Hours Lab Service.')
   const { data, status, error, reload } = usePublicResource('branches')
   return (
     <>
-      <PageHero eyebrow="Location" title="Visit our centre" intro="Address, opening hours and directions for Meghnad Diagnostic Centre, Bhosari." />
+      <PageHero eyebrow="Location" title="Our branches" intro="Meghnad Diagnostic Centre at Bhosari, Moshi, Pimple Gurav and Moi. 24 Hours Lab Service." />
       <section className="section section--flush">
         <div className="container">
-          <AsyncState status={status} error={error} onRetry={reload} label="Loading location">
+          <AsyncState status={status} error={error} onRetry={reload} label="Loading branches">
             <div className="stack">
               {(data?.branches ?? []).map((branch) => (
                 <BranchCard key={branch.id} branch={branch} headingLevel={2} />

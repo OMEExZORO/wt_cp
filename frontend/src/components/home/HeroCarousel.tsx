@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useId, useState, type KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { siteImage, type ImageKey } from '../../lib/images'
+import { HeroArt, type HeroKind } from '../art'
 import { prefersReducedMotion } from '../../lib/motion'
 import { CalendarIcon } from '../icons/Icons'
 
 export interface HeroSlide {
   id: string
-  image: ImageKey
+  art: HeroKind
   eyebrow: string
   title: string
   text: string
@@ -16,14 +16,14 @@ export interface HeroSlide {
 export const HERO_SLIDES: HeroSlide[] = [
   {
     id: 'welcome',
-    image: 'hero-welcome',
-    eyebrow: 'Meghnad Diagnostic Centre, Bhosari, Pune',
+    art: 'welcome',
+    eyebrow: 'Meghnad Diagnostic Centre, Pune',
     title: 'Imaging for a Healthier Tomorrow',
     text: 'Complete diagnostic care under one roof, led by Dr. Meghnad Padsalgikar (MBBS, DMRE, DNB Radiology).',
   },
   {
     id: 'ultrasound',
-    image: 'hero-ultrasound',
+    art: 'usg',
     eyebrow: 'Ultrasound',
     title: 'Safe, non-invasive and highly accurate ultrasound',
     text: 'Obstetric, gynaecology, abdominal, small parts, Doppler and prostate imaging.',
@@ -31,7 +31,7 @@ export const HERO_SLIDES: HeroSlide[] = [
   },
   {
     id: 'ct',
-    image: 'hero-ct',
+    art: 'ct',
     eyebrow: 'CT scan',
     title: 'Detailed, fast and low-dose CT scanning',
     text: 'From CT brain and HRCT chest to abdomen, spine and CT-guided procedures.',
@@ -39,7 +39,7 @@ export const HERO_SLIDES: HeroSlide[] = [
   },
   {
     id: 'biopsy',
-    image: 'hero-biopsy',
+    art: 'biopsy',
     eyebrow: 'Image-guided biopsy',
     title: 'Precise, safe and minimally invasive biopsies',
     text: 'Ultrasound and CT guided FNAC, core biopsies, drainage and aspiration.',
@@ -106,7 +106,6 @@ export function HeroCarousel({ slides = HERO_SLIDES }: { slides?: HeroSlide[] })
     >
       <div className="hero-carousel__viewport" aria-live={running ? 'off' : 'polite'}>
         {slides.map((slide, position) => {
-          const image = siteImage(slide.image)
           const active = position === index
           const bookTo = slide.bookQuery ? `/book?${slide.bookQuery}` : '/book'
           const Heading = position === 0 ? 'h1' : 'h2'
@@ -119,16 +118,7 @@ export function HeroCarousel({ slides = HERO_SLIDES }: { slides?: HeroSlide[] })
               aria-label={`${position + 1} of ${total}`}
               aria-hidden={active ? undefined : true}
             >
-              <img
-                className="hero-slide__image"
-                src={image.src}
-                alt=""
-                width={image.width}
-                height={image.height}
-                loading={position === 0 ? 'eager' : 'lazy'}
-                decoding={position === 0 ? 'sync' : 'async'}
-                {...(position === 0 ? ({ fetchpriority: 'high' } as Record<string, string>) : {})}
-              />
+              <HeroArt kind={slide.art} className="hero-slide__image" />
               <div className="hero-slide__shade" />
               <div className="container hero-slide__content">
                 <div className="hero-slide__copy">

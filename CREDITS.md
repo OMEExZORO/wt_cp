@@ -1,21 +1,25 @@
 # Credits
 
-Third-party images and assets used in this project. Only Unsplash or Pexels images, downloaded and stored in the repo, plus client-provided images in `frontend/public/images/client/`. Nothing is hotlinked.
+No third-party photographs are used. Nothing is hotlinked. The previous Pexels stock photographs and their download script were removed.
 
-All photographs below are from Pexels and are used under the [Pexels License](https://www.pexels.com/license/) (free to use, attribution appreciated). They were downloaded by `frontend/scripts/fetch-stock-images.mjs`, cropped and converted to WebP in `frontend/public/images/stock/`.
+## Client-owned materials
 
-| File | Source photo | Author | Licence |
-|---|---|---|---|
-| hero-welcome.webp | https://www.pexels.com/photo/8459996/ (Waiting room in a hospital) | Cristian Rojas | Pexels License |
-| hero-ct.webp | https://www.pexels.com/photo/13176452/ (Diagnosis device in hospital) | Pexels contributor "contact-me" | Pexels License |
-| hero-ultrasound.webp | https://www.pexels.com/photo/7108424/ (Doctor performing medical ultrasound) | Pavel Danilyuk | Pexels License |
-| hero-biopsy.webp | https://www.pexels.com/photo/20055176/ (Ultrasound guided procedure) | Viktors Duks | Pexels License |
-| card-ct.webp | https://www.pexels.com/photo/13176357/ (Computed tomography in hospital) | Pexels contributor "contact-me" | Pexels License |
-| card-ultrasound.webp | https://www.pexels.com/photo/7089394/ (OB-GYN beside ultrasound machine) | Mart Production | Pexels License |
-| card-biopsy.webp | https://www.pexels.com/photo/35609691/ (Preparing needle for procedure) | Dave Garcia | Pexels License |
-| card-reporting.webp | https://www.pexels.com/photo/4226124/ (Doctor pointing at X-ray and MRI scans) | Anna Shvets | Pexels License |
-| card-reception.webp | https://www.pexels.com/photo/7108325/ (Reception of a medical centre) | Pavel Danilyuk | Pexels License |
+Supplied by Meghnad Diagnostic Centre (from its brochure and premises) and used with the centre's permission. Rights stay with the centre.
 
-The photographs are illustrative stock images. They do not show Meghnad Diagnostic Centre, its equipment or its staff.
+| File | What it is |
+|---|---|
+| `frontend/public/images/client/logo-lockup.png` | Brochure logo lockup (also used for the header and structured data) |
+| `frontend/public/images/client/logo-mdc.png` | MDC mark from the brochure logo |
+| `frontend/public/images/client/brochure-services.jpg` | Services brochure page |
+| `frontend/public/images/client/doctor-at-usg.jpg` | Photo of Dr. Meghnad Padsalgikar beside the ultrasound machine |
+| `frontend/public/images/client/centre-signboard.jpg` | Centre signboard |
+| `frontend/public/images/client/reception.jpg` | Reception and waiting area |
+| `frontend/public/images/client/lab-technician.jpg`, `lab-analyser.jpg`, `lab-counter.jpg` | Laboratory photos |
 
-Icons are from [lucide](https://lucide.dev) (ISC licence) via `lucide-react`. Fonts Fraunces and Figtree (SIL Open Font License) are loaded from Google Fonts.
+## Original artwork
+
+Authored for this project as SVG: the React components in `frontend/src/components/art/` (hero scenes, scan and modality illustrations, scan-slice art, empty-state and 404 art), `frontend/public/favicon.svg`, and the repository banners in `assets/*.svg`. `frontend/public/og-image.png`, `favicon-32.png` and `apple-touch-icon.png` are rendered from this artwork and the client logo. Licence: all rights reserved by the project and the clinic.
+
+## Third-party licensed material
+
+No images. Software and fonts only: icons from [lucide](https://lucide.dev) (ISC licence) via `lucide-react`; fonts Fraunces and Figtree (SIL Open Font License) loaded from Google Fonts.

@@ -1,6 +1,21 @@
-INSERT INTO branches (slug, name, address_line, landmark, area, city, state, postal_code, is_placeholder, is_active, sort_order)
+INSERT INTO branches (slug, name, address_line, landmark, area, city, state, postal_code, phone, phone_secondary, opening_hours, maps_url, maps_embed_url, latitude, longitude, is_placeholder, is_active, sort_order)
 VALUES
-    ('bhosari', 'MDC Bhosari', 'Nagdev Tower, Pune Nashik Road', 'Near Vishwavilas Hotel and Shraddha Jewellers', 'Bhosari', 'Pune', 'Maharashtra', '411039', TRUE, TRUE, 1)
+    ('bhosari', 'MDC Bhosari', 'Nagdeo Towers, Ground & Second Floor, Pune-Nashik Road, Bhosari, Pune', NULL, 'Bhosari', 'Pune', 'Maharashtra', '411039', '9890094569', '8308849804',
+     E'Monday to Saturday: 8:00 AM to 10:00 PM\nSunday: Closed\nLab service: open 24 hours',
+     'https://www.google.com/maps/search/?api=1&query=Nagdeo%20Towers%2C%20Ground%20%26%20Second%20Floor%2C%20Pune-Nashik%20Road%2C%20Bhosari%2C%20Pune%20-%20411%20039',
+     NULL, NULL, NULL, FALSE, TRUE, 1),
+    ('moshi', 'MDC Moshi', 'Gat No. 284, Near Shree Hospital, Dehu-Moshi Road, Tal. Haveli, Dist. Pune', NULL, 'Moshi', 'Pune', 'Maharashtra', '411070', '8380068696', '8308849804',
+     E'Monday to Saturday: 8:00 AM to 10:00 PM\nSunday: Closed\nLab service: open 24 hours',
+     'https://www.google.com/maps/search/?api=1&query=Gat%20No.%20284%2C%20Near%20Shree%20Hospital%2C%20Dehu-Moshi%20Road%2C%20Tal.%20Haveli%2C%20Dist.%20Pune%20-%20411%20070',
+     NULL, NULL, NULL, FALSE, TRUE, 2),
+    ('pimple-gurav', 'MDC Pimple Gurav', 'Patil Plaza Shop No. 3, Opp. PCMC School, Sangvi-Pimple Gurav Road, Pimple Gurav, Pune', NULL, 'Pimple Gurav', 'Pune', 'Maharashtra', '411061', '8380068693', '9689891846',
+     E'Monday to Saturday: 8:00 AM to 10:00 PM\nSunday: Closed\nLab service: open 24 hours',
+     'https://www.google.com/maps/search/?api=1&query=Patil%20Plaza%20Shop%20No.%203%2C%20Opp.%20PCMC%20School%2C%20Sangvi-Pimple%20Gurav%20Road%2C%20Pimple%20Gurav%2C%20Pune%20-%20411%20061',
+     NULL, NULL, NULL, FALSE, TRUE, 3),
+    ('moi', 'MDC Moi', 'At. Moi, Gat No. 652, Moi - Nighoje Road, Tal. Khed, Dist. Pune', NULL, 'Moi', 'Pune', 'Maharashtra', '410501', '8669604865', '8308849804',
+     E'Monday to Saturday: 8:00 AM to 10:00 PM\nSunday: Closed\nLab service: open 24 hours',
+     'https://www.google.com/maps/search/?api=1&query=At.%20Moi%2C%20Gat%20No.%20652%2C%20Moi%20-%20Nighoje%20Road%2C%20Tal.%20Khed%2C%20Dist.%20Pune%20-%20410%20501',
+     NULL, NULL, NULL, FALSE, TRUE, 4)
 ON CONFLICT (slug) DO NOTHING;
 
 INSERT INTO scan_categories (parent_id, slug, modality, name, tagline, description, sort_order)

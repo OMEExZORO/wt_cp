@@ -1,16 +1,17 @@
-import { branchAddress, formatPhone, directionsUrl, mapsEmbedUrl, telHref } from '../../lib/contact'
+import { branchAddress, branchPhones, directionsUrl, formatPhone, telHref } from '../../lib/contact'
 import type { PublicBranch } from '../../types/public'
 import { ClockIcon, ExternalIcon, PhoneIcon, PinIcon } from '../icons/Icons'
-import { Todo } from './Primitives'
+import { LabBadge, Todo } from './Primitives'
 
 export function BranchCard({ branch, headingLevel = 3 }: { branch: PublicBranch; headingLevel?: 2 | 3 }) {
-  const embed = mapsEmbedUrl(branch)
   const directions = directionsUrl(branch)
+  const phones = branchPhones(branch)
   const Heading = headingLevel === 2 ? 'h2' : 'h3'
   return (
-    <article className="branch-card">
+    <article className="branch-card" id={branch.slug}>
       <div className="branch-card__body">
         <Heading className="branch-card__title">{branch.name}</Heading>
+        <LabBadge />
         <ul className="info-list">
           <li>
             <PinIcon size={20} />
@@ -27,35 +28,35 @@ export function BranchCard({ branch, headingLevel = 3 }: { branch: PublicBranch;
           </li>
           <li>
             <ClockIcon size={20} />
-            <div>{branch.opening_hours ?? <Todo label="opening hours" />}</div>
+            <div>
+              {branch.opening_hours ? (
+                branch.opening_hours.split('\n').map((line) => <span key={line} className="info-list__line">{line}</span>)
+              ) : (
+                <Todo label="opening hours" />
+              )}
+            </div>
           </li>
           <li>
             <PhoneIcon size={20} />
-            <div>{branch.phone ? <a href={telHref(branch.phone)}>{formatPhone(branch.phone)}</a> : <Todo label="phone" />}</div>
+            <div>
+              {phones.length > 0 ? (
+                phones.map((phone) => (
+                  <a key={phone} href={telHref(phone)} className="info-list__line">
+                    {formatPhone(phone)}
+                  </a>
+                ))
+              ) : (
+                <Todo label="phone" />
+              )}
+            </div>
           </li>
         </ul>
         {directions ? (
           <a className="btn btn--primary" href={directions} target="_blank" rel="noopener noreferrer">
-            Get directions <ExternalIcon size={16} />
+            View on Google Maps <ExternalIcon size={16} />
           </a>
         ) : null}
       </div>
-      {embed ? (
-        <div className="branch-card__map">
-          <iframe
-            title={`Map showing ${branch.name}`}
-            src={embed}
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            allowFullScreen
-          />
-        </div>
-      ) : (
-        <div className="branch-card__map branch-card__map--empty">
-          <PinIcon size={32} />
-          <span>Map available once the address is confirmed</span>
-        </div>
-      )}
     </article>
   )
 }

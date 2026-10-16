@@ -37,6 +37,7 @@ export interface AdminBranch {
   state: string
   postal_code: string | null
   phone: string | null
+  phone_secondary: string | null
   whatsapp: string | null
   email: string | null
   opening_hours: string | null

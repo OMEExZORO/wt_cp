@@ -75,7 +75,7 @@ return static function (PDO $pdo): array {
          FROM branches b
          CROSS JOIN (VALUES ('USG', 2), ('CT', 1), ('BIOPSY', 1)) AS m (modality, capacity)
          CROSS JOIN generate_series(current_date + 1, current_date + 30, interval '1 day') AS d
-         CROSS JOIN generate_series(timestamp '2000-01-01 09:00', timestamp '2000-01-01 16:30', interval '30 minutes') AS t
+         CROSS JOIN generate_series(timestamp '2000-01-01 08:00', timestamp '2000-01-01 21:30', interval '30 minutes') AS t
          WHERE b.is_active AND extract(isodow FROM d) < 7
          ON CONFLICT ON CONSTRAINT slots_branch_modality_date_time_unique DO NOTHING"
     );

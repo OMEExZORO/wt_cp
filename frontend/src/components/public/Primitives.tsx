@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { StarIcon } from '../icons/Icons'
+import { ClockIcon, StarIcon } from '../icons/Icons'
 
 export function Todo({ label }: { label?: string }) {
   if (!import.meta.env.DEV) {
@@ -99,5 +99,14 @@ export function FilterChips<T extends string>({
         </button>
       ))}
     </div>
+  )
+}
+
+export function LabBadge() {
+  return (
+    <p className="lab-badge">
+      <ClockIcon size={16} />
+      <span>24 Hours Lab Service</span>
+    </p>
   )
 }

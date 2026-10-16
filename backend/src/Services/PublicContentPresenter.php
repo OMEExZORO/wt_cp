@@ -61,6 +61,7 @@ final class PublicContentPresenter
             'state' => $row['state'],
             'postal_code' => $text($row['postal_code']),
             'phone' => $text($row['phone']),
+            'phone_secondary' => $text($row['phone_secondary'] ?? null),
             'whatsapp' => $text($row['whatsapp']),
             'email' => $text($row['email']),
             'opening_hours' => $text($row['opening_hours']),

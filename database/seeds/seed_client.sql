@@ -1,21 +1,8 @@
-UPDATE site_settings SET value = '+918605018087', is_placeholder = FALSE, updated_at = now() WHERE key = 'contact.phone';
-UPDATE site_settings SET value = 'Monday to Saturday: 8:00 am to 9:00 pm
-Sunday: Closed', is_placeholder = FALSE, updated_at = now() WHERE key = 'contact.opening_hours';
+UPDATE site_settings SET value = '9890094569', is_placeholder = FALSE, updated_at = now() WHERE key = 'contact.phone';
+UPDATE site_settings SET value = E'Monday to Saturday: 8:00 AM to 10:00 PM
+Sunday: Closed
+Lab service: open 24 hours', is_placeholder = FALSE, updated_at = now() WHERE key = 'contact.opening_hours';
 UPDATE site_settings SET value = 'https://share.google/ZMrpDquWZCV9jaEiv', is_placeholder = FALSE, updated_at = now() WHERE key IN ('links.google_reviews_url', 'links.google_maps_url');
-
-UPDATE branches SET
-    address_line = 'Nagdev Towers, Pune - Nashik Highway',
-    landmark = 'Near Vishwavilas Hotel and Shraddha Jewellers',
-    area = 'Bhosari Gaonthan, Bhosari',
-    city = 'Pimpri-Chinchwad',
-    postal_code = '411039',
-    phone = '+918605018087',
-    opening_hours = 'Monday to Saturday: 8:00 am to 9:00 pm
-Sunday: Closed',
-    maps_url = 'https://share.google/ZMrpDquWZCV9jaEiv',
-    is_placeholder = FALSE,
-    updated_at = now()
-WHERE slug = 'bhosari';
 
 INSERT INTO reviews (display_name, body, rating, status, verified_visit, is_demo, source, source_url, external_review_date, translated_by_google, moderated_at, moderation_note)
 SELECT v.display_name, v.body, 5, 'approved', FALSE, FALSE, 'google', 'https://share.google/ZMrpDquWZCV9jaEiv', v.review_date::date, v.translated, now(), 'Imported from the clinic Google listing on 2026-10-09'

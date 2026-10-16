@@ -40,27 +40,37 @@ const scans: PublicScanType[] = [
   },
 ]
 
-const branch: PublicBranch = {
-  id: 'b1',
-  slug: 'bhosari',
-  name: 'MDC Bhosari',
-  address_line: 'Nagdev Tower, Pune Nashik Road',
-  landmark: 'Near Vishwavilas Hotel and Shraddha Jewellers',
-  area: 'Bhosari',
+const OFFICIAL_HOURS = 'Monday to Saturday: 8:00 AM to 10:00 PM\nSunday: Closed\nLab service: open 24 hours'
+
+const officialBranch = (id: string, slug: string, name: string, area: string, address_line: string, postal_code: string, phone: string, phone_secondary: string): PublicBranch => ({
+  id,
+  slug,
+  name,
+  address_line,
+  landmark: null,
+  area,
   city: 'Pune',
   state: 'Maharashtra',
-  postal_code: '411039',
-  phone: null,
+  postal_code,
+  phone,
+  phone_secondary,
   whatsapp: null,
   email: null,
-  opening_hours: null,
+  opening_hours: OFFICIAL_HOURS,
   maps_url: null,
   maps_embed_url: null,
   latitude: null,
   longitude: null,
   address_is_placeholder: false,
-  is_placeholder: true,
-}
+  is_placeholder: false,
+})
+
+const branches4: PublicBranch[] = [
+  officialBranch('b1', 'bhosari', 'MDC Bhosari', 'Bhosari', 'Nagdeo Towers, Ground & Second Floor, Pune-Nashik Road, Bhosari, Pune', '411039', '9890094569', '8308849804'),
+  officialBranch('b2', 'moshi', 'MDC Moshi', 'Moshi', 'Gat No. 284, Near Shree Hospital, Dehu-Moshi Road, Tal. Haveli, Dist. Pune', '411070', '8380068696', '8308849804'),
+  officialBranch('b3', 'pimple-gurav', 'MDC Pimple Gurav', 'Pimple Gurav', 'Patil Plaza Shop No. 3, Opp. PCMC School, Sangvi-Pimple Gurav Road, Pimple Gurav, Pune', '411061', '8380068693', '9689891846'),
+  officialBranch('b4', 'moi', 'MDC Moi', 'Moi', 'At. Moi, Gat No. 652, Moi - Nighoje Road, Tal. Khed, Dist. Pune', '410501', '8669604865', '8308849804'),
+]
 
 const faqs: PublicFaq[] = [
   { id: 'f1', question: 'How do I book?', answer: 'Use the booking page.', category: 'booking', sort_order: 1 },
@@ -226,14 +236,21 @@ describe('Reviews page', () => {
 })
 
 describe('Branches page', () => {
-  it('embeds a map built from the address and offers directions', async () => {
-    mockApi((path) => (path.startsWith('/public/branches') ? { status: 200, body: { branches: [branch] } } : undefined))
+  it('lists all four branches with both phone numbers and a Google Maps search link', async () => {
+    mockApi((path) => (path.startsWith('/public/branches') ? { status: 200, body: { branches: branches4 } } : undefined))
     renderApp('/branches')
-    const frame = await screen.findByTitle('Map showing MDC Bhosari')
-    expect(frame.getAttribute('src')).toContain('https://www.google.com/maps?q=')
-    expect(frame.getAttribute('src')).toContain('output=embed')
-    expect(frame.getAttribute('src')).toContain(encodeURIComponent('Nagdev Tower'))
-    expect(screen.getByRole('link', { name: /Get directions/ })).toHaveAttribute('href', expect.stringContaining('destination='))
+    expect(await screen.findByRole('heading', { name: 'MDC Pimple Gurav' })).toBeInTheDocument()
+    expect(screen.getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent)).toEqual(
+      expect.arrayContaining(['MDC Bhosari', 'MDC Moshi', 'MDC Pimple Gurav', 'MDC Moi']),
+    )
+    expect(screen.getAllByText('24 Hours Lab Service').length).toBeGreaterThanOrEqual(4)
+    expect(screen.getAllByText('Nagdeo Towers, Ground & Second Floor, Pune-Nashik Road, Bhosari, Pune - 411 039')[0]).toBeInTheDocument()
+    expect(screen.getAllByText('At. Moi, Gat No. 652, Moi - Nighoje Road, Tal. Khed, Dist. Pune - 410 501')[0]).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: '+91 83088 49804' }).length).toBeGreaterThan(0)
+    expect(screen.getAllByRole('link', { name: '+91 98900 94569' })[0]).toHaveAttribute('href', 'tel:+919890094569')
+    expect(screen.getAllByRole('link', { name: '+91 96898 91846' })[0]).toHaveAttribute('href', 'tel:+919689891846')
+    expect(screen.getAllByRole('link', { name: /View on Google Maps/ })).toHaveLength(4)
+    expect(screen.queryByTitle(/Map showing/)).not.toBeInTheDocument()
   })
 })
 

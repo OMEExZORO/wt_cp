@@ -9,7 +9,7 @@
 
 # DiagnoCare
 
-> Clinic website and secure patient & staff portal for **Meghnad Diagnostic Centre (MDC)**, Bhosari, Pune — in 30 seconds:
+> Clinic website and secure patient & staff portal for **Meghnad Diagnostic Centre (MDC)**, Pune (Bhosari, Moshi, Pimple Gurav, Moi) — in 30 seconds:
 
 A patient books a scan online, clears a pre-scan safety checklist, and downloads an encrypted report. A critical finding **escalates by itself** until a human acknowledges it. Staff get a priority reading queue, reception gets an alert board, referrers track their patients, admins run the catalogue. One codebase, three runtimes, zero framework magic on the API.
 

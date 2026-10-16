@@ -1,10 +1,9 @@
 import { Link } from 'react-router-dom'
-import { siteImage } from '../../lib/images'
+import { ModalityArt } from '../art'
 import { ArrowRightIcon } from '../icons/Icons'
 import { CREDENTIALS, DoctorBio, DoctorPortrait } from '../public/Blocks'
 
 export function MeetRadiologist() {
-  const image = siteImage('card-reporting')
   return (
     <div className="radiologist">
       <div className="radiologist__text">
@@ -29,7 +28,7 @@ export function MeetRadiologist() {
         </Link>
       </div>
       <div className="radiologist__media">
-        <img src={image.src} alt={image.alt} width={image.width} height={image.height} loading="lazy" decoding="async" />
+        <ModalityArt kind="reporting" />
       </div>
     </div>
   )

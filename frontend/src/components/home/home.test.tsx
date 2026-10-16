@@ -40,10 +40,12 @@ describe('HeroCarousel', () => {
     expect(screen.getByRole('region', { name: 'Our imaging services' })).toHaveAttribute('aria-roledescription', 'carousel')
   })
 
-  it('loads only the first hero image eagerly', () => {
+  it('draws every hero slide as decorative inline artwork', () => {
     renderHero()
-    const images = Array.from(document.querySelectorAll('.hero-slide__image'))
-    expect(images.map((image) => image.getAttribute('loading'))).toEqual(['eager', 'lazy', 'lazy', 'lazy'])
+    const art = Array.from(document.querySelectorAll('svg.hero-slide__image'))
+    expect(art).toHaveLength(4)
+    art.forEach((node) => expect(node).toHaveAttribute('aria-hidden', 'true'))
+    expect(document.querySelectorAll('.hero-slide img')).toHaveLength(0)
   })
 
   it('has no manual slide buttons and a single booking button', () => {
@@ -190,13 +192,14 @@ describe('Home page', () => {
       id: 'b1',
       slug: 'bhosari',
       name: 'MDC Bhosari',
-      address_line: 'Nagdev Tower',
+      address_line: 'Nagdeo Towers, Ground & Second Floor, Pune-Nashik Road, Bhosari, Pune',
       landmark: null,
       area: 'Bhosari',
       city: 'Pune',
       state: 'Maharashtra',
       postal_code: '411039',
       phone: null,
+      phone_secondary: null,
       whatsapp: null,
       email: null,
       opening_hours: null,

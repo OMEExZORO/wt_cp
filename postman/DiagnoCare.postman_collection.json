@@ -7867,7 +7867,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"from\": \"{{farDate}}\",\n  \"days\": 1,\n  \"open\": \"09:00\",\n  \"close\": \"09:30\",\n  \"interval\": 30,\n  \"branch_id\": \"{{branchId}}\",\n  \"capacity_usg\": 1,\n  \"capacity_ct\": 0,\n  \"capacity_biopsy\": 0,\n  \"dry_run\": true\n}",
+              "raw": "{\n  \"from\": \"{{farDate}}\",\n  \"days\": 1,\n  \"open\": \"08:00\",\n  \"close\": \"08:30\",\n  \"interval\": 30,\n  \"branch_id\": \"{{branchId}}\",\n  \"capacity_usg\": 1,\n  \"capacity_ct\": 0,\n  \"capacity_biopsy\": 0,\n  \"dry_run\": true\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -7935,7 +7935,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"from\": \"{{farDate}}\",\n  \"days\": 1,\n  \"open\": \"09:00\",\n  \"close\": \"09:30\",\n  \"interval\": 30,\n  \"branch_id\": \"{{branchId}}\",\n  \"capacity_usg\": 1,\n  \"capacity_ct\": 0,\n  \"capacity_biopsy\": 0\n}",
+              "raw": "{\n  \"from\": \"{{farDate}}\",\n  \"days\": 1,\n  \"open\": \"08:00\",\n  \"close\": \"08:30\",\n  \"interval\": 30,\n  \"branch_id\": \"{{branchId}}\",\n  \"capacity_usg\": 1,\n  \"capacity_ct\": 0,\n  \"capacity_biopsy\": 0\n}",
               "options": {
                 "raw": {
                   "language": "json"

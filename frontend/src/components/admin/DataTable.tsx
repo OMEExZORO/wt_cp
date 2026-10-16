@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import type { Pagination as PaginationMeta } from '../../types/admin'
+import { EmptyStateArt } from '../art'
 import { Pagination } from './Pagination'
 
 export interface Column<T> {
@@ -70,6 +71,7 @@ export function DataTable<T>({
   if (rows !== null && rows.length === 0) {
     return (
       <div className="empty-state" role="status">
+        <EmptyStateArt className="art art--state empty-state__art" />
         <p>{emptyMessage}</p>
       </div>
     )

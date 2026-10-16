@@ -3,14 +3,14 @@ import { ClockIcon, PhoneIcon } from '../../components/icons/Icons'
 import { BranchCard } from '../../components/public/BranchCard'
 import { PageHero } from '../../components/public/Blocks'
 import { GoogleListingNote } from '../../components/public/GoogleListingNote'
-import { AsyncState, Todo } from '../../components/public/Primitives'
+import { AsyncState, LabBadge, Todo } from '../../components/public/Primitives'
 import { selectSetting } from '../../features/public/publicSlice'
 import { usePublicResource } from '../../hooks/usePublicResource'
 import { formatPhone, settingText, telHref } from '../../lib/contact'
 import { usePageMeta } from '../../lib/seo'
 
 export default function ContactPage() {
-  usePageMeta('Contact', 'Contact Meghnad Diagnostic Centre by phone and find branch addresses and directions in Bhosari, Pune.')
+  usePageMeta('Contact', 'Contact Meghnad Diagnostic Centre by phone at Bhosari, Moshi, Pimple Gurav and Moi, Pune. Addresses, timings and Google Maps links. 24 Hours Lab Service.')
   usePublicResource('site')
   const branches = usePublicResource('branches')
   const phone = settingText(useAppSelector(selectSetting('contact.phone')))
@@ -24,18 +24,19 @@ export default function ContactPage() {
           <ul className="contact-grid">
             <li className="contact-card">
               <PhoneIcon size={26} />
-              <h2>Phone</h2>
+              <h2>Main line</h2>
               {phone ? <a href={telHref(phone)}>{formatPhone(phone)}</a> : <Todo label="phone" />}
             </li>
             <li className="contact-card">
               <ClockIcon size={26} />
               <h2>Opening hours</h2>
-              {hours ? <p>{hours}</p> : <Todo label="opening hours" />}
+              <LabBadge />
+              {hours ? hours.split('\n').map((line) => <p key={line}>{line}</p>) : <Todo label="opening hours" />}
             </li>
           </ul>
           <p className="callout callout--plain">Please do not send medical details by message. To book, use the appointment page so your details stay in the secure portal.</p>
           <GoogleListingNote />
-          <h2 className="contact-branches-title">Centres</h2>
+          <h2 className="contact-branches-title">Our branches</h2>
           <AsyncState status={branches.status} error={branches.error} onRetry={branches.reload} label="Loading branches">
             <div className="stack">
               {(branches.data?.branches ?? []).map((branch) => (

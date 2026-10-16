@@ -8,7 +8,7 @@ final class Branch extends Model
 {
     protected const TABLE = 'branches';
     protected const FILLABLE = [
-        'slug', 'name', 'address_line', 'landmark', 'area', 'city', 'state', 'postal_code', 'phone', 'whatsapp',
+        'slug', 'name', 'address_line', 'landmark', 'area', 'city', 'state', 'postal_code', 'phone', 'phone_secondary', 'whatsapp',
         'email', 'opening_hours', 'maps_url', 'maps_embed_url', 'latitude', 'longitude', 'is_placeholder', 'is_active', 'sort_order',
     ];
 

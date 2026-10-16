@@ -101,19 +101,9 @@ final class AppointmentPresenter
     {
         $parts = [(string) $row['branch_name']];
         $address = trim((string) ($row['branch_address_line'] ?? ''));
-        if ($address !== '' && !str_starts_with($address, 'TODO')) {
-            $parts[] = $address;
-            foreach (['branch_landmark', 'branch_area'] as $key) {
-                $value = trim((string) ($row[$key] ?? ''));
-                if ($value !== '' && !str_starts_with($value, 'TODO')) {
-                    $parts[] = $value;
-                }
-            }
-        }
-        $city = trim((string) ($row['branch_city'] ?? ''));
         $postal = trim((string) ($row['branch_postal_code'] ?? ''));
-        if ($city !== '') {
-            $parts[] = trim($city . ' ' . $postal);
+        if ($address !== '' && !str_starts_with($address, 'TODO')) {
+            $parts[] = $postal !== '' ? $address . ' - ' . substr($postal, 0, 3) . ' ' . substr($postal, 3) : $address;
         }
         return implode(', ', $parts);
     }

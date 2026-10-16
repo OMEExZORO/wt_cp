@@ -20,8 +20,8 @@ final class SlotGenerator
         array $capacities,
         string $fromDate,
         int $days,
-        string $openTime = '09:00',
-        string $closeTime = '17:00',
+        string $openTime = '08:00',
+        string $closeTime = '22:00',
         int $intervalMinutes = 30,
         array $closedWeekdays = [7]
     ): array {

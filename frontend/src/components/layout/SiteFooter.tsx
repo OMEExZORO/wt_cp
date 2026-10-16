@@ -2,13 +2,13 @@ import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { loadBranches, loadSite, selectBranches } from '../../features/public/publicSlice'
-import { branchAddress, formatPhone, telHref } from '../../lib/contact'
+import { branchAddress, branchPhones, formatPhone, telHref } from '../../lib/contact'
 import { openCookieSettings } from '../../lib/consent'
 import { useContactInfo } from '../../lib/useContactInfo'
 import { Logo } from '../brand/Logo'
 import { PhoneIcon, PinIcon } from '../icons/Icons'
 import { GoogleListingNote } from '../public/GoogleListingNote'
-import { Todo } from '../public/Primitives'
+import { LabBadge, Todo } from '../public/Primitives'
 
 const SERVICES: { to: string; label: string }[] = [
   { to: '/services?type=USG', label: 'Ultrasound (USG)' },
@@ -50,6 +50,7 @@ export function SiteFooter() {
           <Logo tone="light" />
           <p className="site-footer__tagline">Imaging for a Healthier Tomorrow</p>
           <p className="site-footer__muted">Complete Diagnostic Care Under One Roof</p>
+          <LabBadge />
           <ul className="site-footer__contact">
             <li>
               <PhoneIcon size={16} />
@@ -78,9 +79,9 @@ export function SiteFooter() {
           </ul>
         </nav>
         <div className="site-footer__col">
-          <h2 className="site-footer__heading">Our centre</h2>
+          <h2 className="site-footer__heading">Our branches</h2>
           {centres.length === 0 ? (
-            <address className="site-footer__address">Nagdev Tower, Pune Nashik Road, Bhosari, Pune 411039</address>
+            <address className="site-footer__address">Nagdeo Towers, Ground & Second Floor, Pune-Nashik Road, Bhosari, Pune - 411 039</address>
           ) : (
             <ul className="site-footer__centres">
               {centres.map((branch) => (
@@ -89,7 +90,11 @@ export function SiteFooter() {
                   <address className="site-footer__address">
                     <PinIcon size={14} /> {branchAddress(branch)}
                   </address>
-                  {branch.phone ? <a href={telHref(branch.phone)}>{formatPhone(branch.phone)}</a> : null}
+                  {branchPhones(branch).map((phone) => (
+                    <a key={phone} href={telHref(phone)} className="site-footer__phone">
+                      {formatPhone(phone)}
+                    </a>
+                  ))}
                 </li>
               ))}
             </ul>
@@ -120,7 +125,7 @@ export function SiteFooter() {
             This website does not provide medical advice and is not for emergencies. In an emergency, call 112 or go to the nearest hospital.
           </p>
           <GoogleListingNote className="site-footer__copy" />
-          <p className="site-footer__copy">© {new Date().getFullYear()} Meghnad Diagnostic Centre, Bhosari, Pune</p>
+          <p className="site-footer__copy">© {new Date().getFullYear()} Meghnad Diagnostic Centre, Pune</p>
         </div>
       </div>
     </footer>

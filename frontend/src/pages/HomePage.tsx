@@ -4,7 +4,7 @@ import { HeroCarousel } from '../components/home/HeroCarousel'
 import { MeetRadiologist } from '../components/home/MeetRadiologist'
 import { ModalityShowcase } from '../components/home/ModalityShowcase'
 import { QuickAppointment } from '../components/home/QuickAppointment'
-import { ArrowRightIcon, ChipIcon, ClockIcon, EyeIcon, HeartIcon, ReportIcon } from '../components/icons/Icons'
+import { ArrowRightIcon, ChipIcon, ClockIcon, EyeIcon, HeartIcon, ReportIcon, TimerIcon } from '../components/icons/Icons'
 import { BranchCard } from '../components/public/BranchCard'
 import { CtaBand } from '../components/public/Blocks'
 import { FaqAccordion } from '../components/public/FaqAccordion'
@@ -15,15 +15,16 @@ import { usePageMeta } from '../lib/seo'
 import type { ReactNode } from 'react'
 
 const PILLARS: { label: string; text: string; icon: ReactNode }[] = [
+  { label: '24 Hours Lab Service', text: 'Diagnostic lab open round the clock', icon: <ClockIcon size={26} /> },
   { label: 'Accurate Reports', text: 'Clear, carefully checked reporting', icon: <ReportIcon size={26} /> },
   { label: 'Experienced Radiologists', text: 'Led by a qualified radiologist', icon: <EyeIcon size={26} /> },
   { label: 'Modern Technology', text: 'Ultrasound and CT imaging', icon: <ChipIcon size={26} /> },
   { label: 'Patient Centric Care', text: 'An intimate, well-experienced approach', icon: <HeartIcon size={26} /> },
-  { label: 'Timely Results', text: 'Prompt reporting without compromise', icon: <ClockIcon size={26} /> },
+  { label: 'Timely Results', text: 'Prompt reporting without compromise', icon: <TimerIcon size={26} /> },
 ]
 
 export default function HomePage() {
-  usePageMeta('Meghnad Diagnostic Centre', 'Ultrasound, CT and image-guided biopsies at Meghnad Diagnostic Centre, Bhosari, Pune. Read about the services and our location, and book an appointment.')
+  usePageMeta('Meghnad Diagnostic Centre', 'Ultrasound, CT and image-guided biopsies at Meghnad Diagnostic Centre, with branches at Bhosari, Moshi, Pimple Gurav and Moi, Pune. 24 Hours Lab Service. Book an appointment.')
   const branches = usePublicResource('branches')
   const faqs = usePublicResource('faqs')
 
@@ -66,8 +67,8 @@ export default function HomePage() {
 
       <section className="section" aria-labelledby="branches-title">
         <div className="container">
-          <SectionHeading id="branches-title" eyebrow="Visit us" title="Our centre" />
-          <AsyncState status={branches.status} error={branches.error} onRetry={branches.reload} label="Loading centres">
+          <SectionHeading id="branches-title" eyebrow="Visit us" title="Our branches" intro="Four branches across Pune. 24 Hours Lab Service." />
+          <AsyncState status={branches.status} error={branches.error} onRetry={branches.reload} label="Loading branches">
             <div className="stack">
               {(branches.data?.branches ?? []).map((branch) => (
                 <BranchCard key={branch.id} branch={branch} />

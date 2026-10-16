@@ -21,6 +21,7 @@ const branch = (id: string, name: string): PublicBranch => ({
   state: 'Maharashtra',
   postal_code: null,
   phone: null,
+  phone_secondary: null,
   whatsapp: null,
   email: null,
   opening_hours: null,
@@ -32,7 +33,7 @@ const branch = (id: string, name: string): PublicBranch => ({
   is_placeholder: false,
 })
 
-const BRANCHES = [branch('b1', 'MDC Bhosari'), branch('b2', 'MDC Nigdi')]
+const BRANCHES = [branch('b1', 'MDC Bhosari'), branch('b2', 'MDC Moshi')]
 
 const scan = (id: string, name: string, bookable = true): PublicScanType => ({
   id,

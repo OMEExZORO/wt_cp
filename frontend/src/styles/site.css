@@ -876,12 +876,6 @@ p {
   box-shadow: var(--shadow-sm);
 }
 
-@media (min-width: 900px) {
-  .branch-card {
-    grid-template-columns: 1fr 1.1fr;
-  }
-}
-
 .branch-card__body {
   padding: var(--space-5);
   display: flex;
@@ -929,28 +923,21 @@ p {
   font-weight: 600;
 }
 
-.branch-card__map {
-  min-height: 280px;
-  background: var(--color-surface);
-}
-
-.branch-card__map iframe {
-  width: 100%;
-  height: 100%;
-  min-height: 280px;
-  border: 0;
+.info-list__line {
   display: block;
 }
 
-.branch-card__map--empty {
-  display: flex;
-  flex-direction: column;
+.lab-badge {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
   gap: var(--space-2);
-  color: var(--color-muted);
-  padding: var(--space-5);
-  text-align: center;
+  margin: 0;
+  padding: var(--space-1) var(--space-3);
+  border-radius: 999px;
+  background: var(--color-orange-tint);
+  color: var(--color-orange-strong);
+  font-weight: 700;
+  font-size: var(--text-sm);
 }
 
 .toolbar {

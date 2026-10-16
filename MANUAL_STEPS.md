@@ -14,12 +14,11 @@ Only things that need a human. Content values marked as placeholders are editabl
 
 ## Client content (do not invent)
 
-- [x] Bhosari phone, hours, address and Google link loaded from the Google listing (`php backend/bin/seed.php client`); still needed: second branch phone and hours
+- [x] Four official branches (Bhosari, Moshi, Pimple Gurav, Moi) with addresses and two phone numbers each are loaded by migration `019_branches_official.sql`
 - [ ] WhatsApp number (hidden in the UI by `SHOW_WHATSAPP` in `frontend/src/lib/features.ts`) (`contact.whatsapp`, `branches.whatsapp`)
 - [ ] Contact email (hidden in the UI by `SHOW_EMAIL` in `frontend/src/lib/features.ts`; `contact.email`, `branches.email`)
-- [ ] Create real appointment slots matching Mon-Sat 8 am to 9 pm from the admin panel; add second branch hours
-- [ ] Second branch: waiting for details. `branch-2` is set `is_active=false`; name, address and phone are needed (`branches.slug = 'branch-2'`) before activating it
-- [ ] Google Maps place links and embed URLs for each branch (`links.google_maps_url`, `branches.maps_url`, `branches.maps_embed_url`)
+- [ ] Keep appointment slots generated for Mon-Sat 8 am to 10 pm at all four branches (admin Slots page or `php backend/bin/generate-slots.php`); confirm whether Sunday is open
+- [ ] Optional: exact Google Maps place links per branch (branches currently use a Google Maps search link built from the address)
 - [x] Google reviews link set; 21 real Google reviews imported via `seed_client.sql` (the doctor's own review excluded)
 - [x] Logo files added (`logo-lockup.png`, `logo-mdc.png`)
 - [ ] Doctor photo, placed in `frontend/public/images/client/` (see the README there) with `clinic.logo_url` and `doctor.photo_url` set

@@ -13,8 +13,8 @@ Usage: php backend/bin/generate-slots.php [options]
 
   --days=30              number of days to generate, starting at --from (1 to 366)
   --from=YYYY-MM-DD      first day (default: today)
-  --open=09:00           first slot start time
-  --close=17:00          closing time; the last slot ends at or before it
+  --open=08:00           first slot start time
+  --close=22:00          closing time; the last slot ends at or before it
   --interval=30          slot length in minutes
   --capacity=USG:2,CT:1,BIOPSY:1   patients per slot for each modality
   --branch=slug[,slug]   only these branch slugs (default: every active branch)
@@ -38,8 +38,8 @@ $from = (string) ($options['from'] ?? date('Y-m-d'));
 if (DateTimeImmutable::createFromFormat('!Y-m-d', $from) === false) {
     $fail('--from must be YYYY-MM-DD');
 }
-$open = (string) ($options['open'] ?? '09:00');
-$close = (string) ($options['close'] ?? '17:00');
+$open = (string) ($options['open'] ?? '08:00');
+$close = (string) ($options['close'] ?? '22:00');
 foreach ([$open, $close] as $time) {
     if (preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $time) !== 1) {
         $fail('--open and --close must be HH:MM');

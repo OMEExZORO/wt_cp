@@ -102,7 +102,7 @@ Root npm scripts wrap these (`npm run migrate`, `npm run seed:dev`, `npm run db:
 - Encrypted fields end in `_encrypted` (TEXT, AES-256-GCM envelope). Report files: ciphertext in the private bucket at `reports.storage_path`, IV and tag in `encryption_iv` / `encryption_tag` (base64), `key_version` for rotation.
 - Auth tokens are stored hashed: `remember_tokens (selector, validator_hash)`, `password_resets.token_hash`, `email_verifications.token_hash` (SHA-256 hex of the random token). Lockout uses `users.failed_login_count`, `users.locked_until` and `login_attempts`.
 - `site_settings`: dotted keys (`contact.phone`, `doctor.bio`). `value` NULL with `is_placeholder = TRUE` means unknown. The frontend shows "TODO: add real value" for those only when `import.meta.env.DEV`, and hides them in production. Non-public keys (`is_public = FALSE`) must never be sent to the public API.
-- `branches.slug = 'branch-2'` is a placeholder (address `TODO: add real value`, `is_active = FALSE` in base seed; the dev seed activates it).
+- Branches are `bhosari`, `moshi`, `pimple-gurav`, `moi` (migration `019_branches_official.sql`). Each has `phone` and `phone_secondary`, and a Google Maps search url in `maps_url`; the full address up to the PIN is in `address_line` and the PIN in `postal_code`.
 - `reviews.is_demo = TRUE` rows come only from `seed_demo.sql`. Public endpoints must exclude `is_demo` rows when `APP_ENV=production`.
 - RLS is enabled on every table with no policies. Every new table must include `ALTER TABLE <t> ENABLE ROW LEVEL SECURITY;` in its migration.
 
@@ -116,7 +116,7 @@ Root npm scripts wrap these (`npm run migrate`, `npm run seed:dev`, `npm run db:
 ### Seeds
 
 - `seed_base.sql` is production-safe and idempotent (`ON CONFLICT DO NOTHING`): branches, scan categories, 56 scan types, checklist items, FAQs, site settings. No users.
-- `seed_dev.php` (mode `dev`, refused when `APP_ENV=production`): one user per role, patient and referrer profiles, activates branch 2, creates 30-minute slots 09:00 to 17:00 Mon to Sat for the next 14 days (USG capacity 2, CT 1, BIOPSY 1). Re-running resets dev passwords and is safe.
+- `seed_dev.php` (mode `dev`, refused when `APP_ENV=production`): one user per role, patient and referrer profiles, creates 30-minute slots 08:00 to 22:00 Mon to Sat for the next 30 days at every active branch (USG capacity 2, CT 1, BIOPSY 1). Re-running resets dev passwords and is safe.
 - `seed_demo.sql` (mode `demo`, refused in production): four reviews labelled "Demo data", `is_demo = TRUE`. `purge-demo` removes them.
 
 ## Dev logins (development database only)

@@ -213,8 +213,8 @@ export default function SlotsPage() {
             initialValues={{
               from: todayIso(),
               days: '14',
-              open: '09:00',
-              close: '17:00',
+              open: '08:00',
+              close: '22:00',
               interval: '30',
               branch_id: '',
               capacity_usg: '2',
