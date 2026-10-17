@@ -151,3 +151,19 @@ node tests/flow/full-journey.mjs
 ```
 
 The attack check and flow scripts refuse or are intended for development databases only (the attack check exits when `APP_ENV=production` and clears the `rate_limits` table between groups). Postman login throttling (20 per 10 minutes) applies when the collection is rerun repeatedly; clear `rate_limits` in the dev database if it trips.
+
+## 8. Node.js API verification (2026-10-16 to 2026-10-17)
+
+The PHP API was ported to Node.js 22 (`api/`). The same checks were repeated on the Node build against the shared Supabase database.
+
+| Check | Result |
+|---|---|
+| `node --test` in `api` | 330 tests, 0 failed |
+| Postman collection via newman (Node API on port 8021) | 266 HTTP calls, 174 test scripts, 386 assertions, 0 failed, 1m 33s |
+| Flow test (`tests/flow/full-journey.mjs`) with `ALERT_ESCALATION_MINUTES=1` on API and worker | 15 of 15 steps passed |
+| Side-by-side status and masked-body comparison of Node and PHP on the same database | 289 comparisons across public/booking/appointments (63), reports/alerts/referrals/reviews (57) and admin modules (169); no unexplained differences |
+| Password hashes and AES-GCM envelopes | PHP-generated values verified by Node and the reverse |
+
+The first flow-test run failed at escalation because the API had started with the default 30 minute window while the test waited 1 minute; with the window set to 1 on both services the test passed. The 45-case attack check was run on the PHP build only and has not been repeated on Node.
+
+Production latency from `docs` measurements on 2026-10-17 (30 samples per endpoint): health 273 ms mean, scan types 299 ms, reviews 303 ms.
