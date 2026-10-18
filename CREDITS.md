@@ -22,4 +22,4 @@ Authored for this project as SVG: the React components in `frontend/src/componen
 
 ## Third-party licensed material
 
-No images. Software and fonts only: icons from [lucide](https://lucide.dev) (ISC licence) via `lucide-react`; fonts Fraunces and Figtree (SIL Open Font License) loaded from Google Fonts.
+No images. Software and fonts only: icons from [lucide](https://lucide.dev) (ISC licence) via `lucide-react`; font Figtree (SIL Open Font License) loaded from Google Fonts.
