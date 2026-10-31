@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useId, useState, type KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { HeroArt, type HeroKind } from '../art'
 import { prefersReducedMotion } from '../../lib/motion'
 import { CalendarIcon } from '../icons/Icons'
 
 export interface HeroSlide {
   id: string
-  art: HeroKind
+  image: string
+  imageAlt: string
   eyebrow: string
   title: string
   text: string
@@ -16,14 +16,16 @@ export interface HeroSlide {
 export const HERO_SLIDES: HeroSlide[] = [
   {
     id: 'welcome',
-    art: 'welcome',
+    image: '/images/photos/hero-welcome-stethoscope.webp',
+    imageAlt: 'A stethoscope resting on a dark wooden desk',
     eyebrow: 'Meghnad Diagnostic Centre, Pune',
     title: 'Imaging for a Healthier Tomorrow',
     text: 'Complete diagnostic care under one roof, led by Dr. Meghnad Padsalgikar (MBBS, DMRE, DNB Radiology).',
   },
   {
     id: 'ultrasound',
-    art: 'usg',
+    image: '/images/photos/hero-ultrasound-probe.webp',
+    imageAlt: 'A gloved hand holding an ultrasound transducer on a patient',
     eyebrow: 'Ultrasound',
     title: 'Safe, non-invasive and highly accurate ultrasound',
     text: 'Obstetric, gynaecology, abdominal, small parts, Doppler and prostate imaging.',
@@ -31,7 +33,8 @@ export const HERO_SLIDES: HeroSlide[] = [
   },
   {
     id: 'ct',
-    art: 'ct',
+    image: '/images/photos/hero-ct-room.webp',
+    imageAlt: 'A CT scanner room with the patient table extended from the gantry',
     eyebrow: 'CT scan',
     title: 'Detailed, fast and low-dose CT scanning',
     text: 'From CT brain and HRCT chest to abdomen, spine and CT-guided procedures.',
@@ -39,7 +42,8 @@ export const HERO_SLIDES: HeroSlide[] = [
   },
   {
     id: 'biopsy',
-    art: 'biopsy',
+    image: '/images/photos/hero-needle-biopsy.webp',
+    imageAlt: 'Hands of a physician guiding a fine needle on a syringe during a biopsy',
     eyebrow: 'Image-guided biopsy',
     title: 'Precise, safe and minimally invasive biopsies',
     text: 'Ultrasound and CT guided FNAC, core biopsies, drainage and aspiration.',
@@ -118,7 +122,16 @@ export function HeroCarousel({ slides = HERO_SLIDES }: { slides?: HeroSlide[] })
               aria-label={`${position + 1} of ${total}`}
               aria-hidden={active ? undefined : true}
             >
-              <HeroArt kind={slide.art} className="hero-slide__image" />
+              <img
+                src={slide.image}
+                alt={slide.imageAlt}
+                width={1600}
+                height={900}
+                className="hero-slide__image"
+                loading={position === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+                fetchPriority={position === 0 ? 'high' : 'auto'}
+              />
               <div className="hero-slide__shade" />
               <div className="container hero-slide__content">
                 <div className="hero-slide__copy">

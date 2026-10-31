@@ -37,12 +37,19 @@ describe('HeroCarousel', () => {
     expect(screen.getByRole('region', { name: 'Our imaging services' })).toHaveAttribute('aria-roledescription', 'carousel')
   })
 
-  it('draws every hero slide as decorative inline artwork', () => {
+  it('shows a described photograph with fixed dimensions on every hero slide', () => {
     renderHero()
-    const art = Array.from(document.querySelectorAll('svg.hero-slide__image'))
-    expect(art).toHaveLength(4)
-    art.forEach((node) => expect(node).toHaveAttribute('aria-hidden', 'true'))
-    expect(document.querySelectorAll('.hero-slide img')).toHaveLength(0)
+    const photos = Array.from(document.querySelectorAll('img.hero-slide__image'))
+    expect(photos).toHaveLength(4)
+    photos.forEach((node) => {
+      expect(node.getAttribute('src')).toMatch(/^\/images\/photos\/.+\.webp$/)
+      expect(node.getAttribute('alt')?.length).toBeGreaterThan(10)
+      expect(node).toHaveAttribute('width', '1600')
+      expect(node).toHaveAttribute('height', '900')
+      expect(node).toHaveAttribute('decoding', 'async')
+    })
+    expect(photos[0]).toHaveAttribute('loading', 'eager')
+    expect(photos[1]).toHaveAttribute('loading', 'lazy')
   })
 
   it('has no manual slide buttons and a single booking button', () => {

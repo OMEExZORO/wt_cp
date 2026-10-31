@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { telHref } from '../../lib/contact'
-import { ModalityArt, type ArtKind } from '../art'
 import { useContactInfo } from '../../lib/useContactInfo'
 import { ArrowRightIcon, CheckIcon, NeedleIcon, PhoneIcon, ScanRingIcon, WaveIcon } from '../icons/Icons'
 import { Todo } from '../public/Primitives'
@@ -13,7 +12,8 @@ interface Modality {
   tagline: string
   text: string
   scans: string[]
-  art: ArtKind
+  photo: string
+  photoAlt: string
   icon: ReactNode
 }
 
@@ -25,7 +25,8 @@ export const MODALITIES: Modality[] = [
     tagline: 'Safe, non-invasive, highly accurate',
     text: 'Real-time imaging with sound waves for obstetrics, gynaecology, the abdomen, small parts, blood flow and the prostate.',
     scans: ['Obstetric scans and Doppler', 'Pelvic and transvaginal USG', 'Whole abdomen and renal tract', 'Thyroid and breast', 'Vascular Doppler', 'Prostate (TRUS)'],
-    art: 'usg',
+    photo: '/images/photos/card-ultrasound-probe.webp',
+    photoAlt: 'A gloved hand guiding an ultrasound probe over a patient',
     icon: <WaveIcon size={22} />,
   },
   {
@@ -35,7 +36,8 @@ export const MODALITIES: Modality[] = [
     tagline: 'Detailed, fast, low-dose technology',
     text: 'Cross-sectional imaging of the head, chest, abdomen, spine and joints, reported by an experienced radiologist.',
     scans: ['CT brain and CT PNS', 'HRCT chest and CT thorax', 'CT abdomen and pelvis', 'CT KUB and CT urography', 'CT spine', 'CT-guided procedures'],
-    art: 'ct',
+    photo: '/images/photos/card-ct-gantry.webp',
+    photoAlt: 'A CT scanner gantry with the patient table slid into the bore',
     icon: <ScanRingIcon size={22} />,
   },
   {
@@ -45,7 +47,8 @@ export const MODALITIES: Modality[] = [
     tagline: 'Precise, safe, minimally invasive',
     text: 'Ultrasound and CT guided sampling and drainage, so the needle is placed exactly where it is needed.',
     scans: ['FNAC and core needle biopsy', 'Breast and liver biopsy', 'Kidney and lymph node biopsy', 'Prostate (TRUS guided)', 'Soft tissue and musculoskeletal', 'Drainage and aspiration'],
-    art: 'biopsy',
+    photo: '/images/photos/card-needle-biopsy.webp',
+    photoAlt: 'A physician performing a fine needle biopsy with a syringe',
     icon: <NeedleIcon size={22} />,
   },
 ]
@@ -58,7 +61,7 @@ export function ModalityShowcase() {
         return (
           <article key={modality.id} className={`modality${position % 2 === 1 ? ' modality--flip' : ''}`} aria-labelledby={`modality-${modality.id}`}>
             <div className="modality__media">
-              <ModalityArt kind={modality.art} />
+              <img src={modality.photo} alt={modality.photoAlt} width={800} height={600} loading="lazy" decoding="async" />
             </div>
             <div className="modality__body">
               <p className="modality__tag">

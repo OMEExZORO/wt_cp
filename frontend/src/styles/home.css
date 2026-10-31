@@ -107,6 +107,7 @@ h3 {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: 70% center;
 }
 
 .hero-slide__shade {
@@ -791,25 +792,16 @@ h3 {
   .hero-slide__content {
     padding-bottom: 96px;
   }
+
+  .hero-slide__shade {
+    background: linear-gradient(180deg, rgba(14, 22, 54, 0.88) 0%, rgba(14, 22, 54, 0.82) 100%);
+  }
 }
 
 .art {
   display: block;
   max-width: 100%;
   height: auto;
-}
-
-.hero-slide__image.art {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.modality__media .art {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 3;
 }
 
 .art--state {
