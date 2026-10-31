@@ -1,14 +1,15 @@
-# DiagnoCare Test Report (Phase 8A)
+# Test report
 
-Run date: 2026-10-09, Windows 11, PHP 8.3.33, Node 24.18, branch `phase8-tests`. Backend served by `php -S localhost:8021 -t backend/public` with `ALERT_ESCALATION_MINUTES=1`; alerts worker on port 4021 (`ALERTS_JOBS_ENABLED=false` so only the token-protected run endpoint triggers jobs). Database: the development Supabase project with the dev seed. All numbers below are from real runs.
+Sections 1 to 7 were recorded on 2026-10-09 (Windows 11, PHP 8.3.33, Node 24.18) against the PHP API. Section 8 covers the Node API, recorded on 2026-10-16 and 2026-10-17. The summary below was refreshed on the day of handover. The PHP backend was served by `php -S localhost:8021 -t backend/public` with `ALERT_ESCALATION_MINUTES=1`; alerts worker on port 4021 (`ALERTS_JOBS_ENABLED=false` so only the token-protected run endpoint triggers jobs). Database: the development Supabase project with the dev seed. All numbers below are from real runs.
 
 ## Summary
 
 | Suite | Command | Result |
 |---|---|---|
-| PHPUnit (unit and integration-style) | `php backend/vendor/bin/phpunit -c backend/phpunit.xml` | 431 tests, 976 assertions, 0 failures |
-| Vitest (control, component, page) | `npm test --prefix frontend` | 12 files, 146 tests, 0 failures |
+| PHPUnit (unit and integration-style) | `php backend/vendor/bin/phpunit -c backend/phpunit.xml` | 441 tests, 1008 assertions, 0 failures, 2 PHP warnings from two upload tests on Windows (finfo cannot open the temporary file) (431 tests and 976 assertions when the tables below were recorded) |
+| Vitest (control, component, page) | `npm test --prefix frontend` | 16 files, 161 tests, 0 failures (146 tests in 12 files when the tables below were recorded) |
 | Alerts worker | `npm test --prefix services/alerts` | 17 tests, 17 pass, 0 fail |
+| Node API | `npm test --prefix api` | 330 tests in 54 suites, 0 failures |
 | Live validation attack check | `php backend/bin/validation-attack-check.php` | 45 of 45 passed, tables intact, DB row counts unchanged |
 | Full-journey flow test | `node tests/flow/full-journey.mjs` | 15 of 15 steps passed in 260 s |
 | Postman collection via newman | see below | 174 requests (266 HTTP calls including CSRF pre-fetches), 386 assertions, 0 failed, 4m 46s |
@@ -141,6 +142,7 @@ Cleanup: every entity created by the collection is deleted inside the run. Lefto
 ## Reproducing
 
 ```
+npm test --prefix api
 php backend/vendor/bin/phpunit -c backend/phpunit.xml
 npm test --prefix frontend
 npm test --prefix services/alerts

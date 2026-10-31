@@ -27,9 +27,14 @@ const SERVICE_TOKEN = env('ALERTS_SERVICE_TOKEN')
 const WINDOW_MINUTES = Number(env('FLOW_ESCALATION_MINUTES', '1'))
 const KEEP = process.argv.includes('--keep')
 
+const DEV_PASSWORD = env('DEV_SEED_PASSWORD')
+if (!DEV_PASSWORD) {
+  console.error('Set DEV_SEED_PASSWORD to the password used when running the dev seed.')
+  process.exit(2)
+}
 const DEV = {
-  admin: ['admin@diagnocare.test', 'Admin@Dev2026!'],
-  doctor: ['doctor@diagnocare.test', 'Doctor@Dev2026!'],
+  admin: ['admin@diagnocare.test', DEV_PASSWORD],
+  doctor: ['doctor@diagnocare.test', DEV_PASSWORD],
 }
 
 const stamp = Date.now().toString(36)
@@ -271,7 +276,7 @@ const run = async () => {
 
   await step('another patient cannot download the report (IDOR)', async () => {
     const other = new Client(API)
-    expectStatus(await other.login('patient@diagnocare.test', 'Patient@Dev2026!'), 200, 'dev patient login')
+    expectStatus(await other.login('patient@diagnocare.test', DEV_PASSWORD), 200, 'dev patient login')
     const res = await other.raw('GET', `/reports/${state.reportId}/download`)
     expect([403, 404].includes(res.status), `expected 403/404, got ${res.status}`)
     return `HTTP ${res.status}`

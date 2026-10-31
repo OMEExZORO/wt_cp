@@ -1,6 +1,8 @@
 # Syllabus Mapping
 
-Every syllabus item and instructor checklist item, with the files that demonstrate it. Paths are relative to the repository root. Units III and IV (Java Servlet/JSP and Spring Boot) are optional and were not started.
+Every syllabus item and instructor checklist item, with the files that demonstrate it. Paths are relative to the repository root.
+
+The server side exists twice. The PHP 8.3 application in `backend/` is the reference implementation and carries the Unit I (PHP) evidence. The Node.js 22 / Express 5 application in `api/` implements the same 101 routes on the same database and is the one that runs in production, so it carries the Unit VI (Node.js) evidence for the main API. The alerts worker in `services/alerts/` is a second Node.js program. Units III and IV (Java Servlet/JSP and Spring Boot) are optional and are not part of this project.
 
 ## Unit I: PHP (`backend/`)
 
@@ -54,7 +56,30 @@ Every syllabus item and instructor checklist item, with the files that demonstra
 | SEO (optional) | `components/public/StructuredData.tsx` (`MedicalBusiness`, `Physician` JSON-LD), `lib/seo.ts`, `scripts/generate-seo.mjs` (sitemap and robots at build time). Full pre-rendering was not implemented |
 | Tests | Vitest and Testing Library next to the code, for example `features/booking/booking.test.tsx`, `components/ProtectedRoute.test.tsx`, `pages/auth/LoginPage.test.tsx` |
 
-## Unit VI: Node.js (`services/alerts/`)
+## Unit VI: Node.js, main API (`api/`)
+
+| Topic | Where it is shown |
+|---|---|
+| Modules (ES modules) | `"type": "module"` in `api/package.json`; named exports and imports across `api/src` |
+| npm | `api/package.json` (scripts `start`, `dev`, `test`; dependencies `express`, `pg`, `argon2`, `busboy`, `nodemailer`) and `api/package-lock.json`; root `package.json` runs the workspaces with `npm run dev`, `npm test` and `npm run setup` |
+| Express | `createApp` in `api/src/app.js` creates the Express server, reads the raw body with `express.raw` and passes each request to the application kernel; `api/src/server.js` listens and shuts down cleanly |
+| MVC-style modules | Controllers and route lists in `api/src/modules/<name>/` (22 modules, `index.js` plus `*.controller.js`); models in `api/src/models` (base class `model.js`); JSON presenters such as `services/booking/appointment-presenter.js` and `services/public-content-presenter.js` as the view; email templates in `services/mail/templates` |
+| Routing | Declarative `get`, `post`, `put`, `patch`, `del` and `group` helpers with typed parameters (`{id:uuid}`) in `api/src/core/router.js`; all modules assembled in `api/src/routes.js` |
+| Middleware pipeline | `compose` in `api/src/core/pipeline.js` and `Kernel` in `api/src/core/kernel.js`; global order in `api/src/middleware/index.js` (cors, security headers, error handling, route matching, session, authentication, CSRF); per-route `auth`, `role`, `verified` and `throttle` middleware |
+| Dependency injection container | `createContainer` in `api/src/container.js` builds models, services, mailer, limiter and validator once and passes them to every controller as `app`; tests replace parts of it through `api/test/support/harness.js` |
+| Cookies | `Cookies.set` and `forget` in `api/src/core/cookie.js` (HttpOnly, Secure, SameSite); `dc_session` from `api/src/core/session.js`; `dc_remember` in `api/src/services/remember-me-service.js` |
+| Sessions | `Session`, `DatabaseSessionStore` and `MemorySessionStore` in `api/src/core/session.js` (idle and absolute timeout, id regeneration, `http_sessions` table from migration 020); started by `api/src/middleware/start-session.js`; login in `api/src/services/auth-service.js`; CSRF seed kept in the session by `api/src/core/csrf.js` |
+| File upload | `parseMultipart` and `sniffMime` in `api/src/services/uploads.js` (built on `busboy`); `UploadedFileValidator` in `services/reports/uploaded-file-validator.js`; `ImageUploadStore` in `services/admin/image-upload-store.js` for the doctor photo; `store` in `modules/reports/reports.controller.js` |
+| File download | `download` in `api/src/modules/reports/reports.controller.js` (decrypts and streams with `Content-Disposition: attachment`); `ics` in `modules/appointments/appointments.controller.js`; storage drivers in `api/src/services/storage/` |
+| File system | Local storage driver `services/storage/local-storage.js`, mail log `services/mail/mailers.js` (`LogMailer`), application log `core/logger.js` |
+| Exception handling | Error classes in `api/src/core/errors.js` (`ValidationError`, `AuthorizationError`, `SlotFullError`, ...); `ErrorHandler.render` in `core/error-handler.js`; `middleware/handle-errors.js`; the last Express error handler in `app.js`. Every error becomes the JSON envelope `{ data: null, error: { code, message } }` and production never shows a stack trace |
+| Validation | `validator.js`, `sanitizer.js` and `request-validator.js` in `api/src/validation` (rule strings such as `required\|email\|max:120`, threat detection, audit of attacks); tests in `api/test/validator.test.js` |
+| Database and transactions | `pg` pool and `Db.tx` in `api/src/core/database.js`; `BookingService.book` in `services/booking/booking-service.js` runs inside `db.tx` with `Slot.lockForUpdate` and `lockPair` (`SELECT ... FOR UPDATE`) in `models/slot.js` |
+| Email | `MailService.sendTemplate` in `api/src/services/mail/mail-service.js`; `LogMailer` and `SmtpMailer` (nodemailer) in `mailers.js`, chosen by `MAIL_DRIVER`; templates in `services/mail/templates`; booking and alert emails sent from `services/booking/appointment-notifier.js` and `services/alerts/alert-service.js` |
+| Encryption and hashing | Argon2id in `services/password-hasher.js`; AES-256-GCM with key versions in `services/encryption.js`; compatibility with the PHP output checked by `api/test/crypto-compat.test.js` |
+| Tests | 330 tests in `api/test/*.test.js` run with `node --test` against a fake database (no network needed); `api/test/live.test.js` adds read-only checks when `LIVE_DB_TESTS=1` |
+
+## Unit VI: Node.js, alerts worker (`services/alerts/`)
 
 | Topic | Where it is shown |
 |---|---|
@@ -73,17 +98,19 @@ Every syllabus item and instructor checklist item, with the files that demonstra
 
 | Item | Evidence |
 |---|---|
-| Database add, update, delete, view on every main entity | Users: `Admin/UserAdminController` (add, view, update; users are deactivated, not deleted, to keep history). Branches, scan categories, scan types, checklist items, FAQs: `Admin/BranchAdminController`, `Admin/CatalogAdminController`, `Admin/FaqAdminController` (full CRUD). Slots: `Admin/SlotAdminController`. Appointments: `AppointmentController` (create, view, reschedule, cancel, status). Reports: `ReportController` (create, view, update, delete). Referrals: `ReferralController`. Reviews: `ReviewController`, `Admin/ReviewAdminController`. Settings: `Admin/SettingsAdminController`. UI: `frontend/src/pages/admin/*` |
-| Session and cookie | Login session `backend/src/Core/Session.php` (`dc_session`); remember-me cookie `backend/src/Services/RememberMeService.php` (`dc_remember`); theme cookie `frontend/src/context/ThemeContext.tsx` |
-| HTTP methods | GET read, POST create or action, PUT replace, PATCH partial update, DELETE remove, defined in `backend/routes/api.php` and explained in `docs/API.md` |
-| Encryption | Passwords: `password_hash(..., PASSWORD_ARGON2ID)` in `backend/src/Services/PasswordService.php`, `RegistrationService.php`, `Controllers/Admin/UserAdminController.php`; reports and notes: AES-256-GCM in `backend/src/Services/EncryptionService.php` (random 12 byte IV, key from env), rotation `backend/bin/rotate-encryption.php` |
-| Validation (client and server) | Server: `backend/src/Validation/Validator.php`, `Sanitizer.php`, `RequestValidator.php`; client: `frontend/src/lib/validation.ts`, `lib/adminValidation.ts`, `hooks/useForm.ts` |
-| Authentication and authorization | `AuthController`, `AuthService`, `Middleware/RequireAuthMiddleware.php`, `Middleware/RoleMiddleware.php`, ownership checks in `Services/Reports/ReportAccessPolicy.php` and `Services/Alerts/AlertWorkflow.php`; client guards `ProtectedRoute.tsx` |
-| File and image upload and download | Reports (`ReportController`, `UploadedFileValidator`), doctor photo (`Admin/DoctorPhotoController`, `ImageUploadStore`), `.ics` download, UI in `frontend/src/features/reports/UploadReportForm.tsx` and `lib/reportFile.ts` |
+| Database add, update, delete, view on every main entity | Node controllers are in `api/src/modules/` (`admin-users`, `admin-branches`, `admin-catalog`, `admin-faqs`, `admin-slots`, `appointments`, `reports`, `referrals`, `reviews`, `admin-reviews`, `admin-settings`). The same logic in PHP: Users: `Admin/UserAdminController` (add, view, update; users are deactivated, not deleted, to keep history). Branches, scan categories, scan types, checklist items, FAQs: `Admin/BranchAdminController`, `Admin/CatalogAdminController`, `Admin/FaqAdminController` (full CRUD). Slots: `Admin/SlotAdminController`. Appointments: `AppointmentController` (create, view, reschedule, cancel, status). Reports: `ReportController` (create, view, update, delete). Referrals: `ReferralController`. Reviews: `ReviewController`, `Admin/ReviewAdminController`. Settings: `Admin/SettingsAdminController`. UI: `frontend/src/pages/admin/*` |
+| Session and cookie | Node: `api/src/core/session.js` (`dc_session`), `api/src/core/cookie.js`, `api/src/services/remember-me-service.js` (`dc_remember`). PHP: `backend/src/Core/Session.php`, `backend/src/Services/RememberMeService.php`. Theme cookie: `frontend/src/context/ThemeContext.tsx` |
+| HTTP methods | GET read, POST create or action, PUT replace, PATCH partial update, DELETE remove, defined in `api/src/modules/*/index.js` (and `backend/routes/api.php`) and explained in `docs/API.md` |
+| Encryption | Passwords: Argon2id in `api/src/services/password-hasher.js` (PHP: `password_hash(..., PASSWORD_ARGON2ID)` in `backend/src/Services/PasswordService.php`); reports and notes: AES-256-GCM in `api/src/services/encryption.js` (PHP: `backend/src/Services/EncryptionService.php`), random 12 byte IV, key from env, rotation with `backend/bin/rotate-encryption.php` |
+| Validation (client and server) | Server: `api/src/validation/validator.js`, `sanitizer.js`, `request-validator.js` (PHP: `backend/src/Validation/`); client: `frontend/src/lib/validation.ts`, `lib/adminValidation.ts`, `hooks/useForm.ts` |
+| Authentication and authorization | `api/src/modules/auth`, `api/src/services/auth-service.js`, `api/src/middleware/require-auth.js` and `role.js`, ownership checks in `services/reports/report-access-policy.js` and `services/alerts/alert-workflow.js` (PHP: `AuthController`, `AuthService`, `RoleMiddleware`, `ReportAccessPolicy`, `AlertWorkflow`); client guards `ProtectedRoute.tsx` |
+| File and image upload and download | Node: `api/src/modules/reports/reports.controller.js`, `services/uploads.js`, `services/reports/uploaded-file-validator.js`, doctor photo in `modules/doctor-photo` and `services/admin/image-upload-store.js`, `.ics` download in `modules/appointments`. PHP: `ReportController`, `UploadedFileValidator`, `Admin/DoctorPhotoController`, `ImageUploadStore`. UI in `frontend/src/features/reports/UploadReportForm.tsx` and `lib/reportFile.ts` |
 
 ## Feature to file map
 
-| Feature | Backend | Frontend |
+Backend paths are PHP reference files under `backend/src`. The Node equivalent has the same name in kebab-case under `api/src` (for example `Services/Booking/BookingService.php` and `api/src/services/booking/booking-service.js`).
+
+| Feature | Backend (PHP) | Frontend |
 |---|---|---|
 | Booking with locking | `Services/Booking/BookingService.php`, `SlotCapacity.php`, `Models/Slot.php` | `features/booking/BookingWizard.tsx`, `SlotPicker.tsx` |
 | Pre-scan checklist | `Services/Booking/ChecklistEvaluator.php`, `Models/ChecklistItem.php` | `features/booking/ChecklistStep.tsx` |

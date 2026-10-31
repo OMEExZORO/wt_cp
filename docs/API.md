@@ -1,12 +1,12 @@
 # API Reference
 
-Source of truth: `backend/routes/api.php` (PHP API) and `services/alerts/src/app.js` (Node worker). Postman collection: `postman/`.
+Source of truth: the `routes` exported by each module in `api/src/modules/*/index.js` (assembled in `api/src/routes.js`, 101 routes) and `services/alerts/src/app.js` (alerts worker). The PHP reference API in `backend/routes/api.php` defines the same 101 routes. Postman collection: `postman/`.
 
 ## Conventions
 
 - Base path: `/api/v1`. JSON in and out, except report upload (`multipart/form-data`), report download (binary), `.ics` download and the doctor photo.
 - Envelope: success `{ "data": ..., "error": null, "meta"?: ... }`; failure `{ "data": null, "error": { "code", "message", "fields"? } }`.
-- Auth: PHP session cookie `dc_session` (plus optional `dc_remember`). "Session" below means any signed-in user; roles narrow it. Role names: patient, receptionist, doctor, admin, referrer. Admin may use most staff endpoints.
+- Auth: session cookie `dc_session` (plus optional `dc_remember`). "Session" below means any signed-in user; roles narrow it. Role names: patient, receptionist, doctor, admin, referrer. Admin may use most staff endpoints.
 - CSRF: fetch a token with `GET /auth/csrf` and send it in `X-CSRF-Token` on every POST, PUT, PATCH and DELETE (including login and register).
 - Throttles are shown as `name max/minutes` (per user, or per IP when signed out). Exceeding one returns 429 with `Retry-After`.
 - Status codes: 200, 201 created, 204 no content, 400 malformed, 401 not signed in, 403 role not allowed or CSRF/origin failure, 404 missing or not yours, 409 conflict (slot full, in use), 413 file too large, 419 CSRF token expired, 422 validation, 429 throttled, 500 generic.
@@ -22,7 +22,7 @@ Source of truth: `backend/routes/api.php` (PHP API) and `services/alerts/src/app
 | PATCH | Partial changes: profile, reschedule, cancel, status, moderate, resolve, report metadata, settings | Only the supplied fields change; cancel and reschedule are state transitions, not deletions |
 | DELETE | Removing something: end all sessions, soft-delete a report, delete admin catalog rows, remove the doctor photo | Idempotent removal; bookings are cancelled with PATCH instead because the record must be kept |
 
-Admin update routes accept both PUT and PATCH for the same handler so a client may send either a full replacement or a partial change.
+Admin update routes for branches, categories, scan types, checklist items and FAQs accept both PUT and PATCH, so a client may send either a full replacement or a partial change.
 
 ## Health and public content (no sign-in)
 
@@ -141,11 +141,13 @@ Admin update routes accept both PUT and PATCH for the same handler so a client m
 | GET, POST | `/admin/faqs` | List and create FAQs | Read and create |
 | PUT, PATCH, DELETE | `/admin/faqs/{id}` | Replace, edit, delete | Replace, partial, remove |
 | GET | `/admin/reviews` | Reviews by status | Read-only |
-| PATCH | `/admin/reviews/{id}` | Approve or reject | Partial update (status) |
+| POST | `/admin/reviews` | Add a review that was copied by hand from Google (name, rating, text, date, optional links) | Creates a record |
+| PUT | `/admin/reviews/{id}` | Replace the fields of a Google-sourced review | Replace |
+| PATCH | `/admin/reviews/{id}` | Approve, reject or reset a review | Partial update (status) |
 
 ## Alerts worker (`services/alerts`, port `ALERTS_SERVICE_PORT`)
 
-Not part of the PHP API. Management endpoints need the header `Authorization: Bearer <ALERTS_SERVICE_TOKEN>` or `X-Service-Token` (see `services/alerts/src/http/auth.js`). The service sends the same envelope.
+Not part of the REST API above. Management endpoints need the header `Authorization: Bearer <ALERTS_SERVICE_TOKEN>` or `X-Service-Token` (see `services/alerts/src/http/auth.js`). The service sends the same envelope.
 
 | Method | Path | Auth | Purpose | Why this method |
 |---|---|---|---|---|

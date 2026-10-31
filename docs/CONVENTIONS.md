@@ -1,14 +1,13 @@
-# DiagnoCare Conventions
+# Conventions
 
-Read this before changing anything. It is the contract between phases.
+The rules the team followed, and the layout and naming that a new contributor needs to know.
 
-## Hard rules (from the project spec)
+## Project rules
 
-- No code comments in any code file (PHP, TS, JS, SQL, CSS, Dockerfiles, YAML). Explanations go in Markdown.
-- Never fabricate reviews, ratings, credentials, phone numbers, fees, hours or statistics. Unknown values come from `site_settings` / `branches` and are flagged `is_placeholder = TRUE`.
-- No fetal-sex related field, label or feature anywhere.
-- Never commit secrets. Only `.env.example` files with placeholder values. Never print secret values in logs or output.
-- Do not run `git commit` / `git push` unless the orchestrator asks.
+- No code comments in code files (PHP, TS, JS, SQL, CSS, Dockerfiles, YAML). Explanations go in Markdown.
+- No invented reviews, ratings, credentials, phone numbers, fees, hours or statistics. Values the centre has not supplied come from `site_settings` and `branches` and are flagged `is_placeholder = TRUE`.
+- No fetal-sex field, label or feature anywhere.
+- Secrets are never committed. Only `.env.example` files with placeholder values are tracked, and secret values are not printed in logs or output.
 
 ## Layout
 
@@ -21,56 +20,61 @@ Read this before changing anything. It is the contract between phases.
   src/pages/             route-level components, lazy-loaded with React.lazy
   src/components/        shared presentational components
   src/test/setup.ts      Vitest setup (jest-dom matchers)
-/backend                 plain PHP 8.3, MVC, no framework
-  public/index.php       single front controller (only file in web root besides .htaccess)
-  config/bootstrap.php   autoload + Env::load(backend/.env, repo/.env); returns ['backend_root','repo_root']
-  config/app.php         app config array (read through App\Core\Config, dotted keys)
-  config/container.php   service container bindings and the global middleware list
+/api                     Node.js 22 REST API (ESM), the deployed one
+  src/server.js          process entry: environment, listen, graceful shutdown
+  src/app.js             createKernel / createApp, the Express shell
+  src/container.js       builds models, services, mailer, limiter and validator once
+  src/routes.js          the list of modules; builds all routes under /api/v1
+  src/core/              config, env, database, router, pipeline, kernel, request, response, errors,
+                         error-handler, session, cookie, csrf, logger, time
+  src/middleware/        cors, security-headers, handle-errors, match-route, start-session, authenticate,
+                         csrf, require-auth, role, verified-email, rate-limit
+  src/modules/<name>/    index.js (routes) and the controllers for one area
+  src/models/            one class per table family
+  src/services/          business logic (booking, reports, alerts, auth, encryption, mail, storage)
+  src/validation/        validator, sanitizer, request-validator
+  test/                  node:test suites; test/support/harness.js has a fake database and a test client
+/backend                 the same API in plain PHP 8.3 (reference implementation, not deployed)
+  public/index.php       single front controller
+  config/                bootstrap.php, app.php, container.php (bindings and global middleware)
   routes/api.php         every API route
-  templates/emails/      email templates (layout.php + one file per message)
-  src/Core/              Env, Config, Database, Request, Response, Router, Route, Kernel, Pipeline,
-                         Container, Middleware (interface), Session, Cookie, Csrf, ErrorHandler, Logger
-  src/Controllers/       <Name>Controller.php
-  src/Models/            <Name>.php table gateways, PDO prepared statements only
-  src/Middleware/        <Name>Middleware.php (Auth, Role, Csrf, Cors, RateLimit)
-  src/Services/          business logic (BookingService, EncryptionService, StorageService, Mailer)
-  src/Validation/        Validator, Sanitizer, rule classes
-  src/Exceptions/        AppException base (errorCode, status, fields) and subclasses
-  bin/                   CLI scripts: migrate.php, seed.php, storage-setup.php
+  src/Core, Controllers, Models, Middleware, Services, Validation, Exceptions
+  templates/emails/      email templates
+  bin/                   CLI scripts: migrate.php, seed.php, storage-setup.php, rotate-encryption.php, generate-slots.php
   tests/Unit/            PHPUnit tests, namespace Tests\Unit
-  storage/               runtime files (git-ignored)
-/services/alerts         Node 24 + Express (ESM), src/index.js, src/config.js, src/db.js (pg Pool)
+/services/alerts         Node.js + Express (ESM): escalation, reminders, status page, rotating log
 /database/migrations     NNN_snake_case.sql, applied in order
-/database/seeds          seed_base.sql, seed_dev.php, seed_demo.sql
+/database/seeds          seed_base.sql, seed_client.sql, seed_dev.php, seed_demo.sql
 /docs                    Markdown docs
 /postman                 Postman collection
+/tests/flow              end-to-end journey script
 ```
 
-Namespaces: `App\` maps to `backend/src/`, `Tests\` maps to `backend/tests/`. Every PHP file starts with `declare(strict_types=1);`. Classes are `final` unless designed for extension.
+PHP namespaces: `App\` maps to `backend/src/` and `Tests\` maps to `backend/tests/`. Every PHP file starts with `declare(strict_types=1);` and classes are `final` unless designed for extension. JavaScript files are ES modules with named exports.
 
-## Running tools on this machine
-
-PHP is not on the bash PATH by default. In Git Bash:
+## Running the tools
 
 ```bash
-export PATH="$(cygpath -u "$LOCALAPPDATA")/Microsoft/WinGet/Packages/PHP.PHP.8.3_Microsoft.Winget.Source_8wekyb3d8bbwe:$PATH"
-~/bin/composer install --working-dir=backend
-php backend/bin/migrate.php            # apply pending migrations
-php backend/bin/migrate.php --status   # list applied / pending
-php backend/bin/seed.php base|dev|demo|purge-demo|counts
-php backend/vendor/bin/phpunit -c backend/phpunit.xml
-php -S localhost:8000 -t backend/public
+npm run setup                 # root, api, frontend and alerts dependencies
+npm run setup:php             # composer install for backend/ (needed by migrate and seed)
+npm run dev                   # API :8000, frontend :5173, alerts :4000
+npm test                      # Node API, frontend and worker tests
+npm run test:api:php          # PHPUnit
+npm run migrate               # apply pending migrations (PHP runner)
+npm run migrate:status        # list applied and pending
+npm run seed | seed:dev | seed:demo | seed:purge-demo | db:counts
+npm run dev:api:php           # php -S localhost:8000 -t backend/public
 ```
 
-Root npm scripts wrap these (`npm run migrate`, `npm run seed:dev`, `npm run db:counts`, `npm test`, `npm run dev`). Frontend: `npm run build --prefix frontend`, `npm test --prefix frontend`.
+PHP 8.3 must be on the PATH for the migrate and seed commands and for the PHP reference API. Frontend: `npm run build --prefix frontend`, `npm test --prefix frontend`.
 
 ## Database
 
-- Target: Supabase Postgres. App connects as role `diagnocare_app` (has BYPASSRLS). The React app never talks to Supabase.
-- `Database::connection()` uses `DB_PORT` (6543, transaction pooler). Always keep `PDO::ATTR_EMULATE_PREPARES = true` there; server-side prepared statements do not survive the transaction pooler. Do not rely on session state (`SET`, temp tables, advisory locks) across statements outside a transaction.
-- `Database::migrationConnection()` uses `DB_MIGRATE_PORT` (5432, session pooler) for migrations, seeds and DDL.
-- PDO prepared statements with named placeholders only. Never interpolate values into SQL.
-- Timezone: sessions run `SET TIME ZONE 'Asia/Kolkata'`; columns are `TIMESTAMPTZ`.
+- Target: Supabase Postgres. The app connects as role `diagnocare_app` (has BYPASSRLS). The React app never talks to Supabase.
+- Node API: `pg` pool (`api/src/core/database.js`) with parameterised queries (`$1`, `$2`). Values are never interpolated into SQL.
+- PHP: `Database::connection()` uses `DB_PORT` (6543, transaction pooler) with `PDO::ATTR_EMULATE_PREPARES = true`, because server-side prepared statements do not survive the transaction pooler. `Database::migrationConnection()` uses `DB_MIGRATE_PORT` (5432, session pooler) for migrations, seeds and DDL. Named placeholders only.
+- Session state (`SET`, temp tables, advisory locks) must not be relied on across statements outside a transaction.
+- Timezone: `Asia/Kolkata`; columns are `TIMESTAMPTZ`.
 
 ### Naming
 
@@ -101,48 +105,40 @@ Root npm scripts wrap these (`npm run migrate`, `npm run seed:dev`, `npm run db:
 - Referrer access to a report: `reports.appointment_id -> appointments.referral_id -> referrals.referrer_id`.
 - Encrypted fields end in `_encrypted` (TEXT, AES-256-GCM envelope). Report files: ciphertext in the private bucket at `reports.storage_path`, IV and tag in `encryption_iv` / `encryption_tag` (base64), `key_version` for rotation.
 - Auth tokens are stored hashed: `remember_tokens (selector, validator_hash)`, `password_resets.token_hash`, `email_verifications.token_hash` (SHA-256 hex of the random token). Lockout uses `users.failed_login_count`, `users.locked_until` and `login_attempts`.
-- `site_settings`: dotted keys (`contact.phone`, `doctor.bio`). `value` NULL with `is_placeholder = TRUE` means unknown. The frontend shows "TODO: add real value" for those only when `import.meta.env.DEV`, and hides them in production. Non-public keys (`is_public = FALSE`) must never be sent to the public API.
+- `site_settings`: dotted keys (`contact.phone`, `doctor.bio`). `value` NULL with `is_placeholder = TRUE` means unknown. The frontend shows a placeholder badge for those only in development builds and hides them in production. Non-public keys (`is_public = FALSE`) must never be sent to the public API.
 - Branches are `bhosari`, `moshi`, `pimple-gurav`, `moi` (migration `019_branches_official.sql`). Each has `phone` and `phone_secondary`, and a Google Maps search url in `maps_url`; the full address up to the PIN is in `address_line` and the PIN in `postal_code`.
 - `reviews.is_demo = TRUE` rows come only from `seed_demo.sql`. Public endpoints must exclude `is_demo` rows when `APP_ENV=production`.
 - RLS is enabled on every table with no policies. Every new table must include `ALTER TABLE <t> ENABLE ROW LEVEL SECURITY;` in its migration.
 
 ### Adding a migration
 
-1. Create `database/migrations/NNN_short_description.sql` with the next number (currently last is `012`).
+1. Create `database/migrations/NNN_short_description.sql` with the next number (the last one is `022`; `016` is unused).
 2. Plain SQL, no comments. Include triggers for `updated_at` and `ENABLE ROW LEVEL SECURITY` for new tables.
-3. Run `npm run migrate`. Each file runs in one transaction and is recorded in `schema_migrations` with a SHA-256 checksum.
+3. Run `npm run migrate`. Each file runs in one transaction and is recorded in `schema_migrations` with a SHA-256 checksum. The runner is the PHP script `backend/bin/migrate.php`; the Node API has no migration runner.
 4. Never edit an applied migration; the runner warns on checksum change. Write a new one instead.
 
 ### Seeds
 
 - `seed_base.sql` is production-safe and idempotent (`ON CONFLICT DO NOTHING`): branches, scan categories, 56 scan types, checklist items, FAQs, site settings. No users.
-- `seed_dev.php` (mode `dev`, refused when `APP_ENV=production`): one user per role, patient and referrer profiles, creates 30-minute slots 08:00 to 22:00 Mon to Sat for the next 30 days at every active branch (USG capacity 2, CT 1, BIOPSY 1). Re-running resets dev passwords and is safe.
+- `seed_dev.php` (mode `dev`, refused when `APP_ENV=production`): one user per role (all with the password from `DEV_SEED_PASSWORD`), patient and referrer profiles, creates 30-minute slots 08:00 to 22:00 Mon to Sat for the next 30 days at every active branch (USG capacity 2, CT 1, BIOPSY 1). Re-running resets dev passwords and is safe.
 - `seed_demo.sql` (mode `demo`, refused in production): four reviews labelled "Demo data", `is_demo = TRUE`. `purge-demo` removes them.
 
 ## Dev logins (development database only)
 
-| Role | Email | Password |
-|---|---|---|
-| admin | admin@diagnocare.test | Admin@Dev2026! |
-| doctor | doctor@diagnocare.test | Doctor@Dev2026! |
-| receptionist | reception@diagnocare.test | Reception@Dev2026! |
-| patient | patient@diagnocare.test | Patient@Dev2026! |
-| referrer | referrer@diagnocare.test | Referrer@Dev2026! |
-
-Passwords are Argon2id hashes (`password_hash(..., PASSWORD_ARGON2ID)`). Remove these users before going live.
+`npm run seed:dev` creates `admin@`, `doctor@`, `reception@`, `patient@` and `referrer@` accounts on the reserved `diagnocare.test` domain. They all use the password set in `DEV_SEED_PASSWORD` in `.env` (at least 10 characters), stored as an Argon2id hash. The seed stops if the variable is empty or `APP_ENV=production`. Remove these users before going live.
 
 ## API
 
 - Base path: `/api/v1`. JSON only. Resource names are plural kebab-case: `/api/v1/scan-types`, `/api/v1/appointments/{id}`.
 - Methods: GET read, POST create or action (`POST /appointments/{id}/cancel` is acceptable for commands), PUT full replace, PATCH partial update, DELETE remove.
-- Success envelope (`App\Core\Response::json`, which returns a `Response` object; controllers return it and the Kernel sends it):
+- Success envelope (`ok()` and `created()` in `api/src/core/response.js`, `App\Core\Response::json` in PHP; controllers return the response object and the kernel sends it):
 
 ```json
 { "data": { }, "error": null, "meta": { "page": 1, "per_page": 20, "total": 57 } }
 ```
 
   `meta` is optional (pagination only).
-- Error envelope (`App\Core\Response::error`):
+- Error envelope (`api/src/core/error-handler.js`, `App\Core\Response::error` in PHP):
 
 ```json
 { "data": null, "error": { "code": "VALIDATION_FAILED", "message": "Please correct the highlighted fields.", "fields": { "email": "Enter a valid email address." } } }
@@ -151,24 +147,43 @@ Passwords are Argon2id hashes (`password_hash(..., PASSWORD_ARGON2ID)`). Remove 
 - Error codes (UPPER_SNAKE): `BAD_REQUEST` 400 (malformed JSON), `VALIDATION_FAILED` 422, `UNAUTHENTICATED` 401, `FORBIDDEN` 403, `NOT_FOUND` 404, `METHOD_NOT_ALLOWED` 405 (with `Allow` header), `CONFLICT` 409 (e.g. slot full), `PAYLOAD_TOO_LARGE` 413, `CSRF_INVALID` 419, `RATE_LIMITED` 429 (with `Retry-After`), `SERVER_ERROR` 500. In development a 500 also carries `error.debug` (class, message, file, line; never the trace). Throw `App\Exceptions\AppException` subclasses; the global handler converts them. Never expose stack traces when `APP_ENV=production`.
 - JSON field names are snake_case in both directions; TypeScript types mirror them in `frontend/src/types`.
 - Health check: `GET /api/v1/health` returns `{ "data": { "status": "ok" }, "error": null }`.
-- Timestamps in JSON are ISO 8601 with offset (`Model::iso()`), e.g. `2026-10-08T20:52:56+05:30`.
+- Timestamps in JSON are ISO 8601 with offset (`toIso()` in `api/src/core/time.js`, `Model::iso()` in PHP), e.g. `2026-10-08T20:52:56+05:30`.
 - Frontend calls go through `api.get/post/put/patch/delete` in `frontend/src/api/client.ts` (`credentials: 'include'`, automatic CSRF header, one retry after `CSRF_INVALID`). `VITE_API_BASE_URL` defaults to `/api/v1`; the Vite dev server proxies `/api` to `http://localhost:8000`, so cookies are same-origin in development.
 
-## Backend request lifecycle
+## Request lifecycle
 
-`public/index.php` builds `Config` and the `Container`, registers `ErrorHandler`, creates `Request::fromGlobals()` and calls `Kernel::handle()`. Global middleware, in order:
+In the Node API, `app.js` hands every request to the kernel (`api/src/core/kernel.js`), which runs the global middleware from `api/src/middleware/index.js`. In the PHP version `public/index.php` builds `Config` and the `Container`, registers `ErrorHandler`, creates `Request::fromGlobals()` and calls `Kernel::handle()`. The order is the same in both. Names below are the PHP classes; the Node files are `cors.js`, `security-headers.js`, `handle-errors.js`, `match-route.js`, `start-session.js`, `authenticate.js` and `csrf.js`. Global middleware, in order:
 
 1. `CorsMiddleware`: allowlist `CORS_ALLOWED_ORIGINS` (default `FRONTEND_URL`), credentials, answers preflight, rejects unsafe requests from a foreign `Origin` with 403.
 2. `SecurityHeadersMiddleware`: CSP `default-src 'none'`, nosniff, `X-Frame-Options: DENY`, Referrer-Policy, Permissions-Policy, `Cache-Control: no-store`, HSTS when `APP_ENV=production`.
 3. `HandleErrorsMiddleware`: any exception becomes the JSON error envelope, so CORS and security headers still apply.
 4. `MatchRouteMiddleware`: 404 / 405 before a session is started.
-5. `StartSessionMiddleware`: native PHP session `dc_session`, HttpOnly, SameSite Lax in dev and None + Secure in prod, idle timeout 30 min, absolute lifetime 12 h, files in `backend/storage/sessions`.
+5. `StartSessionMiddleware`: session cookie `dc_session`, HttpOnly, `SameSite` and `Secure` from `SESSION_SAMESITE` and `SESSION_SECURE`, idle timeout 30 min, absolute lifetime 12 h. The Node API stores sessions in the `http_sessions` table; PHP uses files in `backend/storage/sessions`.
 6. `AuthenticateMiddleware`: loads the session user from the DB on every request; drops the session if the user is inactive, the role changed, or the password changed after login; otherwise tries the remember-me cookie.
 7. `CsrfMiddleware`: POST, PUT, PATCH and DELETE need header `X-CSRF-Token` equal to the token from `GET /api/v1/auth/csrf` (HMAC-SHA256 of a per-session seed with `CSRF_SECRET`).
 
-Route middleware aliases (`config/container.php`): `auth` (401 for guests), `role:admin,doctor` (403 and a `security.forbidden` audit row), `verified` (403 until the email is verified), `throttle:name,max,minutes` (DB-backed fixed window per user id or IP in `rate_limits`, 429 with `Retry-After`).
+Route middleware aliases (`routeMiddlewareFactories` in `api/src/middleware/index.js`, `backend/config/container.php` in PHP): `auth` (401 for guests), `role:admin,doctor` (403 and a `security.forbidden` audit row), `verified` (403 until the email is verified), `throttle:name,max,minutes` (DB-backed fixed window per user id or IP in `rate_limits`, 429 with `Retry-After`).
 
-### Adding an endpoint
+### Adding an endpoint (Node API)
+
+1. Create or open a module under `api/src/modules/<name>/` and list the route in its `index.js`, then make sure the module is in the list in `api/src/routes.js`:
+
+```js
+export const routes = group('/appointments', ['auth'], [
+  patch('/{id:uuid}/status', controller.status, ['role:receptionist,doctor,admin']),
+])
+```
+
+   Parameter types are `{id:uuid}`, `{n:int}`, `{slug:slug}` or untyped `{name}`.
+2. Write the handler in the module's controller as `async (req, app) => response`, returning `ok()`, `created()` or `noContent()`. Dependencies (models, services, config) come from `app`, which is built once in `api/src/container.js`.
+3. Validate before any write: `const data = await app.validate(req, { field: 'required|min:2' })`. It returns only the declared fields (cleaned and normalised) and throws a validation error (422 with `fields`).
+4. Ownership checks (IDOR) belong in the controller or service: load the record, compare with the signed-in user's id and role, and throw `NotFoundError` for other people's records.
+5. Business logic goes in `api/src/services` and SQL in `api/src/models` (extend `Model`, set `table` and `fillable`). Multi-step writes use a transaction.
+6. Audit important actions with `app.audit.log('booking.created', req, { entity_type, entity_id, metadata })`.
+7. Throw the error classes from `api/src/core/errors.js` for expected failures.
+8. Add a test in `api/test/` using the harness in `api/test/support/harness.js`.
+
+### Adding an endpoint (PHP reference)
 
 1. Add the route in `backend/routes/api.php` inside the `/api/v1` group, for example
    `$router->patch('/appointments/{id:uuid}', [AppointmentController::class, 'update'], ['auth', 'role:patient,receptionist']);`
@@ -180,7 +195,7 @@ Route middleware aliases (`config/container.php`): `auth` (401 for guests), `rol
 6. Audit important actions: inject `App\Services\AuditLogger` and call `$audit->log('booking.created', $request, ['entity_type' => 'appointment', 'entity_id' => $id, 'metadata' => [...]])`.
 7. Throw `App\Exceptions\*` for expected failures; never echo or exit.
 
-### Validation rules (`App\Validation\Validator`)
+### Validation rules (`api/src/validation/validator.js`, `App\Validation\Validator` in PHP)
 
 String or array syntax: `'required|name|min:2|max:120'`, or `['required', 'regex:/^[A-Z]{3}$/']` when the pattern contains `|`.
 
@@ -209,7 +224,8 @@ Every string field without `raw`, `password` or `token` is cleaned by `Sanitizer
 - Remember me: cookie `dc_remember` = `selector.validator` (HttpOnly, 30 days). The DB stores the selector and the SHA-256 of the validator. Each use rotates the validator; the previous hash is accepted for 60 s (parallel requests); any other mismatch is treated as theft and deletes every token of that user (`auth.remember_token_theft`).
 - Password change or reset sets `password_changed_at`, revokes all remember tokens and invalidates every other session.
 - Email verification and password reset tokens: 32 random bytes as hex in the email link, SHA-256 in the DB, single use; verification 48 h, reset 60 min. Login is allowed before verification; put the `verified` middleware on features that need a verified email.
-- Mail: `App\Services\Mail\Mailer` with `LogMailer` (`MAIL_DRIVER=log`, writes to `backend/storage/logs/mail.log`) and `SmtpMailer` (PHPMailer, `MAIL_DRIVER=smtp`). Send with `MailService::sendTemplate($to, $name, 'template-name', $vars)`; templates escape with `$e()`. Mail failures are logged, never fatal.
+- Mail (Node): `MailService` with `LogMailer` (`MAIL_DRIVER=log`, writes to `api/storage/logs/mail.log`) and an SMTP mailer built on nodemailer (`MAIL_DRIVER=smtp`), in `api/src/services/mail/`. Mail failures are logged, never fatal.
+- Mail (PHP): `App\Services\Mail\Mailer` with `LogMailer` (`MAIL_DRIVER=log`, writes to `backend/storage/logs/mail.log`) and `SmtpMailer` (PHPMailer, `MAIL_DRIVER=smtp`). Send with `MailService::sendTemplate($to, $name, 'template-name', $vars)`; templates escape with `$e()`. Mail failures are logged, never fatal.
 
 ### RBAC map
 
@@ -221,7 +237,7 @@ Every string field without `raw`, `password` or `token` is cleaned by `Sanitizer
 | Admin | `/api/v1/dashboards/admin` | `/portal/admin` | admin |
 | Referrer | `/api/v1/dashboards/referrer` | `/portal/referrer` | referrer |
 
-Keep `frontend/src/lib/roles.ts` (`ROLE_HOME`, `AREA_ROLES`) in sync with the backend route middleware.
+Keep `frontend/src/lib/roles.ts` (`ROLE_HOME`, `AREA_ROLES`) in sync with the API route middleware.
 
 ## Node alerts service
 
@@ -229,7 +245,7 @@ ESM (`"type": "module"`), Express 5, `pg` pool. Reads `services/alerts/.env` the
 
 ## Frontend
 
-React 18, TypeScript strict, React Router v6, Redux Toolkit as the only global state store (auth session, booking draft, alerts). Context is used only for the theme (`src/context/ThemeContext.tsx`, persisted in a `theme` cookie written by the browser, `SameSite=Lax`, one year; the server never reads it). Vitest + Testing Library with `globals: true` and jsdom. Brand tokens live as CSS variables in `src/index.css` (`--color-navy`, `--color-orange`, `--color-teal-tint`, `--color-lavender-tint`); `:root[data-theme='dark']` overrides them. Phase 3 replaces the placeholder header, footer and home page styling.
+React 18, TypeScript strict, React Router v6, Redux Toolkit as the only global state store (auth session, booking draft, alerts). Context is used only for the theme (`src/context/ThemeContext.tsx`, persisted in a `theme` cookie written by the browser, `SameSite=Lax`, one year; the server never reads it). Vitest + Testing Library with `globals: true` and jsdom. Brand tokens live as CSS variables in `src/index.css` (`--color-navy`, `--color-orange`, `--color-teal-tint`, `--color-lavender-tint`); `:root[data-theme='dark']` overrides them.
 
 ```
 src/api/client.ts        api.get/post/put/patch/delete, ApiError (status, code, fields, retryAfter), CSRF handling, setUnauthorizedHandler

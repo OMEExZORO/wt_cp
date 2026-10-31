@@ -1,193 +1,46 @@
 # Progress
 
-## Phases
+What was built, in the order it was built, and how each part was checked. All parts listed here are complete.
 
-- [x] 1. Repo scaffold, tooling, DB migrations and seed, env setup, scripts
-- [x] 2. PHP core: router, MVC base, Validator and Sanitizer, error handling, auth with sessions, cookies and remember-me, RBAC
-- [ ] 3. Public portfolio site (all pages)
-- [ ] 4. Booking system, checklists, calendar links, emails
-- [ ] 5. Reports upload and download with encryption, referrer portal
-- [ ] 6. Critical alerts, priority queue, Node alerts service
-- [ ] 7. Admin panel, reviews with moderation
-- [ ] 8. Tests, Postman, security pass, accessibility, docs, deployment configs
+## Summary
 
-## Phase 1 summary
+| Area | Result |
+|---|---|
+| Database | 21 migrations (001 to 022, 016 unused) creating 25 tables plus `schema_migrations`. Row level security on every table. Base seed: 4 branches, 56 scan types, checklist items, FAQs and site settings |
+| Node.js API (`api/`) | 101 routes in 22 modules. 330 tests in 54 suites |
+| PHP reference API (`backend/`) | The same 101 routes. 441 PHPUnit tests, 1008 assertions |
+| Alerts worker (`services/alerts/`) | Escalation, reminders, status page, rotating log. 17 tests |
+| Frontend (`frontend/`) | React 18 app with public site, patient, reception, doctor, referrer and admin portals. 161 Vitest tests in 16 files |
+| End-to-end | Postman collection (174 requests, 386 assertions), full journey script (15 steps), 45-case live attack check on the PHP API |
+| Delivery | Docker images for the API and the worker, `render.yaml`, Vercel configuration, CI workflow, scheduled alert job |
 
-- Monorepo: `frontend` (React 18.3, TS, Vite, Router v6, Redux Toolkit, Vitest), `backend` (plain PHP 8.3, Composer PSR-4, PHPUnit 11), `services/alerts` (Express 5 + pg skeleton with `/health` and a static status page), `database`, `docs`, `postman`.
-- Backend core so far: `Env` loader, `Database` (transaction pooler with emulated prepares; session pooler for migrations), `Response` JSON envelope, `AppException`, `GET /api/v1/health`.
-- 11 migrations applied to Supabase: 24 tables including `schema_migrations`, `updated_at` triggers, immutable `alert_events`, RLS enabled on all tables, no grants for `anon` / `authenticated`.
-- Seeds loaded: 2 branches, 9 scan categories, 56 scan types, 36 checklist items, 11 FAQs, 23 site settings; dev: 5 users (one per role), 1 patient, 1 referrer, 1152 slots; demo: 4 reviews labelled "Demo data".
-- Private Storage bucket `reports` created.
-- Verified: `npm run build` (frontend), Vitest 2/2, `composer install`, PHPUnit 3/3, PHP and Node health endpoints, `docker compose config`.
-- Not verified: Docker image builds (Docker daemon was not running).
+## Build history
 
-## Phase 2 summary
+1. Scaffold and database. Monorepo with `frontend`, `backend`, `services/alerts`, `database`, `docs` and `postman`. The first 11 migrations created 24 tables with `updated_at` triggers, an immutable `alert_events` table and row level security. A private Storage bucket `reports` was created.
+2. PHP core and authentication. Router, kernel, middleware pipeline, autowiring container, session, cookies, CSRF, validator and sanitizer, error handling, mail, rate limiting, lockout, remember-me and role-based access. Migration 012 added consent fields, remember-token rotation columns and `rate_limits`.
+3. Public site. Read-only public endpoints (site settings, doctor, branches, categories, scan types, FAQs, approved reviews), the public pages, structured data and sitemap generation.
+4. Booking. Availability, days, checklist, booking inside a row-locking transaction, reschedule, cancel, status changes, `.ics` file and Google Calendar link, and the booking wizard with the other-branch suggestion when a branch is full.
+5. Reports and referrals. AES-256-GCM encryption with key versions and rotation, private storage, upload hardening, referrer access through referrals, and the matching portal pages. Migration 014.
+6. Critical alerts. Flagging, patient and referrer acknowledgement, escalation by the worker, the staff alert board, the reading queue and the in-app banner. Migration 015.
+7. Admin panel and reviews. Admin CRUD for users, branches, categories, scan types, checklist items, slots, FAQs and settings, statistics, audit log viewer, doctor photo, and review submission and moderation.
+8. Testing and hardening. PHPUnit container wiring and attack matrix tests, the live attack check, the full journey script, the Postman collection, a patient lookup for walk-in booking, reception reschedule and cancel, accessibility and Lighthouse fixes. A missing import in `backend/config/container.php` that made flagging a report critical return 500 was found by the journey script and fixed.
+9. Deployment. Dockerfiles, `render.yaml`, Vercel rewrite and headers, GitHub Actions for CI, the keep-alive ping and the scheduled alert job. Live at `meghnaddiagnostics.me` with a same-origin `/api` rewrite.
+10. Node.js API. The PHP API was ported to `api/` and is now what Render builds. Sessions moved to the `http_sessions` table (migration 020). Migrations 017 to 022 added review sources and flags, the official branch list, session storage, opening hours and affiliation, and the doctor biography.
+11. Frontend polish. Header and hero layout fixes, dark mode logo, cookie consent banner, SEO structured data, Lighthouse scores of 90 or more on performance for the home, services and login pages.
 
-- PHP core (`backend/src/Core`): `Request`, `Response` (object), `Router` with route params, typed params, groups and middleware, 404 / 405 JSON, `Kernel`, `Pipeline`, autowiring `Container`, `Config`, native `Session` with idle and absolute timeouts, `Cookie`, `Csrf`, `ErrorHandler` (no details in production), `Logger`.
-- Exceptions: `AppException` plus `ValidationException`, `AuthenticationException`, `AuthorizationException`, `NotFoundException`, `MethodNotAllowedException`, `ConflictException`, `CsrfException`, `RateLimitException`, `BadRequestException`, `PayloadTooLargeException`.
-- `Validator` and `Sanitizer` with `RequestValidator` (audit logging of SQLi/XSS attempts), base `Controller::validate()`, base `Model` (PDO prepared statements).
-- Middleware: CORS, security headers, error handling, route matching, session, authenticate (session or remember-me), CSRF, `auth`, `role`, `verified`, `throttle`.
-- Services: `AuthService`, `RegistrationService`, `PasswordService`, `EmailVerificationService`, `RememberMeService`, `RateLimiter`, `AuditLogger` (`DatabaseAuditLogger`), `Mail\MailService` with `LogMailer` and `SmtpMailer` (PHPMailer 6), templates in `backend/templates/emails`.
-- Migration `012_auth_core.sql`: `users.consent_given_at`, `users.consent_version`, `remember_tokens.previous_validator_hash`, `remember_tokens.rotated_at`, table `rate_limits`.
-- Frontend: typed API client with CSRF, Redux slices `auth`, `booking`, `alerts`, React Router v6 nested routes with lazy pages, `ProtectedRoute`, `GuestRoute`, `ErrorBoundary`, `ThemeContext` (cookie), form components, `useForm`, `useApi`, `lib/validation.ts`, auth pages, portal layout, five role dashboard stubs, account page (change password, sign out everywhere). Vite proxies `/api` to the PHP server.
+## How it was verified
 
-### Endpoints (all under `/api/v1`)
+- Node API: `node --test` in `api` passes 330 tests without a database.
+- Parity: the same Postman collection ran against the Node API (266 HTTP calls, 174 test scripts, 386 assertions, 0 failed). A status and masked-body comparison of Node and PHP on the same database made 289 requests with no unexplained differences. Argon2id hashes and AES-GCM envelopes written by one side were read by the other.
+- Journey: `tests/flow/full-journey.mjs` registers a patient, verifies email, books, uploads a report, flags it critical, runs both escalation stages, acknowledges, downloads and checks that another patient cannot download it. 15 of 15 steps passed on both APIs.
+- Hostile input: `backend/bin/validation-attack-check.php` sent 45 injection, script and upload-abuse requests and compared table counts before and after each. 45 of 45 passed, and no table changed.
+- Encryption: a report uploaded to the private bucket is not readable as a PDF, its public URL is refused, and the downloaded bytes are identical to the upload.
+- Concurrency: `backend/bin/prove-booking-concurrency.php` is a script that books the same slot from several processes and checks that capacity holds. It writes temporary rows, so it refuses to run in production.
+- Frontend: 161 Vitest tests, `tsc -b` and `npm run build` pass. Lighthouse (mobile, Vite preview) after fixes: Home 93/100/100/100, Services 95/100/100/100, Login 90/100/100/100 (performance, accessibility, best practices, SEO).
+- Docker: the images were not built locally because the Docker daemon was not running on the development machine. Render builds them on each deploy, and `docker compose config` was used only for static checks.
 
-| Method | Path | Middleware |
-|---|---|---|
-| GET | `/health` | none |
-| GET | `/auth/csrf` | none |
-| POST | `/auth/register` | throttle 10/60 min |
-| POST | `/auth/login` | throttle 20/10 min, plus account lockout |
-| POST | `/auth/logout` | none |
-| GET | `/auth/me` | auth |
-| PATCH | `/auth/me` | auth |
-| DELETE | `/auth/sessions` | auth |
-| POST | `/auth/password/forgot` | throttle 5/15 min, plus 3 per email per hour |
-| POST | `/auth/password/reset` | throttle 10/15 min |
-| PUT | `/auth/password` | auth, throttle |
-| POST | `/auth/email/verify` | throttle |
-| POST | `/auth/email/resend` | auth, throttle 3/15 min |
-| GET | `/dashboards/{patient,doctor,receptionist,admin,referrer}` | auth, role |
+Test cases and results are in [docs/TEST_REPORT.md](docs/TEST_REPORT.md).
 
-All POST, PUT, PATCH and DELETE need `X-CSRF-Token`.
+## Data left in the shared database
 
-### Verified (real runs)
-
-- curl against `php -S` and Supabase: login, me, dashboard and logout for all five dev users; wrong role 403; CSRF missing 419; unknown route 404; wrong verb 405 with `Allow`; generic login error for bad password and unknown email; patient and referrer registration with consent; duplicate email 409; missing consent 422; email verification from `mail.log` (token single use); SQLi and XSS payloads rejected with 422 and logged as `security.sqli_attempt` / `security.xss_attempt`; PATCH profile; PUT change password (wrong current password 422); DELETE sessions; forgot and reset password from `mail.log` (reused token 422, old password rejected, new accepted); remember-me rotation, 60 s grace, theft detection revoking all tokens; lockout on the 5th failure with 429 and `Retry-After`; CORS preflight allowed for the frontend origin and refused for others; login through the Vite proxy.
-- PHPUnit: 127 tests, 178 assertions, all passing (Env, Validator, Sanitizer, RBAC middleware, Router/Kernel/ErrorHandler).
-- Vitest: 37 tests in 5 files, all passing. `npm run build` passes.
-
-## Next (Phase 3)
-
-Public portfolio site. Replace the placeholder `SiteHeader`, `SiteFooter`, `HomePage` and styles; keep the PCPNDT notice and disclaimer in the footer. Public read endpoints (branches, scan types, FAQs, public site settings, approved reviews) go in `backend/routes/api.php` without `auth`. Follow `docs/CONVENTIONS.md`.
-
----
-
-## Phase 3 (public portfolio site) - implemented
-
-- Public API (GET only, no auth) under `/api/v1/public`: `site`, `doctor`, `branches`, `scan-categories`, `scan-types` (`modality`, `q`), `scan-types/{slug|uuid}`, `faqs` (`category`, `limit`), `reviews` (approved only, `is_demo` rows excluded when `APP_ENV=production`, returns `summary.count` and `summary.average_rating`). Code: `PublicController`, models `SiteSetting`, `Branch`, `ScanCategory`, `ScanType`, `Faq`, `Review`, `Services/PublicContentPresenter`. Only `is_public` settings are returned; placeholders come back as `value: null, is_placeholder: true`. Fees and durations are never exposed.
-- Frontend: Redux slice `features/public` (thunks with a duplicate-load guard), `usePublicResource` hook, pages Home, About, Services (+ scan detail), Branches, Reviews, FAQ, Contact, Book, Privacy, Terms in `src/pages` and `src/pages/public`. `/portal/patient/book` is a placeholder page until Phase 4. Styles: `src/styles/tokens.css` (all design tokens) and `src/styles/site.css`.
-- SEO: `usePageMeta`, JSON-LD `MedicalBusiness` and `Physician` (`components/public/StructuredData.tsx`), `scripts/generate-seo.mjs` writes `public/robots.txt` and `public/sitemap.xml` on build (`SITE_URL` env, default `https://www.example.com`).
-- Tests: PHPUnit 135 tests, 193 assertions; Vitest 49 tests in 6 files.
-
----
-
-## Phase 4 (booking) - COMPLETE
-
-Backend was finished earlier; this step added the frontend. No backend behaviour changed.
-
-### Endpoints used by the UI (all under `/api/v1`, session auth)
-
-| Method | Path | Used by |
-|---|---|---|
-| GET | `/booking/days` | day chips in the slot picker (next 14 days, remaining places) |
-| GET | `/booking/availability` | slot list, remaining capacity, `suggestion` when the branch is full |
-| GET | `/booking/next-available` | typed in `api/bookings.ts` for callers that need the earliest slot elsewhere |
-| GET | `/scan-types/{id}/checklist` | checklist step and preparation text |
-| POST | `/appointments` | wizard confirm; 422 field errors (`answers.<itemId>` mapped to the checklist), 409 `reason: SLOT_FULL` with `suggestion` |
-| GET | `/appointments?scope=upcoming\|past` | patient dashboard |
-| GET | `/appointments?date=&branch_id=&per_page=` | reception dashboard |
-| GET | `/appointments/{id}` | confirmation and detail page |
-| GET | `/appointments/{id}/ics` | "Download .ics file" link |
-| PATCH | `/appointments/{id}/reschedule`, `/cancel` | dialogs |
-| PATCH | `/appointments/{id}/status` | reception check-in, complete, no-show, urgency |
-
-### Frontend
-
-- `api/client.ts`: `ApiError.extra` carries extra error-envelope keys (`reason`, `suggestion`). `api/bookings.ts` holds every typed call; `types/booking.ts` the response types; `lib/booking.ts` date/time formatting, checklist validation (mirrors server rules) and `describeBookingError`.
-- Wizard `/portal/patient/book` (`features/booking/BookingWizard.tsx`): branch, searchable scan type (online-bookable only), date and slot (`SlotPicker`), checklist with one control per answer type plus preparation tips, review with DPDP-style consent. Draft and step live in the `booking` Redux slice; slot object and checklist data are local state lifted into the wizard. Focus moves to the step heading on each step change. Next and Book stay disabled until the step is valid.
-- Branch full: `SuggestionBanner` shows the earliest slot at the other branch with a one-click switch, both from the availability response and from a 409 at booking time.
-- Confirmation and detail page `/portal/patient/appointments/:id`: details, preparation, `.ics` download, Google Calendar link, cancel and reschedule.
-- Patient dashboard: upcoming and past appointments; `Dialog` (focus trap, Escape, focus return) hosts the cancel and reschedule flows; reschedule reuses `SlotPicker`.
-- Reception dashboard: date and branch filter, check in / complete / no-show (no-show asks for confirmation), urgency select, checklist attention flags.
-- Styles in `src/styles/booking.css`. Removed `BookingPlaceholder`.
-- Tests: Vitest 57 tests in 7 files (8 new in `features/booking/booking.test.tsx`: Book disabled until valid, step navigation and focus, branch-full suggestion and switch, 409 suggestion, cancel dialog flow, XSS in cancel reason, reception check-in and urgency, refused status change). PHPUnit 199 tests, 454 assertions.
-- Verified with curl through the Vite proxy: availability, days, checklist, create (including 422 field envelope), list, ics, reschedule, cancel as patient; list, urgency, check-in, complete as reception. Test bookings were deleted and slot counts restored.
-
-### Notes for Phase 5
-
-- `Dialog` and `StatusBadge` are reusable. Reports will need the appointment id and `patient.id` from `Appointment`; the doctor dashboard can reuse `bookingsApi.listForStaff` (it already returns `urgency`, `needs_attention`, `attention`) for the priority reading queue.
-- `ApiError.extra` is the place to read any extra envelope keys.
-- Reminder emails are not sent by the frontend; the Node service or a scheduled job still owns that.
-## Phase 6 (critical alerts and priority reading queue) - implemented
-
-- Migration `015_alert_workflow.sql`: adds `phone_contacted` to the `alert_events` event type CHECK, `critical_alerts.resolution_note`, and two partial indexes. The creation event is the existing `raised` type (not `created`).
-- Endpoints: `POST /reports/{id}/critical` (doctor, admin), `GET /alerts/mine` (patient, referrer), `POST /alerts/{id}/acknowledge` (patient or the linked referrer; anyone else gets 404), `GET /alerts` (staff; filters `status`, `flagged`, `q`, `page`; red-flagged unresolved rows first), `GET /alerts/{id}/events` (staff audit trail), `PATCH /alerts/{id}/resolve` (receptionist, admin; note required; writes `phone_contacted` then `resolved`), `GET /doctor/queue` (doctor, admin; completed appointments with no final report, sorted Urgent > Priority > Routine then longest wait, with `waiting_minutes` and `wait_level`, plus `recent_reports` for the Flag critical action).
-- Urgency changes reuse the existing `PATCH /appointments/{id}/status` with an `urgency` field; no new endpoint.
-- Code: `Services/Alerts/` (`AlertService`, `AlertWorkflow` pure transitions and ownership policy, `ReadingQueue` pure sort, `AlertPresenter`, `SmsGateway` + `StubSmsGateway`, `NoteProtector` + `UnavailableNoteProtector`), models `CriticalAlert`, `AlertEvent`, `ReadingQueueQuery`, controllers `AlertController`, `QueueController`, template `critical-alert.php` (never contains the finding).
-- Frontend: `features/alerts` (slice with `fetchMyAlerts` polling every 60 s and `acknowledgeAlert`, `AlertBanners` with `role="alert"` mounted in `PortalLayout`, `ReadingQueueTable`, `StaffAlertsBoard`), `components/ConfirmDialog` (focus trap, Escape, no `window.confirm`), `DoctorDashboard`, `ReceptionDashboard`, `styles/alerts.css`.
-- Verified for real with `ALERT_ESCALATION_MINUTES=1`: doctor flagged a report (events `raised`, `notified` email x2, `sms_stub`, `in_app`; two mails in `mail.log`), worker run 1 produced `resent` x2 and `escalated`, run 2 produced `staff_flagged` (red flag visible to reception), reception resolved with a note (`phone_contacted`, `resolved`); a second alert was acknowledged by the patient (unlinked referrer 404, reception 403, repeat 409).
-- Tests: PHPUnit 225 passing (queue sort, alert transitions, acknowledge ownership); Vitest 57 passing; `npm run build` and `services/alerts` `npm test` (17) pass.
-- Dev data left on the shared Supabase DB (the immutability trigger and RESTRICT FKs prevent deleting it): appointments `DEVP6-A1..A3`, referral `DEVP6-REF`, reports with storage path `devp6/*`, two critical alerts and their events. All are labelled DEVP6.
-- Merge notes: bind `NoteProtector` in `config/container.php` to an adapter over the Phase 5 `EncryptionService` (currently `UnavailableNoteProtector`, so the doctor's clinical note is dropped and the response says `note_stored: false`; the alert text itself is generic and non-clinical). Reports are flagged by ID only; nothing here uploads reports.
-## Phase 5 (reports with encryption, referrer portal) - implemented
-
-Migration `014_reports.sql` adds `reports.impression_encrypted`, `reports.storage_driver` and indexes.
-
-### Endpoints (all under `/api/v1`, all need `auth` and CSRF for unsafe methods)
-
-| Method | Path | Roles |
-|---|---|---|
-| GET | `/reports` (filters `q`, `status`, `patient_id`, `appointment_id`, `from`, `to`, `page`, `per_page`) | patient (own, released only), referrer (own referred patients, released only), receptionist, doctor, admin (all) |
-| POST | `/reports` (multipart: `appointment_id`, `title`, `file`, optional `patient_id`, `notes`, `impression`, `status` draft or final) | doctor, receptionist, admin |
-| GET | `/reports/{id}` | as list, logs `view` |
-| GET | `/reports/{id}/download` | as list, streams decrypted bytes, logs `download` |
-| PATCH | `/reports/{id}` (`title`, `notes`, `impression`, `status`) | doctor, receptionist, admin |
-| DELETE | `/reports/{id}` | admin (soft delete plus storage delete, logs `delete`) |
-| POST | `/referrals` | referrer |
-| GET | `/referrals`, `/referrals/{id}` | referrer (own), staff (all) |
-| PATCH | `/referrals/{id}` (`status`, `appointment_id`) | receptionist, doctor, admin |
-
-### Code map
-
-- `Services/EncryptionService` (AES-256-GCM, versioned keys), `Services/Storage/{StorageService,SupabaseStorage,LocalStorage}`, `Services/Reports/{ReportService,ReportAccessPolicy,UploadedFileValidator,ReportPresenter}`, `Controllers/{ReportController,ReferralController}`, `Models/{Report,ReportAccessLog,Referral}`, `bin/rotate-encryption.php`.
-- Frontend: `api/{reports,referrals}.ts`, `types/{report,referral}.ts`, `lib/reportFile.ts`, `features/reports/*`, `features/referrals/*`, `pages/portal/reports/*`, `pages/portal/ReferrerDashboard.tsx`. Routes: `/portal/patient/reports`, `/portal/{doctor,reception}/reports`, `/portal/{doctor,reception}/reports/new`, `/portal/{doctor,reception}/referrals`, `/portal/referrer`.
-
-### Verified (real runs, `php -S` on 8015 against Supabase with `STORAGE_DRIVER=supabase`)
-
-- Doctor uploaded a PDF for the dev patient; the object in the private bucket does not start with `%PDF`, does not contain the plaintext marker, and the public URL is refused.
-- Patient downloaded it; `cmp` shows the bytes identical; headers `Content-Type: application/pdf`, `Content-Disposition: attachment`, `X-Content-Type-Options: nosniff`, `Cache-Control: no-store`.
-- Referrer requesting an unlinked report by forged id got 404 on `GET` and `/download`; linking the appointment to the referrer's referral made it downloadable, and setting the report to draft hid it again.
-- A text file named `.pdf` got 422, PNG bytes named `.pdf` got 422, an 11 MB file got 413. Patients cannot upload (403), doctors cannot delete (403), admin delete returned 204 and the object was removed.
-- Referrer created a referral (notes stored encrypted); reception moved it to accepted and linked an appointment; the referrer cannot PATCH (403).
-- Test uploads, the test referral and the appointment link were removed afterwards.
-- PHPUnit: 251 tests, 577 assertions passing. Vitest: 61 tests in 8 files passing. `npm run build` passes.
-## Phase 7 (admin panel and reviews) - implemented
-
-- No migration was needed; the schema from 004, 005, 008 and 009 already covers everything (016 unused).
-- Admin API (all `auth` + `role:admin`, under `/api/v1/admin`, every write audited as `admin.*`): `GET /stats`, `GET /audit-log` (filters action prefix, actor_role, actor_user_id, entity_type, from, to; paged), users (`GET`, `POST` staff, `PATCH /{id}`, `POST /{id}/password-reset`), branches, scan-categories, scan-types, checklist-items, faqs (`GET`, `POST`, `PUT`/`PATCH /{id}`, `DELETE /{id}`), slots (`GET`, `PATCH /{id}` capacity and `is_blocked`, `DELETE /{id}`, `POST /generate`), settings (`GET`, `PATCH` with `{settings:{key:value}}`), `POST`/`DELETE /doctor/photo`, reviews (`GET`, `PATCH /{id}` approve, reject or reset).
-- Public: `GET /public/doctor/photo`. Patient: `POST /reviews`, `GET /reviews/mine` (own reviews plus eligible completed visits).
-- Paged lists return `{<key>: [...], pagination}` in `data` and the same object in `meta`.
-- Code: `Controllers/Admin/*`, `Controllers/ReviewController`, `Models/AdminRepository`, `AuditLogRepository`, `StatsRepository`, `ReviewRepository`, `Services/ReviewPolicy`, `Services/Admin/SettingsValidator`, `Services/Admin/ImageUploadStore`.
-- Frontend: `/portal/admin/*` (lazy, nested under `pages/admin/AdminLayout`), reusable `components/admin/DataTable`, `EntityForm`, `CrudPage`, `Modal`, `ConfirmDialog`, `Pagination`, `BarChart`, `SettingsForm`; patient page `/portal/patient/reviews`.
-- Verified against Supabase with curl on port 8017: CRUD for FAQ, branch (edit and revert, create and delete), scan type, checklist item, slot capacity, block, bulk generate and delete, settings update and revert, doctor photo upload and delete, user create, role change, deactivate and reset; stats; audit log filters; patient, doctor, reception and referrer get 403 and guests 401 on admin routes; review submit, moderation and public visibility; demo reviews hidden with `APP_ENV=production`. All test rows were removed.
-- Tests: PHPUnit 285 tests, 704 assertions; Vitest 118 tests in 8 files; `npm run build` passes.
-
-## Phase 8B (documentation and deployment configs) - implemented
-
-- Added `docs/SYLLABUS_MAPPING.md`, `docs/SECURITY.md`, `docs/ARCHITECTURE.md` (Mermaid system, ER and alert sequence diagrams) and `docs/API.md`; rewrote `README.md` (run, test, deploy, key rotation, dev logins) and reduced `MANUAL_STEPS.md` to human-only items.
-- `backend/Dockerfile`: opcache, non-root `www-data`, listens on `$PORT` (default 8080), storage outside the document root; `docker-compose.yml` maps 8000 to 8080. `services/alerts/Dockerfile`: health check added.
-- Added `render.yaml` (API and worker, secrets `sync: false`), `frontend/vercel.json`, `frontend/public/_redirects` and `_headers`.
-- Docker daemon was not running, so `docker compose build` was not executed; only static validation was possible.
-- No production admin seed exists; the README documents creating the first admin with SQL.
-## Phase 8C: security, accessibility and reception gaps
-
-- Security audit found no string-built SQL, no unsafe HTML sinks, no code comments and no tracked secrets; every route has auth and role middleware and ownership checks. Added `GET /api/v1/patients/lookup` (receptionist, admin; validated, throttled, audited) and a `patient.created_walk_in` audit entry.
-- Lighthouse (mobile, vite preview): Home 63/96/96/100, Services 69/98/96/100, Login 72/100/96/63 before; Home 93/100/100/100, Services 95/100/100/100, Login 90/100/100/100 after (performance/accessibility/best-practices/SEO).
-- Reception UI: reschedule and cancel on each reception row, and `/portal/reception/walk-in` for booking on behalf of a new or existing patient.
-- Tests: PHPUnit 369 tests, 889 assertions; Vitest 157 tests in 14 files; `npm run build` passes.
-## Phase 8A (testing) - implemented
-
-- Phase 8A: PHPUnit 431 tests (adds ContainerWiringTest, ValidationAttackMatrixTest), Vitest 146, alerts worker 17; live `backend/bin/validation-attack-check.php` 45/45; `tests/flow/full-journey.mjs` 15/15; Postman collection and environment in `postman/` run with newman (174 requests, 386 assertions, 0 failed); results in `docs/TEST_REPORT.md`. Bug fixed: missing `EncryptedNoteProtector` import in `backend/config/container.php` made flagging a report critical return 500.
-
-## Session 2026-10-12 (deploy wiring + frontend polish, uncommitted except where noted)
-
-- API/CSP de-hardcode (committed `bb5e9ed`, pushed to `origin` + `siddesh` on `docs/readme-showcase`): `connect-src` in `frontend/vercel.json` and `frontend/public/_headers` changed from the literal Render origin to `https:`; `frontend/.env.example` documents dev `/api/v1` plus a commented prod template; README deploy step updated. `npm run build` passes. `client.ts` already read `VITE_API_BASE_URL`, no code change needed there.
-- Live domain `www.meghnaddiagnostics.me` (Vercel project `meghnad-diagnostic-centre`, apex + www verified) was serving a build with zero env vars, so it called same-origin `/api/v1` and shipped `example.com` sitemap/robots. Set Vercel env `VITE_API_BASE_URL=https://diagnocare-api.onrender.com/api/v1` and `SITE_URL=https://www.meghnaddiagnostics.me` (production + preview) and redeployed latest `main`. Still needed on Render: `CORS_ALLOWED_ORIGINS` + `FRONTEND_URL` = the live domain, then restart.
-- Navbar (`site.css`): removed stray underline on Sign in; desktop header strictly one line (actions `nowrap`, tighter nav padding) so Book Appointment no longer spills past the header; logo pill geometry identical in both themes so toggling dark mode moves nothing (measured byte-identical).
-- Hero (`home.css`, `HeroCarousel.tsx`, `home.test.tsx`): quick-appointment card vertically centered in the 600 px hero (was spilling 27 px into the next section); removed the play/pause toggle, rotation always on except on hover/focus or reduced-motion; copy column fixed min-height with title (3-line) and eyebrow (2-line mobile) reserves plus bottom-pinned actions, so eyebrow/title/text/buttons sit at identical Y on all 4 slides at 390 px and 1280 px (measured).
-- Dark mode (`site.css`): header logo gets the footer-style white pill in dark mode (navy logo was unreadable); body text tokens unchanged (already light-on-dark).
-- Cookie consent (new `lib/consent.ts`, `components/consent/CookieConsent.tsx` + 4 tests, mounted in `App.tsx`, "Cookie choices" re-opener in `SiteFooter.tsx`, banner styles in `site.css`): Accept all / Essential only / Reject, versioned localStorage record, links Privacy (which already discloses the session/remember-me/theme cookies). Session review: native file sessions, strict cookies-only HttpOnly, idle 30 min + absolute 12 h (`Session.php`); remember-me opt-in rotated (`Cookie.php`, `RememberMeService.php`); only JS cookie is `theme`. No analytics cookies exist, so Accept-all changes nothing today.
-- Tests: Vitest 173/173 (`--maxWorkers=2`; parallel runs flake on OneDrive, pre-existing), home 15/15, consent 4/4, `tsc -b` clean. Playwright-verified against local Vite (`127.0.0.1:5173`).
-- Local backend: XAMPP PHP 8.2 + pgsql/zip exts serving `127.0.0.1:8000`, but `/health` 500s with `Missing required environment variable DB_PORT` — no `backend/.env` exists, Supabase creds still needed from the user.
+The immutability trigger and `RESTRICT` foreign keys stop test rows in `alert_events` and their parents from being deleted. The development runs left labelled rows: appointments with reference codes starting `DEVP6`, a referral `DEVP6-REF`, reports with storage paths under `devp6/`, two critical alerts and their events, and deactivated users named "Flow Test", "Postman Staff" and similar (emails `flow.<id>@diagnocare.test`, `staff.<id>@diagnocare.test`, `postman.<id>@diagnocare.test`). A production deployment should use a separate Supabase project seeded with `npm run seed` only.

@@ -7,6 +7,7 @@ use App\Core\Env;
 
 $paths = require dirname(__DIR__) . '/config/bootstrap.php';
 
+$devPassword = (string) Env::get('DEV_SEED_PASSWORD', '');
 $base = rtrim($argv[1] ?? 'http://localhost:8021/api/v1', '/');
 $jsonOut = in_array('--json', $argv, true);
 
@@ -207,7 +208,7 @@ $run('login', 'sqli_tautology in password', $attacks['sqli_tautology'], [401], s
 $clearThrottle();
 
 $patient = new Http($base);
-$login = $patient->login('patient@diagnocare.test', 'Patient@Dev2026!');
+$login = $patient->login('patient@diagnocare.test', $devPassword);
 if ($login['status'] !== 200) {
     fwrite(STDERR, "Could not log in as the dev patient (HTTP {$login['status']}). Is the dev seed applied?\n");
     exit(2);
@@ -279,7 +280,7 @@ foreach ($attacks as $label => $payload) {
 }
 
 $doctor = new Http($base);
-$doctor->login('doctor@diagnocare.test', 'Doctor@Dev2026!');
+$doctor->login('doctor@diagnocare.test', $devPassword);
 
 foreach ($attacks as $label => $payload) {
     $run('search', "$label in query string q (staff list)", $payload, [422], static fn () => $doctor->request('GET', '/appointments', null, null, ['q' => $payload]));
@@ -340,7 +341,7 @@ foreach ($tables as $table) {
     $tablesStillThere[$table] = (int) $query("SELECT count(*) AS n FROM information_schema.tables WHERE table_name = '$table' AND table_schema = 'public'")['n'] === 1;
 }
 $sanity = new Http($base);
-$adminLogin = $sanity->login('admin@diagnocare.test', 'Admin@Dev2026!');
+$adminLogin = $sanity->login('admin@diagnocare.test', $devPassword);
 $sqliAudit = (int) $query("SELECT count(*) AS n FROM audit_log WHERE action LIKE 'security.%_attempt' AND created_at > now() - interval '15 minutes'")['n'];
 $clearThrottle();
 

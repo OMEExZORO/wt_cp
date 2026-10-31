@@ -1,199 +1,151 @@
 ![DiagnoCare banner](assets/banner.svg)
 
-[![React 18](https://img.shields.io/badge/frontend-React%2018-1b2a5c)](frontend/)
-[![PHP 8.3](https://img.shields.io/badge/API-PHP%208.3-4b3f86)](backend/)
-[![Node 24](https://img.shields.io/badge/worker-Node%2024-0f6b66)](services/alerts/)
-[![Supabase Postgres](https://img.shields.io/badge/data-Supabase%20Postgres-24387a)](database/)
-[![Docker](https://img.shields.io/badge/delivery-Docker%20%2B%20Render-9a4d00)](render.yaml)
-[![Test report](https://img.shields.io/badge/tests-see%20report-1e6b3a)](docs/TEST_REPORT.md)
-
 # DiagnoCare
 
-> Clinic website and secure patient & staff portal for **Meghnad Diagnostic Centre (MDC)**, Pune (Bhosari, Moshi, Pimple Gurav, Moi) — in 30 seconds:
+Clinic website and secure patient and staff portal for Meghnad Diagnostic Centre (MDC), Pune. The centre has four branches: Bhosari, Moshi, Pimple Gurav and Moi.
 
-A patient books a scan online, clears a pre-scan safety checklist, and downloads an encrypted report. A critical finding **escalates by itself** until a human acknowledges it. Staff get a priority reading queue, reception gets an alert board, referrers track their patients, admins run the catalogue. One codebase, three runtimes, zero framework magic on the API.
+A patient books a scan online, answers a pre-scan safety checklist and later downloads an encrypted report. When a doctor flags a report as critical, the system keeps notifying the patient and escalates to reception until someone acknowledges it. Reception works from an alert board, doctors from a priority reading queue, referring doctors track their patients, and admins manage the catalogue and site content.
 
-## Why this architecture
-
-| Problem | Design answer |
-|---|---|
-| Hospital data must survive shared hosting and small VPS budgets | Plain PHP 8.3 MVC, no framework to outgrow; PDO prepared statements everywhere |
-| Reports are sensitive files, not rows | AES-256-GCM envelope encryption; private Supabase bucket; browser never sees storage keys |
-| A missed critical finding can harm someone | PHP raises the alert with `next_escalation_at`; the Node worker escalates on a timer until acknowledgement |
-| Cookies across Vercel + Render break silently | Same-origin dev proxy; documented `SameSite=None; Secure` + exact-origin CORS contract for prod |
-| Graders need proof, not promises | 431 PHPUnit + 173 Vitest + 17 worker tests, a 45/45 live attack check, a 15-step full journey, 386 Postman assertions — all in [`docs/TEST_REPORT.md`](docs/TEST_REPORT.md) |
+The project was built as a web technology course project (CS3111). The same API exists twice: a Node.js version that is deployed, and a PHP version that is kept as the reference for the syllabus and for parity testing. See [docs/SYLLABUS_MAPPING.md](docs/SYLLABUS_MAPPING.md) for the mapping from syllabus topics to files.
 
 ![Request flow](assets/architecture.svg)
 
-## 3-step quickstart
+## What is in the repository
 
-![Quickstart terminal](assets/terminal.svg)
-
-```bash
-npm run setup                  # 1. install everything (root, frontend, worker, composer)
-npm run migrate && npm run seed # 2. database + 56 scans, checklists, FAQs
-npm run dev                    # 3. API :8000 · app :5173 · alerts :4000
-```
-
-Open `http://localhost:5173` (same-origin cookies). Dev logins after `npm run seed:dev`: `patient@diagnocare.test` / `Patient@Dev2026!` (plus admin, doctor, receptionist, referrer — full table in the setup collapsible below).
-
-> Screenshots: drop yours into `assets/` and they'll be framed here with before/after captions — the animated diagrams above hold the fort meanwhile.
+| Folder | Contents |
+|---|---|
+| `frontend/` | React 18 and TypeScript single page app (public site and portal) |
+| `api/` | Production REST API: Node.js 22, Express 5, `pg`, 101 routes in 22 modules |
+| `backend/` | Reference REST API in plain PHP 8.3 (own router, middleware pipeline and container). Same routes, responses and database. Not deployed |
+| `services/alerts/` | Node.js worker: critical alert escalation, appointment reminders, status page, rotating audit log |
+| `database/` | 21 SQL migrations (numbered 001 to 022, 016 is unused) and seed files |
+| `postman/` | Postman collection and environment (174 requests, 386 assertions) |
+| `tests/flow/` | End-to-end script that runs the whole patient journey against a running API |
+| `docs/` | Architecture, API, security, deployment, conventions, syllabus mapping, test report |
+| `render.yaml`, `docker-compose.yml` | Render blueprint and local containers |
 
 ## Features by role
 
 | Role | What they can do |
 |---|---|
-| Public visitor | Services (USG / CT / Biopsy filters), doctor profile, branch with maps, FAQ, contact, privacy & terms |
-| Patient | Register + verify email, book / reschedule / cancel (row-locked capacity, other-branch suggestion when full), safety checklist, `.ics` + Google Calendar link, encrypted report downloads, critical-alert acknowledgement, visit reviews |
-| Receptionist | Appointment list & status changes, report upload, referral linking, red-flag alert board, phone-contact logging |
-| Doctor | Priority reading queue (Routine / Priority / Urgent + waiting time), encrypted-note uploads, flag Critical |
-| Referrer | Create referrals, track status, download own patients' reports, acknowledge critical alerts |
-| Admin | CRUD for users, branches, scans, checklist, slots, settings, FAQs, doctor profile, review moderation, audit log, stats |
+| Visitor | Browse services with modality filters, the doctor profile, branches with maps, FAQ, contact details, privacy and terms |
+| Patient | Register and verify email, book, reschedule and cancel (slot capacity is row-locked, and a full branch suggests another), answer the safety checklist, add the visit to a calendar (.ics file or Google Calendar link), download reports, acknowledge critical alerts, review a completed visit |
+| Receptionist | Appointment list and status changes, walk-in booking, report upload, referral linking, red-flag alert board, phone-contact notes |
+| Doctor | Priority reading queue (Routine, Priority, Urgent, with waiting time), report and note upload, flag a report as critical |
+| Referrer | Create referrals, follow their status, download the reports of their own patients, acknowledge critical alerts |
+| Admin | Users, branches, scan categories and types, checklist items, slots, site settings, FAQs, doctor profile and photo, review moderation, audit log, statistics |
 
-## Tech stack
+## Technology
 
-- **Frontend:** React 18, TypeScript, Vite, Redux Toolkit, React Router 6, Vitest + Testing Library
-- **API:** plain PHP 8.3 MVC (own Router, middleware pipeline, container), PDO, PHPUnit
-- **Worker:** Node.js 24, Express 5, `pg`, nodemailer
-- **Data:** Supabase PostgreSQL (RLS locked down) + private Storage bucket
-- **Delivery:** Docker; Render (API + worker); Vercel or Cloudflare Pages (frontend)
+- Frontend: React 18, TypeScript, Vite, Redux Toolkit, React Router 6, Vitest and Testing Library
+- API: Node.js 22, Express 5 as the HTTP server, with the router, middleware pipeline, session store, CSRF check, validator and dependency container written in `api/src`. Argon2id for passwords, `busboy` for uploads, nodemailer for email
+- Worker: Node.js, Express 5, `pg`, nodemailer
+- Data: Supabase PostgreSQL (row level security on, no public grants) and a private Storage bucket for report files
+- Hosting: Vercel (frontend), Render with Docker (API and worker), GitHub Actions (CI and the scheduled alert job)
 
-```
-frontend/          React app (public site and portal)
-backend/           PHP REST API (Core, Controllers, Models, Middleware, Services, Validation)
-services/alerts/   Node worker: escalation, reminders, status page, rotating audit log
-database/          SQL migrations and seeds
-docs/              Architecture, API, security, syllabus mapping, conventions, test report
-postman/           Postman collection
-render.yaml        Render blueprint for API + worker
-docker-compose.yml Local containers
-```
+## Run it locally
 
-<details>
-<summary><strong>Full local setup (env, secrets, seeds)</strong></summary>
-
-### Documentation
-
-- `docs/ARCHITECTURE.md` diagrams, request lifecycle, data model, alert flow
-- `docs/DEPLOYMENT.md` production setup on Vercel, Render and GitHub Actions
-- `docs/API.md` every endpoint with roles and HTTP method rationale
-- `docs/SECURITY.md` each control and the file that implements it
-- `docs/SYLLABUS_MAPPING.md` syllabus and checklist items mapped to files
-- `docs/TEST_REPORT.md` test cases with real results
-- `docs/CONVENTIONS.md` coding conventions and the schema notes
-- `DECISIONS.md` design decisions, `PROGRESS.md` phase log, `MANUAL_STEPS.md` items that need a human
-
-### Prerequisites
-
-- PHP 8.3 with `pdo_pgsql`, `openssl`, `mbstring`, `fileinfo`, `curl`
-- Composer 2
-- Node.js 20 or newer (24 used in development) and npm
-- A Supabase project (Postgres and Storage), or the optional local Postgres from Docker
-- Docker Desktop (optional)
-
-### Configure
+Requirements: Node.js 22 or newer, and a PostgreSQL database (a Supabase project, or the Postgres container in `docker-compose.yml` started with `--profile localdb`). PHP 8.3 and Composer are needed only for the migration and seed scripts and for the PHP reference API.
 
 ```bash
-cp .env.example .env
+cp .env.example .env            # fill in the database settings and the secrets below
+npm run setup                   # installs root, api, frontend and alerts dependencies
+npm run setup:php               # composer install, needed by migrate and seed
+npm run migrate                 # applies database/migrations in order
+npm run seed                    # base data: branches, 56 scans, checklists, FAQs, settings
+npm run dev                     # API :8000, app :5173, alerts :4000
 ```
 
-Fill in `.env` (database, Supabase, SMTP for real mail). Generate three distinct secrets for `APP_KEY`, `ENCRYPTION_KEY`, `CSRF_SECRET`:
+Open `http://localhost:5173`. The Vite dev server proxies `/api` to the API, so cookies stay same-origin.
+
+Generate `ENCRYPTION_KEY` and `CSRF_SECRET` (two different values; `APP_KEY` is also listed in `.env.example` and is used by the PHP version) with:
 
 ```bash
-php -r "echo 'base64:' . base64_encode(random_bytes(32)), PHP_EOL;"
+node -e "console.log('base64:' + require('crypto').randomBytes(32).toString('base64'))"
 ```
 
-Worker token: `php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"` → `ALERTS_SERVICE_TOKEN`.
+For `ALERTS_SERVICE_TOKEN` use `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
+
+The migration and seed commands (`migrate`, `migrate:status`, `seed`, `seed:dev`, `seed:demo`, `seed:purge-demo`, `db:counts`, `storage:setup`) are implemented by the PHP scripts in `backend/bin/`. The Node API has no migration runner of its own; both APIs use the same schema.
+
+### Development accounts
+
+`npm run seed:dev` creates one account per role (`admin@`, `doctor@`, `reception@`, `patient@` and `referrer@diagnocare.test`) and 30 days of appointment slots. All five share the password you put in `DEV_SEED_PASSWORD` in `.env` (at least 10 characters). The script stops if `DEV_SEED_PASSWORD` is empty or if `APP_ENV=production`. `npm run seed:demo` adds four reviews labelled "Demo data" and `npm run seed:purge-demo` removes them.
+
+### Email in development
+
+With `MAIL_DRIVER=log` (the default) verification and reset links are written to `api/storage/logs/mail.log`. Set `MAIL_DRIVER=smtp` and the `SMTP_*` variables to send real mail.
+
+### Running the PHP reference API
 
 ```bash
-npm run setup          # npm install (root, frontend, alerts) + composer install
-npm run migrate        # apply database/migrations in order (migrate:status to inspect)
-npm run seed           # production-safe base data
-npm run seed:dev       # dev only: one user per role + two weeks of slots
-npm run seed:demo      # dev only: reviews labelled "Demo data"
-npm run storage:setup  # create the private reports bucket if missing
-npm run db:counts      # row count per table
+npm run dev:api:php             # php -S localhost:8000 -t backend/public
+npm run test:api:php            # PHPUnit
 ```
 
-`seed:dev` / `seed:demo` refuse to run with `APP_ENV=production`. Purge demo reviews: `npm run seed:purge-demo`.
+Stop the Node API first, since both use port 8000. The PHP API keeps sessions in files and the Node API keeps them in the `http_sessions` table, so a session cookie from one is not valid on the other.
 
-Without Docker, in separate terminals:
+## Tests
+
+| Suite | Command | Result at handover |
+|---|---|---|
+| Node API (`node:test`) | `npm run test:api` | 330 tests in 54 suites, all passing, no database needed |
+| Frontend (Vitest) | `npm run test:web` | 161 tests in 16 files, all passing |
+| Alerts worker | `npm run test:alerts` | 17 tests, all passing |
+| PHP reference (PHPUnit) | `npm run test:api:php` | 441 tests, 1008 assertions, no failures |
+| Postman collection | newman, see the test report | 174 requests, 386 assertions, 0 failed against both APIs |
+| Full journey | `node tests/flow/full-journey.mjs` | 15 of 15 steps (needs `DEV_SEED_PASSWORD`) |
+
+`npm test` runs the Node API, frontend and worker suites. `npm run build` type-checks and builds the frontend. [docs/TEST_REPORT.md](docs/TEST_REPORT.md) lists the cases and results, including the 45-case hostile input check and the Node and PHP comparison.
+
+## Deployment
+
+The live setup is the frontend on Vercel at `meghnaddiagnostics.me` with a rewrite of `/api/*` to the Node API on Render, and the database and report bucket on Supabase. [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) has the steps, the environment variables and the keep-alive schedule.
+
+`render.yaml` builds the API from `api/Dockerfile` (Node 22) and the worker from `services/alerts/Dockerfile`. Secrets are marked `sync: false` and are entered in the Render dashboard.
+
+To create the first admin account on a fresh database, generate an Argon2id hash with the Node API's own dependency and insert the user in the Supabase SQL editor:
 
 ```bash
-php -S localhost:8000 -t backend/public     # API
-npm run dev --prefix frontend               # React app, Vite proxies /api to :8000
-npm run dev --prefix services/alerts        # worker
+node -e "require('./api/node_modules/argon2').hash('CHOOSE-A-STRONG-PASSWORD',{type:2}).then(console.log)"
 ```
-
-With `MAIL_DRIVER=log`, verification/reset links land in `backend/storage/logs/mail.log`; set `MAIL_DRIVER=smtp` + `SMTP_*` for real mail.
-
-The five dev accounts (one per role) are defined in `database/seeds/seed_dev.php` and created by `php backend/bin/seed.php dev`. Use them on a development database only, never on production.
-
-</details>
-
-<details>
-<summary><strong>Deploy (Supabase → Render → Vercel/Pages)</strong></summary>
-
-Production layout: frontend on Vercel or Cloudflare Pages; API + worker on Render (Docker); database + bucket on Supabase.
-
-The live production setup (same-origin Vercel rewrite, Render free plan, scheduled jobs, SMTP switch) is described in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). The sections below are the generic guide.
-
-### 1. Supabase
-
-1. Create a project and note the connection details, `SUPABASE_URL` and the service key.
-2. Run the migrations and the base seed against it from your machine with production values in `.env`: `npm run migrate`, `npm run seed`, `npm run storage:setup`. Do not run `seed:dev` or `seed:demo`.
-3. Create the first admin account. Generate a hash with `php -r "echo password_hash('CHOOSE-A-STRONG-PASSWORD', PASSWORD_ARGON2ID), PHP_EOL;"`, then run in the Supabase SQL editor:
 
 ```sql
 INSERT INTO users (email, password_hash, role, full_name, email_verified_at, password_changed_at)
-VALUES ('admin@your-domain.example', '<argon2id-hash>', 'admin', 'Clinic Admin', now(), now());
+VALUES ('admin@your-domain.example', '<hash>', 'admin', 'Clinic Admin', now(), now());
 ```
 
-Generate the hash: `php -r "echo password_hash('CHOOSE-A-STRONG-PASSWORD', PASSWORD_ARGON2ID), PHP_EOL;"`. Sign in, change the password, create staff from the admin panel.
+Sign in, change the password and create the other staff accounts from the admin panel. Do not run `seed:dev` or `seed:demo` on a production database.
 
-**2. Render** — New → Blueprint from this repo (`render.yaml`: `diagnocare-api` + `diagnocare-alerts`, health checks `/api/v1/health` and `/health`). Fill every `sync: false` variable: `APP_URL`, `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS` (exact origins, no trailing slash), `APP_KEY`, `ENCRYPTION_KEY`, `CSRF_SECRET`, DB values, Supabase keys, `SMTP_*`, `MAIL_FROM`, worker `ALERTS_SERVICE_TOKEN`. Keep `ALERT_ESCALATION_MINUTES` identical on both services. Single API instance; attach a disk at `/var/www/backend/storage` if sessions/uploads must survive restarts (see `DECISIONS.md`).
+## Encryption keys
 
-**3. Frontend** — `VITE_API_BASE_URL=https://<api>/api/v1`, `SITE_URL=<live domain>`. Vercel: root `frontend` (`vercel.json` handles rewrite + headers). Cloudflare Pages: root `frontend`, build `npm run build`, output `dist`.
+Report files, report notes, impressions and referral notes are encrypted with AES-256-GCM (`api/src/services/encryption.js`, and `backend/src/Services/EncryptionService.php` in the PHP version) with a new 12 byte IV for every value. Text values are stored as `dc:v<version>:<iv>:<tag>:<ciphertext>`. `STORAGE_DRIVER=supabase` writes the encrypted bytes to the private bucket and `local` writes them to `api/storage/reports`.
 
-Cookie/CORS contract: cross-site needs `SameSite=None; Secure` over HTTPS both sides; `CORS_ALLOWED_ORIGINS` exact origins (no wildcards — cookies are sent); `TRUST_PROXY=true` only behind a trusted proxy; `APP_ENV=production` + `APP_DEBUG=false` for generic errors and HSTS.
+To rotate the key, generate a new `ENCRYPTION_KEY`, move the old one into `ENCRYPTION_KEYS_PREVIOUS` as `1=base64:OLD`, raise `ENCRYPTION_KEY_VERSION`, then run `php backend/bin/rotate-encryption.php` to preview and `--apply` to re-encrypt. Remove the old key once nothing refers to it. If an encryption key is lost, the data encrypted with it cannot be recovered. Keep keys in the host's secret store and never in git.
 
-</details>
+## Scope and known limits
 
-<details>
-<summary><strong>Encryption keys & rotation</strong></summary>
+- There are no online payments. Fees are not published.
+- SMS is a stub that records an `sms_stub` event. Email is the working notification channel, and it writes to a log file until SMTP credentials are set.
+- The in-app critical alert banner is polled every 60 seconds. There is no push channel.
+- In production the escalation and reminder jobs run from GitHub Actions every 30 minutes, so an escalation step can be up to 30 minutes later than its due time. The always-on worker in `render.yaml` checks every 60 seconds if it is kept running.
+- The Render free plan puts the API to sleep after 15 idle minutes. The GitHub workflow pings it to keep it awake, and a cold start can take up to a minute.
+- The Privacy and Terms pages were written by the team and have not been reviewed by a lawyer.
+- The WhatsApp number and contact email are not shown on the site because the centre has not supplied them.
+- Schema changes are applied with the PHP runner (`npm run migrate`).
 
-Reports, notes, impressions, referral notes: AES-256-GCM (`backend/src/Services/EncryptionService.php`), fresh 12-byte IV per value, envelope `dc:v<version>:<iv>:<tag>:<ciphertext>`. `STORAGE_DRIVER=supabase` (private bucket) or `local` (`backend/storage/reports`, git-ignored).
+## Documentation
 
-Rotate: new key → old into `ENCRYPTION_KEYS_PREVIOUS` (`1=base64:OLD`), bump `ENCRYPTION_KEY_VERSION` → preview `php backend/bin/rotate-encryption.php` → `--apply` → drop the old key when nothing references it. `CSRF_SECRET` rotates by replace + redeploy (browsers refetch automatically). Lose an encryption key = lose its data; keep keys in the host secret store, never in git.
-
-</details>
-
-<details>
-<summary><strong>Test evidence (all runs real, see <code>docs/TEST_REPORT.md</code>)</strong></summary>
-
-| Suite | Result |
+| File | Contents |
 |---|---|
-| PHPUnit | 431 tests, 976 assertions, 0 failures |
-| Vitest | 173 tests, 0 failures (was 146 at report time; UI/session fixes added coverage) |
-| Alerts worker | 17/17 |
-| Live attack check (SQLi/XSS/upload abuse, 45 cases) | 45/45, tables intact |
-| Full-journey flow (register → book → checklist → report → alerts) | 15/15 steps, 260 s |
-| Postman/newman | 174 requests, 386 assertions, 0 failed |
-
-```bash
-npm test               # PHPUnit + Vitest
-npm test --prefix services/alerts   # node --test
-npm run build          # type-check + production frontend build
-```
-
-</details>
-
-## Docs
-
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — diagrams, request lifecycle, data model, alert flow
-- [`docs/API.md`](docs/API.md) — every endpoint with roles + method rationale
-- [`docs/SECURITY.md`](docs/SECURITY.md) — each control mapped to its file
-- [`docs/SYLLABUS_MAPPING.md`](docs/SYLLABUS_MAPPING.md) — CS3111 checklist → files
-- [`docs/TEST_REPORT.md`](docs/TEST_REPORT.md) — cases with real results
-- [`docs/CONVENTIONS.md`](docs/CONVENTIONS.md) — conventions + schema notes
-- [`DECISIONS.md`](DECISIONS.md) design log · [`PROGRESS.md`](PROGRESS.md) phase log · [`MANUAL_STEPS.md`](MANUAL_STEPS.md) human-needed items · [`CREDITS.md`](CREDITS.md) credits
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System diagram, request lifecycle, data model, alert flow |
+| [docs/API.md](docs/API.md) | Every endpoint with roles and the reason for each HTTP method |
+| [docs/SECURITY.md](docs/SECURITY.md) | Each control and the file that implements it |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Render, Vercel, Supabase and GitHub Actions setup |
+| [docs/SYLLABUS_MAPPING.md](docs/SYLLABUS_MAPPING.md) | Syllabus and instructor checklist items mapped to files |
+| [docs/CONVENTIONS.md](docs/CONVENTIONS.md) | Code layout, schema notes, how to add an endpoint, page or migration |
+| [docs/TEST_REPORT.md](docs/TEST_REPORT.md) | Test cases with results |
+| [DECISIONS.md](DECISIONS.md) | Design decisions and the reasons for them |
+| [PROGRESS.md](PROGRESS.md) | What was built and how it was verified |
+| [MANUAL_STEPS.md](MANUAL_STEPS.md) | Items that need the centre or the hosting accounts |
+| [CREDITS.md](CREDITS.md) | Credits |

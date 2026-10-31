@@ -3,12 +3,23 @@ name: diagnocare
 services:
   api:
     build:
-      context: ./backend
+      context: ./api
     env_file: .env
     environment:
+      PORT: "8080"
       APP_URL: http://localhost:8000
     ports:
       - "8000:8080"
+
+  api-php:
+    profiles: ["php"]
+    build:
+      context: ./backend
+    env_file: .env
+    environment:
+      APP_URL: http://localhost:8001
+    ports:
+      - "8001:8080"
     volumes:
       - ./backend:/var/www/backend
       - ./database:/var/www/database
@@ -18,6 +29,7 @@ services:
         condition: service_completed_successfully
 
   api-deps:
+    profiles: ["php"]
     image: composer:2
     working_dir: /app
     command: composer install --no-interaction --no-progress --ignore-platform-reqs

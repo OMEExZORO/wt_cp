@@ -10,6 +10,22 @@ permissions:
   contents: read
 
 jobs:
+  api-node:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+      - run: npm ci
+      - run: npm test
+
   api:
     runs-on: ubuntu-latest
     timeout-minutes: 10

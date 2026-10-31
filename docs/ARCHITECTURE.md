@@ -1,6 +1,6 @@
 # Architecture
 
-DiagnoCare has three runtime parts and one database: a React single page app, a plain PHP REST API, a Node.js worker for time-based jobs, and Supabase (PostgreSQL plus private object storage).
+DiagnoCare has three runtime parts and one database: a React single page app, a Node.js REST API, a Node.js worker for time-based jobs, and Supabase (PostgreSQL plus private object storage). A second implementation of the REST API in plain PHP lives in `backend/`. It serves the same routes against the same schema, is used for the syllabus Unit I material and for side-by-side testing, and is not deployed.
 
 ## System overview
 
@@ -10,11 +10,11 @@ flowchart LR
     subgraph Static["Static hosting (Vercel or Cloudflare Pages)"]
         Spa["dist/ + SPA rewrite + security headers"]
     end
-    subgraph Api["PHP 8.3 API (Apache, Docker, Render)"]
+    subgraph Api["Node.js 22 API (Express 5, Docker, Render)"]
         Mw["Middleware pipeline<br/>CORS, headers, session, CSRF, auth, RBAC, throttle"]
-        Ctl["Controllers"]
+        Ctl["Module controllers"]
         Svc["Services<br/>booking, reports, alerts, auth, encryption, mail"]
-        Mdl["Models (PDO prepared statements)"]
+        Mdl["Models (parameterised pg queries)"]
         Mw --> Ctl --> Svc --> Mdl
     end
     subgraph Worker["Node.js alerts worker (Express, Render)"]
@@ -41,22 +41,30 @@ flowchart LR
 
 Key points:
 
-- The browser only ever talks to the static host and the PHP API. It never receives Supabase keys.
-- Only the PHP API and the worker connect to the database, with the `diagnocare_app` role. Row Level Security with no policies blocks every other path.
-- Report files are encrypted by PHP (AES-256-GCM) before they reach Storage.
-- PHP creates a critical alert and sets `next_escalation_at`; the worker watches the table and escalates. They share `ALERT_ESCALATION_MINUTES`.
+- The browser only ever talks to the static host and the API. It never receives Supabase keys.
+- Only the API and the worker connect to the database, with the `diagnocare_app` role. Row level security with no policies blocks every other path.
+- Report files are encrypted by the API (AES-256-GCM) before they reach Storage.
+- The API creates a critical alert and sets `next_escalation_at`. The worker's jobs find due alerts and escalate them. Both read `ALERT_ESCALATION_MINUTES`.
+- In production the worker's jobs are run once every 30 minutes by a GitHub Actions workflow (`npm run jobs:once`). The same code runs as a long-lived service with a 60 second timer when `diagnocare-alerts` is kept running.
 
 ## Layers in the API
 
+Express 5 is only the HTTP server in `api/src/app.js`. It reads the raw body and hands each request to the application's own kernel, so routing, middleware, sessions, CSRF and validation are visible code in `api/src`.
+
 | Layer | Directory | Role |
 |---|---|---|
-| Front controller | `backend/public/index.php` | Loads config, registers the error handler, runs the kernel |
-| Core | `backend/src/Core` | Router, Kernel, middleware Pipeline, Container, Session, Cookie, Csrf, Database |
-| Middleware | `backend/src/Middleware` | Cross-cutting rules applied before controllers |
-| Controllers | `backend/src/Controllers` | Parse input, call services, return `Response` |
-| Services | `backend/src/Services` | Business rules (booking transaction, report storage, alert workflow) |
-| Models | `backend/src/Models` | One class per table family; all SQL lives here |
-| Validation | `backend/src/Validation` | `Validator`, `Sanitizer`, `RequestValidator` |
+| Entry | `api/src/server.js`, `app.js` | Loads the environment, builds the app, listens, shuts down cleanly |
+| Container | `api/src/container.js` | Creates models, services, mailer, limiter and validator once and passes them to modules (dependency injection by construction) |
+| Core | `api/src/core` | Router, kernel, middleware pipeline, request and response objects, session, cookies, CSRF, error classes and handler, config, database |
+| Middleware | `api/src/middleware` | CORS, security headers, error handling, route matching, session start, authentication, CSRF, then per-route `auth`, `role`, `verified`, `throttle` |
+| Modules | `api/src/modules/<name>` | 22 modules. Each has `index.js` listing its routes and a controller that parses input, calls services and returns a response |
+| Services | `api/src/services` | Business rules: booking transaction, report storage, alert workflow, auth, encryption, mail |
+| Models | `api/src/models` | One class per table family. All SQL lives here |
+| Validation | `api/src/validation` | `validator.js`, `sanitizer.js`, `request-validator.js` |
+
+`api/src/routes.js` lists the modules and builds the full route table under `/api/v1`: 101 routes.
+
+The PHP version has the same layers: `backend/public/index.php` (front controller), `backend/src/Core`, `Middleware`, `Controllers`, `Services`, `Models`, `Validation`, with the container wired in `backend/config/container.php` and the routes in `backend/routes/api.php`.
 
 ## Request lifecycle
 
@@ -64,25 +72,25 @@ Key points:
 sequenceDiagram
     autonumber
     participant B as Browser
-    participant P as public/index.php
+    participant P as Express (app.js)
     participant K as Kernel + Pipeline
     participant C as Controller
     participant S as Service
-    participant M as Model (PDO)
+    participant M as Model (pg)
     participant D as PostgreSQL
 
     B->>P: POST /api/v1/appointments (cookie, X-CSRF-Token, JSON)
-    P->>K: Request::fromGlobals
-    K->>K: ErrorHandler wraps everything (JSON errors)
-    K->>K: CORS (allowlist, preflight)
-    K->>K: MatchRoute (404 or 405 before any session)
-    K->>K: SecurityHeaders
-    K->>K: StartSession (idle and absolute timeout)
-    K->>K: Csrf (unsafe methods only)
-    K->>K: RequireAuth, Role, Verified, RateLimit
-    K->>C: AppointmentController::store
-    C->>C: RequestValidator (Validator + Sanitizer, threats audited)
-    C->>S: BookingService::book
+    P->>K: ApiRequest.fromNode
+    K->>K: cors (allowlist, preflight)
+    K->>K: securityHeaders
+    K->>K: handleErrors (JSON errors)
+    K->>K: matchRoute (404 or 405 before any session)
+    K->>K: startSession (idle and absolute timeout)
+    K->>K: authenticate, csrf (unsafe methods only)
+    K->>K: auth, role, verified, throttle
+    K->>C: appointments.controller store
+    C->>C: RequestValidator (validator + sanitizer, threats audited)
+    C->>S: BookingService.book
     S->>M: transaction, SELECT slot FOR UPDATE
     M->>D: prepared statements
     D-->>M: rows
@@ -198,7 +206,7 @@ Rules enforced in the schema (`database/migrations/`):
 - `alert_events` cannot be updated, deleted or truncated (triggers in `007_alerts.sql`).
 - Every table has Row Level Security enabled and no policies; `anon` and `authenticated` have no grants (`010_lock_down_public_roles.sql`).
 - One review per appointment (`reviews.appointment_id` unique).
-- Other tables not drawn: `branches`, `faqs`, `site_settings`, `login_attempts`, `rate_limits`, `audit_log`, `schema_migrations`.
+- Other tables not drawn: `branches`, `faqs`, `site_settings`, `login_attempts`, `rate_limits`, `audit_log`, `http_sessions` (Node API sessions) and `schema_migrations`. In total there are 25 application tables plus `schema_migrations`.
 
 ## Critical alert flow
 
@@ -206,9 +214,9 @@ Rules enforced in the schema (`database/migrations/`):
 sequenceDiagram
     autonumber
     participant Dr as Doctor (SPA)
-    participant API as PHP API
+    participant API as API (Node.js)
     participant DB as PostgreSQL
-    participant W as Node worker
+    participant W as Alerts jobs
     participant Mail as SMTP
     participant Pt as Patient / Referrer
     participant Rx as Reception
@@ -236,7 +244,7 @@ sequenceDiagram
     end
 ```
 
-Every state change is a row in `alert_events`, so the full timeline can be shown to staff via `GET /alerts/{id}/events`. SMS exists as a documented stub (`backend/src/Services/Alerts/SmsGateway.php`, `services/alerts/src/channels/smsChannel.js`).
+Every state change is a row in `alert_events`, so the full timeline can be shown to staff via `GET /alerts/{id}/events`. SMS is a stub (`api/src/services/alerts/alert-service.js`, `services/alerts/src/channels/smsChannel.js`) that records an `sms_stub` event.
 
 ## Frontend structure
 
@@ -249,9 +257,9 @@ Every state change is a row in `alert_events`, so the full timeline can be shown
 
 | Part | Host | Config |
 |---|---|---|
-| SPA | Vercel or Cloudflare Pages | `frontend/vercel.json`, `frontend/public/_redirects`, `frontend/public/_headers` |
-| API | Render web service (Docker) | `backend/Dockerfile`, `render.yaml` |
-| Worker | Render web service (Docker) | `services/alerts/Dockerfile`, `render.yaml` |
+| SPA | Vercel (or Cloudflare Pages) | `frontend/vercel.json`, `frontend/public/_redirects`, `frontend/public/_headers` |
+| API | Render web service (Docker, Node 22) | `api/Dockerfile`, `render.yaml` |
+| Alert jobs | GitHub Actions every 30 minutes; optional Render service | `.github/workflows/keepalive-and-jobs.yml`, `services/alerts/Dockerfile`, `render.yaml` |
 | Database and bucket | Supabase | `database/migrations`, `backend/bin/storage-setup.php` |
 
-In production the SPA and API are on different sites, so the session cookie is `SameSite=None; Secure` and the API allows only the SPA origin through `CORS_ALLOWED_ORIGINS`. Details in the Deploy section of `README.md`.
+The Vercel project rewrites `/api/*` to the Render API, so the browser sees one origin and the session cookie is first-party (`SameSite=Lax; Secure`). If the SPA and API were on different sites, the cookie would need `SameSite=None; Secure` and `CORS_ALLOWED_ORIGINS` would have to list the SPA origin. See `docs/DEPLOYMENT.md`.

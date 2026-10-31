@@ -2,13 +2,24 @@
 
 declare(strict_types=1);
 
+use App\Core\Env;
+
 return static function (PDO $pdo): array {
+    if (Env::get('APP_ENV', 'production') === 'production') {
+        throw new RuntimeException('The dev seed is disabled when APP_ENV=production.');
+    }
+
+    $devPassword = (string) Env::get('DEV_SEED_PASSWORD', '');
+    if (strlen($devPassword) < 10) {
+        throw new RuntimeException('Set DEV_SEED_PASSWORD (at least 10 characters) before running the dev seed.');
+    }
+
     $users = [
-        ['email' => 'admin@diagnocare.test', 'password' => 'Admin@Dev2026!', 'role' => 'admin', 'name' => 'Dev Admin', 'phone' => '9000000001'],
-        ['email' => 'doctor@diagnocare.test', 'password' => 'Doctor@Dev2026!', 'role' => 'doctor', 'name' => 'Dev Doctor', 'phone' => '9000000002'],
-        ['email' => 'reception@diagnocare.test', 'password' => 'Reception@Dev2026!', 'role' => 'receptionist', 'name' => 'Dev Receptionist', 'phone' => '9000000003'],
-        ['email' => 'patient@diagnocare.test', 'password' => 'Patient@Dev2026!', 'role' => 'patient', 'name' => 'Dev Patient', 'phone' => '9000000004'],
-        ['email' => 'referrer@diagnocare.test', 'password' => 'Referrer@Dev2026!', 'role' => 'referrer', 'name' => 'Dev Referrer', 'phone' => '9000000005'],
+        ['email' => 'admin@diagnocare.test', 'role' => 'admin', 'name' => 'Dev Admin', 'phone' => '9000000001'],
+        ['email' => 'doctor@diagnocare.test', 'role' => 'doctor', 'name' => 'Dev Doctor', 'phone' => '9000000002'],
+        ['email' => 'reception@diagnocare.test', 'role' => 'receptionist', 'name' => 'Dev Receptionist', 'phone' => '9000000003'],
+        ['email' => 'patient@diagnocare.test', 'role' => 'patient', 'name' => 'Dev Patient', 'phone' => '9000000004'],
+        ['email' => 'referrer@diagnocare.test', 'role' => 'referrer', 'name' => 'Dev Referrer', 'phone' => '9000000005'],
     ];
 
     $upsertUser = $pdo->prepare(
@@ -29,7 +40,7 @@ return static function (PDO $pdo): array {
     foreach ($users as $user) {
         $upsertUser->execute([
             'email' => $user['email'],
-            'password_hash' => password_hash($user['password'], PASSWORD_ARGON2ID),
+            'password_hash' => password_hash($devPassword, PASSWORD_ARGON2ID),
             'role' => $user['role'],
             'full_name' => $user['name'],
             'phone' => $user['phone'],

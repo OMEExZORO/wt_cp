@@ -16,7 +16,7 @@
   </g>
   <g>
     <rect x="370" y="70" width="180" height="76" rx="12" fill="#1b2243" stroke="#f28c28" stroke-width="2"/>
-    <text x="460" y="102" text-anchor="middle" font-size="16" font-weight="600" fill="#ffffff" class="node">PHP 8.3 API</text>
+    <text x="460" y="102" text-anchor="middle" font-size="16" font-weight="600" fill="#ffffff" class="node">Node.js 22 API</text>
     <text x="460" y="126" text-anchor="middle" font-size="13" fill="#b7bccb" class="node">CORS · session · CSRF · RBAC</text>
   </g>
   <g>
